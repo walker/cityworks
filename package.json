@@ -32,7 +32,7 @@
   "bugs": {
     "url": "https://github.com/walker/cityworks/issues"
   },
-  "homepage": "https://github.com/walker/cityworks#readme",
+  "homepage": "https://walker.github.io/cityworks/",
   "devDependencies": {
     "chai": "*",
     "dotenv": "^10.0.0",
