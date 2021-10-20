@@ -1,5 +1,5 @@
 {
-  "name": "cw",
+  "name": "cityworks",
   "version": "0.0.1",
   "description": "Cityworks API wrapper",
   "main": "dist/index.js",
