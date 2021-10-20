@@ -19,7 +19,7 @@ Authenticate with the Cityworks install:
       });
 
 
-Get the currently valid toke in order to store it in a session or cookie:
+Get the currently valid token in order to store it in a session or cookie:
 
       cityworks.getToken();
 
