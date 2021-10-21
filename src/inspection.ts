@@ -20,9 +20,9 @@ export class Inspection {
    * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on your Cityworks instance
    * @return {Object} Returns object that represents an object describing the newly-created inspection
    */
-  create(insp_data: Object) {
+  create(insp_data: object) {
     return new Promise((resolve, reject) => {
-      if(typeof(insp_data.EntityType)=='undefined' || typeof(insp_data.InspTemplateId)=='undefined') {
+      if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId')) {
         reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}));
       } else {
         this.cw.runRequest('Ams/Inspection/Create', insp_data).then(r => {
@@ -43,7 +43,7 @@ export class Inspection {
   update(insp_data: Object) {
     return new Promise((resolve, reject) => {
       return new Promise((resolve, reject) => {
-        if(typeof(insp_data.InspectionId)=='undefined') {
+        if(!_.has(insp_data, 'InspectionId')) {
           reject(new CWError(1, 'InspectionId must be provided.', {'provided': insp_data}));
         } else {
           this.cw.runRequest('Ams/Inspection/Update', insp_data).then(r => {
@@ -76,17 +76,81 @@ export class Inspection {
   }
 
   /**
-   * Get inspections by a list of ids
+   * Cancel inspections
    *
-   * @param {Array<number>} inspectionIds - An array of the IDs to retrieve the matched inspections
-   * @return {Object} Returns object that represents an object describing the inspection
+   * @param {Array<number>} inspectionIds - An array of the IDs to cancel the matched inspections
+   * @param {string} [cancelReason] - A reason for cancelling the inspection(s)
+   * @param {datetime} [dateCancelled] - The date/time that it should be indicated the inspection was cancelled
+   * @return {Object} Returns object that represents a collection of inspections
    */
-  getByIds(inspectionIds: Array<number>) {
+   cancel(inspectionIds: Array<number>, cancelReason?: string, dateCancelled?: Date) {
+     return new Promise((resolve, reject) => {
+       var m = new Date();
+       var data: {InspectionIds: Array<number>, CancelReason?: string, DateCancelled?: Date} = { InspectionIds: inspectionIds };
+       if(typeof(cancelReason)!=='undefined') {
+         data.CancelReason = cancelReason;
+       }
+       if(typeof(dateCancelled)!=='undefined') {
+         data.DateCancelled = dateCancelled;
+       }
+       this.cw.runRequest('Ams/Inspection/Cancel', data).then(r => {
+         resolve(r.Value);
+       }).catch(e => {
+         reject(e);
+       });
+     });
+   }
+
+   /**
+    * Close inspections
+    *
+    * @param {Array<number>} inspectionIds - An array of the IDs to close the matched inspections
+    * @return {Object} Returns object that represents a collection of inspections
+    */
+    close(inspectionIds: Array<number>) {
+      return new Promise((resolve, reject) => {
+        var data = {
+          InspectionIds: inspectionIds
+        };
+        this.cw.runRequest('Ams/Inspection/Close', data).then(r => {
+          resolve(r.Value);
+        }).catch(e => {
+          reject(e);
+        });
+      });
+    }
+
+  /**
+   * Delete inspections
+   *
+   * @param {Array<number>} inspectionIds - An array of the IDs to delete the matched inspections
+   * @return {Object} Returns object that represents a collection of inspection Ids which have been deleted
+   */
+   delete(inspectionIds: Array<number>) {
+     return new Promise((resolve, reject) => {
+       var data = {
+         InspectionIds: inspectionIds
+       };
+       this.cw.runRequest('Ams/Inspection/Delete', data).then(r => {
+         resolve(r.Value);
+       }).catch(e => {
+         reject(e);
+       });
+     });
+   }
+
+ /**
+  * Reopen inspections
+  *
+  * @param {Array<number>} inspectionIds - An array of the IDs to reopen the matched inspections
+  * @return {Object} Returns object that represents a collection of inspection Ids which have been deleted
+  */
+  reopen(inspectionIds: Array<number>) {
     return new Promise((resolve, reject) => {
       var data = {
         InspectionIds: inspectionIds
-      }
-      this.cw.runRequest('Ams/Inspection/ByIds', data).then(r => {
+      };
+      this.cw.runRequest('Ams/Inspection/Reopen', data).then(r => {
         resolve(r.Value);
       }).catch(e => {
         reject(e);
@@ -125,6 +189,144 @@ export class Inspection {
       });
     });
   }
+
+  /**
+   * Get inspection submit to list
+   *
+   * @param {boolean} [includeInactiveEmployees] - whether to include inactive employees in the return. Defaults to false.
+   * @param {boolean} [domainIds] - which domains to include in the return, default to All domains
+   * @return {Object} Returns object that represents a collection of all possible employees for an Inspection's SubmitTo
+   */
+  submitTos(includeInactiveEmployees: boolean = false, domainIds?: Array<number>) {
+    return new Promise((resolve, reject) => {
+      var data: {IncludeInactiveEmployees?: boolean, DomainIds?: Array<number>} = {};
+      if(includeInactiveEmployees) {
+        data.IncludeInactiveEmployees = true;
+      }
+      if(typeof(domainIds)!=='undefined') {
+        data.DomainIds = domainIds;
+      }
+      this.cw.runRequest('Ams/Inspection/SubmitTos', data).then(r => {
+        resolve(r.Value);
+      }).catch(e => {
+        reject(e);
+      });
+    });
+  }
+
+  /////
+  // INSPECTION TEMPLATES
+  /////
+
+  /**
+   * Get inspection templates
+   *
+   * @param {Array<string>} [entityTypes] - The Entity Type(s) to return potential inspections for
+   * @param {boolean} [canCreate] - If true, only return templates the user can create, ignored if false or null, default is true
+   * @param {Object} [options] - An object which can include: [IncludeInactive]: boolean, MaximumDateModified: Date, MinimumDateModified: Date, TemplateIds: Array<number>
+   * @return {Object} Returns object that represents a collection of all possible employees for an Inspection's SubmitTo
+   */
+  getTemplates(entityTypes?: Array<string>, canCreate?: boolean, options?: {IncludeInactive?: boolean, MaximumDateModified?: Date, MinimumDateModified?: Date, TemplateIds?: Array<number>}) {
+    return new Promise((resolve, reject) => {
+      var data: {EntityTypes?: Array<string>, CanCreate?: boolean, IncludeInactive?: boolean, MaximumDateModified?: Date, MinimumDateModified?: Date, TemplateIds?: Array<number>} = {};
+      if(typeof(entityTypes)!=='undefined') {
+        data.EntityTypes = entityTypes;
+      }
+      data.CanCreate = typeof(canCreate)!=='undefined' ? canCreate : true;
+      if(typeof(options)==='object') {
+        _.forIn(options, (v, k) => {
+          data[k] = v;
+        });
+      }
+      this.cw.runRequest('Ams/InspectionTemplate/Templates', data).then(r => {
+        resolve(r.Value);
+      }).catch(e => {
+        reject(e);
+      });
+    });
+  }
+
+  /**
+   * Get a list of templates by IDs
+   *
+   * @param {Array<number>} inspectionIds - An array of the IDs to retrieve the matched inspections
+   * @param {Object} [options] - An object which can include: [IncludeInactive]: boolean, MaximumDateModified: Date, MinimumDateModified: Date, TemplateIds: Array<number>
+   * @return {Object} Returns object that represents an object describing the inspection
+   */
+  getTemplatesByIds(inspTemplateIds: Array<number>, options?: {MaximumDateModified?: Date, MinimumDateModified?: Date}) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        InspTemplateIds: inspTemplateIds
+      }
+      if(typeof(options)==='object') {
+        _.forIn(options, (v, k) => {
+          data[k] = v;
+        });
+      }
+      this.cw.runRequest('Ams/InspectionTemplate/ByIds', data).then(r => {
+        resolve(r.Value);
+      }).catch(e => {
+        reject(e);
+      });
+    });
+  }
+
+  /**
+   * Get entity types for inspection template(s)
+   *
+   * @param {Array<number>} inspTemplateIds - An array of the IDs to reopen the matched inspections
+   * @return {Object} Returns object that represents an array of Entity Types
+   */
+   getTemplateEntityTypes(inspTemplateIds: Array<number>) {
+     return new Promise((resolve, reject) => {
+       var data = {
+         InspTemplateIds: inspTemplateIds
+       };
+       this.cw.runRequest('Ams/InspectionTemplate/EntityTypes', data).then(r => {
+         resolve(r.Value);
+       }).catch(e => {
+         reject(e);
+       });
+     });
+   }
+
+  /**
+  * Get the questions and answers for inspection template(s)
+  *
+  * @param {Array<number>} inspTemplateIds - An array of the IDs to reopen the matched inspections
+  * @return {Object} Returns object that represents an array which contains a list of InspQuestionPanel for the template
+  */
+  getQA(inspTemplateIds: Array<number>) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        InspTemplateIds: inspTemplateIds
+      };
+      this.cw.runRequest('Ams/InspectionTemplate/QA', data).then(r => {
+        resolve(r.Value);
+      }).catch(e => {
+        reject(e);
+      });
+    });
+  }
+
+  /**
+   * Get inspection template question conditions
+   *
+   * @param {Array<number>} inspTemplateIds - An array of template IDs to get the matched inspection template Question conditions for
+   * @return {Object} Returns object that represents an array which contains a dictionary of InspQuestion IDs to configs
+   */
+   getQConditions(inspTemplateIds: Array<number>) {
+     return new Promise((resolve, reject) => {
+       var data = {
+         InspTemplateIds: inspTemplateIds
+       };
+       this.cw.runRequest('Ams/InspectionTemplate/QuestionConditions', data).then(r => {
+         resolve(r.Value);
+       }).catch(e => {
+         reject(e);
+       });
+     });
+   }
 
   // Attachments
 
