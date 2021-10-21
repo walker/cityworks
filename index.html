@@ -12,7 +12,7 @@
 <p>Authenticate with the Cityworks install:</p>
 <pre><code><span class="hl-0">  </span><span class="hl-2">cityworks</span><span class="hl-0">.</span><span class="hl-3">authenticate</span><span class="hl-0">(</span><span class="hl-4">&#39;myuser&#39;</span><span class="hl-0">, </span><span class="hl-4">&#39;mypassword&#39;</span><span class="hl-0">).</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-2">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {</span><br/><br/><span class="hl-0">  }).</span><span class="hl-3">catch</span><span class="hl-0">(</span><span class="hl-2">error</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-2">console</span><span class="hl-0">.</span><span class="hl-3">log</span><span class="hl-0">(</span><span class="hl-2">error</span><span class="hl-0">.</span><span class="hl-2">message</span><span class="hl-0">);</span><br/><span class="hl-0">  });</span>
 </code></pre>
-<p>Get the currently valid toke in order to store it in a session or cookie:</p>
+<p>Get the currently valid token in order to store it in a session or cookie:</p>
 <pre><code><span class="hl-0">  </span><span class="hl-2">cityworks</span><span class="hl-0">.</span><span class="hl-3">getToken</span><span class="hl-0">();</span>
 </code></pre>
 <p>Provide a saved token instead of the standard u/p auth:</p>
