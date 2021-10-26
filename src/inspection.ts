@@ -492,7 +492,7 @@ export class Inspection {
   /**
    * Get cycle types
    *
-   * @return {Object} Returns Promise that represents a Dictionary of the cycle types available
+   * @return {Object} Returns Promise that represents a Dictionary of the cycle intervals available
    */
   cycleIntervals() {
     return new Promise((resolve, reject) => {
@@ -512,7 +512,7 @@ export class Inspection {
    * @param {number} y - The Y coordinate for the move
    * @param {Object} projection_info - An object which must include either WKID: Int32 or WKT: String. Can also include VcsWKID.
    * @param {number} [z] - the optional z coordinate for the move
-   * @return {Object} Returns Promise that represents a Dictionary of the cycle types available
+   * @return {Object} Returns Promise which represents a GISPoint object
    */
   move(inspectionId: number, x: number, y: number, projection_info?: Object, z?: number) {
     return new Promise((resolve, reject) => {
