@@ -4,7 +4,7 @@ This API wrapper for Cityworks follows the Cityworks release schedule as closely
 
 Require the class:
 
-      var cityworks = require('../dist/index.js');
+      var cityworks = require('cityworks');
 
 Configure the instance that is then available:
 
