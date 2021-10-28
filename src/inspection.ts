@@ -11,33 +11,34 @@ export class Inspection {
    * @return {Object} Returns object that is this module
    */
   constructor(cw) {
-    this.cw = cw;
+    this.cw = cw
   }
 
   /**
-   * Create new inspection with data
+   * Create new inspection
    *
+   * @category Inspections
    * @param {Object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on your Cityworks instance
    * @return {Object} Returns Promise that represents an object describing the newly-created inspection
    */
   create(insp_data: Object) {
     return new Promise((resolve, reject) => {
       if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId')) {
-        reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}));
+        reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
       } else {
         this.cw.runRequest('Ams/Inspection/Create', insp_data).then(r => {
-          resolve(r.Value);
+          resolve(r.Value)
         }).catch(e => {
-          reject(e);
+          reject(e)
         });
       }
     });
   }
 
-  /*
+  /**
    * Create inspections from an array of entities
-   * (TODO: what array of entities)
    *
+   * @category Inspections
    * @param {Object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on your Cityworks instance
    * @return {Object} Returns Promise that represents a collection of objects describing the newly-created inspections
    */
@@ -55,9 +56,10 @@ export class Inspection {
     });
   }
 
-  /*
+  /**
    * Create an inspection from a parent inspection (TODO: what parent!?)
    *
+   * @category Inspections
    * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on your Cityworks instance
    * @return {Object} Returns object that represents an object describing the newly-created inspection
    */
@@ -76,9 +78,10 @@ export class Inspection {
     });
   }
 
-  /*
+  /**
    * Create an inspection from a service request
    *
+   * @category Inspections
    * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on your Cityworks instance
    * @return {Object} Returns object that represents an object describing the newly-created inspection
    */
@@ -96,9 +99,10 @@ export class Inspection {
     });
   }
 
-  /*
+  /**
    * Create an inspection from a work order
    *
+   * @category Inspections
    * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on your Cityworks instance
    * @return {Object} Returns object that represents an object describing the newly-created inspection
    */
@@ -120,10 +124,11 @@ export class Inspection {
   }
 
   /**
-   * Update an inspection with data
+   * Update an inspection
    *
-   * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on your Cityworks instance
-   * @return {Object} Returns object that represents an object describing the updated inspection
+   * @category Inspections
+   * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on the Cityworks instance
+   * @return {Object} Returns Promise that represents an object describing the updated inspection
    */
   update(insp_data: Object) {
     return new Promise((resolve, reject) => {
@@ -144,6 +149,7 @@ export class Inspection {
   /**
    * Get an inspection by ID
    *
+   * @category Inspections
    * @param {number} inspectionId - The inspection ID to retrieve
    * @return {Object} Returns Promise that represents an object describing the inspection
    */
@@ -163,7 +169,8 @@ export class Inspection {
   /**
    * Get inspections by array of IDs
    *
-   * @param {number} inspectionId - The inspection ID to retrieve
+   * @category Inspections
+   * @param {Array<number>} inspectionIds - The inspection IDs to retrieve
    * @return {Object} Returns Promise that represents a collection of Objects describing the inspections
    */
   getByIds(inspectionIds: Array<number>) {
@@ -182,6 +189,7 @@ export class Inspection {
   /**
    * Cancel inspections
    *
+   * @category Inspections
    * @param {Array<number>} inspectionIds - An array of the IDs to cancel the matched inspections
    * @param {string} [cancelReason] - A reason for cancelling the inspection(s)
    * @param {datetime} [dateCancelled] - The date/time that it should be indicated the inspection was cancelled
@@ -206,8 +214,29 @@ export class Inspection {
    }
 
    /**
+    * Uncancel inspections
+    *
+    * @category Requests
+    * @param {Array<number>} inspectionIds - An array of the IDs to uncancel the matched requests
+    * @return {Object} Returns object that represents a collection of requests
+    */
+    uncancel(inspectionIds: Array<number>) {
+      return new Promise((resolve, reject) => {
+        var data = {
+          InspectionIds: inspectionIds
+        };
+        this.cw.runRequest('Ams/Inspection/Uncancel', data).then(r => {
+          resolve(r.Value);
+        }).catch(e => {
+          reject(e);
+        });
+      });
+    }
+
+   /**
     * Close inspections
     *
+    * @category Inspections
     * @param {Array<number>} inspectionIds - An array of the IDs to close the matched inspections
     * @return {Object} Returns object that represents a collection of inspections
     */
@@ -225,8 +254,29 @@ export class Inspection {
     }
 
   /**
+   * Reopen closed inspections
+   *
+   * @category Inspections
+   * @param {Array<number>} inspectionIds - An array of the IDs to reopen the matched inspections
+   * @return {Object} Returns object that represents a collection of inspections
+   */
+   reopen(inspectionIds: Array<number>) {
+     return new Promise((resolve, reject) => {
+       var data = {
+         InspectionIds: inspectionIds
+       };
+       this.cw.runRequest('Ams/Inspection/Reopen', data).then(r => {
+         resolve(r.Value);
+       }).catch(e => {
+         reject(e);
+       });
+     });
+   }
+
+  /**
    * Delete inspections
    *
+   * @category Inspections
    * @param {Array<number>} inspectionIds - An array of the IDs to delete the matched inspections
    * @return {Object} Returns object that represents a collection of inspection Ids which have been deleted
    */
@@ -243,28 +293,10 @@ export class Inspection {
      });
    }
 
- /**
-  * Reopen inspections
-  *
-  * @param {Array<number>} inspectionIds - An array of the IDs to reopen the matched inspections
-  * @return {Object} Returns object that represents a collection of inspection Ids which have been deleted
-  */
-  reopen(inspectionIds: Array<number>) {
-    return new Promise((resolve, reject) => {
-      var data = {
-        InspectionIds: inspectionIds
-      };
-      this.cw.runRequest('Ams/Inspection/Reopen', data).then(r => {
-        resolve(r.Value);
-      }).catch(e => {
-        reject(e);
-      });
-    });
-  }
-
   /**
    * Search for inspections
    *
+   * @category Inspections
    * @param {Object} searchData - An array of the IDs to retrieve the matched inspections, see instance docs: /{subdirectory}/apidocs/#/service-info/Ams/Inspection
    * @return {Object} Returns object that represents an array of the matching inspection IDs
    */
@@ -282,6 +314,7 @@ export class Inspection {
   /**
    * Get list of statuses
    *
+   * @category Inspection Options
    * @return {Object} Returns object that represents an array of all possible statuses for an Inspection
    */
   statuses() {
@@ -297,6 +330,7 @@ export class Inspection {
   /**
    * Get inspection submit to list
    *
+   * @category Inspection Options
    * @param {boolean} [includeInactiveEmployees] - whether to include inactive employees in the return. Defaults to false.
    * @param {boolean} [domainIds] - which domains to include in the return, default to All domains
    * @return {Object} Returns object that represents a collection of all possible employees for an Inspection's SubmitTo
@@ -322,6 +356,8 @@ export class Inspection {
   /**
    * Add an entity to an existing inspection
    * This method requires an Entity/Asset to be specified. You can either specify the Entity Type and its UID or a WorkOrderEntityBase Object.
+   *
+   * @category Inspections
    * @param {Object} entity - Either of two attribute combinations are valid: entityType & entityUid OR Entity as a fully-inflated WorkOrderEntity (WorkOrderEntityBase) object.
    * @param {number} inspectionId - An Inspection ID to attach the entity/asset to.
    * @param {boolean} updateXY - Provide a boolean to whether the inspection's X/Y coordinates should be updated. Default is true.
@@ -364,6 +400,7 @@ export class Inspection {
   /**
    * Get the answers for inspections
    *
+   * @category Inspections
    * @param {Array<number>} inspections - An Array of one or more Inspection IDs
    * @return {Object} Returns Promise that represents a collection of Inspection Answers
    */
@@ -386,6 +423,7 @@ export class Inspection {
   /**
    * Get the audit log for a specific Inspection
    *
+   * @category Inspections
    * @param {number} inspectionId - An Inspection ID to get the audit log for
    * @return {Object} Returns Promise that represents a collection of Cityworks Metadata Objects
    */
@@ -403,6 +441,7 @@ export class Inspection {
   /**
    * Create a search definition. Save the definition by setting SaveDefinition = true and supplying a SearchName.
    *
+   * @category Inspections
    * @param {Object} searchData - Search data variables. See /{subdirectory}/apidocs/#/service-info/Ams/Inspection
    * @param {number} [searchName] - What to name your search (if it should be saved)
    * @param {number} [sharedWithin] - What group or domain to share the search to.
@@ -431,6 +470,7 @@ export class Inspection {
   /**
    * Get cycle from
    *
+   * @category Inspection Options
    * @return {Object} Returns Promise that represents ... I have no idea what this endpoint does
    */
   getCycleFrom() {
@@ -446,6 +486,7 @@ export class Inspection {
   /**
    * Get cycle intervals
    *
+   * @category Inspection Options
    * @return {Object} Returns Promise that represents a Dictionary of the cycle intervals available
    */
   getCycleIntervals() {
@@ -461,6 +502,7 @@ export class Inspection {
   /**
    * Get cycle types
    *
+   * @category Inspection Options
    * @return {Object} Returns Promise that represents a Dictionary of the cycle types available
    */
   getCycleTypes() {
@@ -476,6 +518,7 @@ export class Inspection {
   /**
    * Get districts
    *
+   * @category Inspection Options
    * @return {Object} Returns Promise that represents an Array of the districts
    */
   getDistricts() {
@@ -490,23 +533,9 @@ export class Inspection {
 
 
   /**
-   * Get cycle types
-   *
-   * @return {Object} Returns Promise that represents a Dictionary of the cycle intervals available
-   */
-  cycleIntervals() {
-    return new Promise((resolve, reject) => {
-      this.cw.runRequest('Ams/Inspection/CycleTypes', {}).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
-  }
-
-  /**
    * Move inspection by InspectionId. Must provide well known id (WKID) or well known text (WKT)
    *
+   * @category Inspections
    * @param {number} inspectionId - The ID of the inspection that should be moved
    * @param {number} x - The X coordinate for the move
    * @param {number} y - The Y coordinate for the move
@@ -550,6 +579,7 @@ export class Inspection {
   /**
    * Get inspection templates
    *
+   * @category Inspection Templates
    * @param {Array<string>} [entityTypes] - The Entity Type(s) to return potential inspections for
    * @param {boolean} [canCreate] - If true, only return templates the user can create, ignored if false or null, default is true
    * @param {Object} [options] - An object which can include: [IncludeInactive]: boolean, MaximumDateModified: Date, MinimumDateModified: Date, TemplateIds: Array<number>
@@ -578,6 +608,7 @@ export class Inspection {
   /**
    * Get a list of templates by IDs
    *
+   * @category Inspection Templates
    * @param {Array<number>} inspectionIds - An array of the IDs to retrieve the matched inspections
    * @param {Object} [options] - An object which can include: [IncludeInactive]: boolean, MaximumDateModified: Date, MinimumDateModified: Date, TemplateIds: Array<number>
    * @return {Object} Returns object that represents an object describing the inspection
@@ -603,6 +634,7 @@ export class Inspection {
   /**
    * Get entity types for inspection template(s)
    *
+   * @category Inspection Templates
    * @param {Array<number>} inspTemplateIds - An array of the IDs to reopen the matched inspections
    * @return {Object} Returns object that represents an array of Entity Types
    */
@@ -622,6 +654,7 @@ export class Inspection {
   /**
   * Get the questions and answers for inspection template(s)
   *
+  * @category Inspection Templates
   * @param {Array<number>} inspTemplateIds - An array of the IDs to reopen the matched inspections
   * @return {Object} Returns object that represents an array which contains a list of InspQuestionPanel for the template
   */
@@ -641,6 +674,7 @@ export class Inspection {
   /**
    * Get inspection template question conditions
    *
+   * @category Inspection Templates
    * @param {Array<number>} inspTemplateIds - An array of template IDs to get the matched inspection template Question conditions for
    * @return {Object} Returns object that represents an array which contains a dictionary of InspQuestion IDs to configs
    */
@@ -677,6 +711,7 @@ export class Inspection {
   /**
    * Delete inspection attachments
    *
+   * @category Inspection Attachments
    * @param {Array<number>} attachmentIds - An array of inspection attachment IDs to delete
    * @return {Object} Returns object that represents a boolean for action resolution
    */
@@ -696,6 +731,7 @@ export class Inspection {
   /**
    * Download an inspection attachment
    *
+   * @category Inspection Attachments
    * @param {number} attachmentId - ID of an inspection attachment to download
    * @return {Object} Returns object that represents a file stream
    */
@@ -715,6 +751,7 @@ export class Inspection {
   /**
    * Get inspection attachment by ID
    *
+   * @category Inspection Attachments
    * @param {number} attachmentId - An attachment ID to get info for
    * @return {Object} Returns object that represents an object that describes the matched inspection attachment
    */
@@ -734,6 +771,7 @@ export class Inspection {
   /**
    * Get inspection attachment by ID
    *
+   * @category Inspection Attachments
    * @param {Array<number>} inspectionIds - An array of inspection IDs to get attachments for
    * @return {Object} Returns object that represents a collection of attachments from the matched inspections
    */
