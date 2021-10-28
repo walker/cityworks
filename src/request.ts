@@ -59,6 +59,30 @@ export class Request {
   }
 
   /**
+   * Change a request's problem code
+   *
+   * @category Requests
+   * @param {number} requestId - The request ID to change
+   * @param {number} problemSid - The request's new ProblemSID
+   * @return {Object} Returns Promise that represents an object describing the updated request
+   */
+  changeProblem(requestId: number, problemSid: number) {
+    return new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
+        var data = {
+          RequestId: requestId,
+          ProblemSid: problemSid
+        }
+        this.cw.runRequest('Ams/ServiceRequest/ChangeProblem', data).then(r => {
+          resolve(r.Value);
+        }).catch(e => {
+          reject(e);
+        });
+      });
+    });
+  }
+
+  /**
    * Get a request by ID
    *
    * @category Requests
@@ -96,6 +120,44 @@ export class Request {
         reject(e);
       });
     });
+  }
+
+  /**
+   * Get the audit log for a specific request
+   *
+   * @category Requests
+   * @param {number} requestId - A Request ID to get the audit log for
+   * @return {Object} Returns Promise that represents a collection of Cityworks Metadata Objects
+   */
+  getAuditLog(requestId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {RequestId: requestId}
+      this.cw.runRequest('Ams/ServiceRequest/AuditLog', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get custom fields for provided requests
+   *
+   * @category Requests
+   * @param {Array<number>} requestIds - The RequestIds whose custom fields should be returned
+   * @return {Object} Returns Promise that represents a collection of custom fields
+   */
+  getCustomFields(requestIds: Array<number>) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        RequestIds: requestIds,
+      }
+      this.cw.runRequest('Ams/ServiceRequest/CustomFields', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -237,7 +299,7 @@ export class Request {
   }
 
   /**
-   * Get a list of problems
+   * Get a list of problem codes
    *
    * @category Request Options
    * @param {boolean} forPublicOnly - Return only publicly-available service requests. Defaults to false.
@@ -261,6 +323,105 @@ export class Request {
     })
   }
 
+  /**
+   * Get a list of problem codes by keywords
+   *
+   * @category Request Options
+   * @param {string} keywords - Keywords to search for potential problem codes
+   * @return {Object} Returns Promise that represents an Array of problem name objects.
+   */
+  getProblemsByKeywords(keywords: string) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        Keywords: keywords
+      }
+      this.cw.runRequest('Ams/ServiceRequest/ProblemsByKeywords', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get a list of a problem code's priorities
+   *
+   * @category Request Options
+   * @param {number} problemSid - Return priorities for given problemSid
+   * @return {Object} Returns Promise that represents an Array of priorities
+   */
+  getPriorities(problemSid: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        ProblemSids: problemSid,
+      }
+      this.cw.runRequest('Ams/ServiceRequest/Priorities', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get custom field templates for problem code
+   *
+   * @category Request Options
+   * @param {number} problemSid - The problemSid whose template custom fields should be returned
+   * @return {Object} Returns Promise that represents a collection of custom fields
+   */
+  getCustomFieldTemplate(problemSid: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        ProblemSids: problemSid,
+      }
+      this.cw.runRequest('Ams/ServiceRequest/TemplateCustomFields', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get the questions and answer options for a problem code
+   *
+   * @category Request Options
+   * @param {number} problemSid - The problemSid whose Q&A should be returned
+   * @return {Object} Returns Promise that represents a collection of questions and answer settings
+   */
+  getQASettings(problemSid: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        ProblemSids: problemSid,
+      }
+      this.cw.runRequest('Ams/ServiceRequest/QA', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get problem leaf (template) by Sid
+   *
+   * @category Request Options
+   * @param {number} problemSid - Return problem leaf for given problemSid
+   * @return {Object} Returns Promise that represents an Object that describes the problem leaf (template)
+   */
+  getProblemLeaf(problemSid: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        ProblemSid: problemSid
+      }
+      this.cw.runRequest('Ams/ServiceRequest/ProblemLeafBySid', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
 
   /**
    * Get a list of default statuses
@@ -306,8 +467,8 @@ export class Request {
    * Get a list of possible SubmitTo values
    *
    * @category Request Options
-   * @param {Array<number>} domainId - Domain to return possible dispatchTo values for
-   * @return {Object} Returns Promise that represents an Array of dispatchTo options.
+   * @param {Array<number>} domainId - Domain to return possible submitTo values for
+   * @return {Object} Returns Promise that represents an Array of submitTo options.
    */
   getSubmitTo(domainId: Array<number>) {
     return new Promise((resolve, reject) => {
