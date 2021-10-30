@@ -2,7 +2,13 @@
  * A plugin that contains "general" methods for a Cityworks install
  */
 export declare class General {
+    /**
+     * @hidden
+     */
     cw: any;
+    /**
+     * @hidden
+     */
     constructor(cw: any);
     /**
      * Get notifications for currently authenticated user

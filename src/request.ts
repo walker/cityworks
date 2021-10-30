@@ -2,23 +2,23 @@ import { CWError } from './error'
 const _ = require('lodash')
 
 export class Request {
-  cw: any;
+  /**
+   * @hidden
+   */
+  cw: any
 
   /**
-   * Construct activity link object for Request functions
-   *
-   * @param {Object} cw - Feed in the cityworks object instance so that this instance has access to the runRequest from the recursively-linked Cityworks instance
-   * @return {Object} Returns object that is this module
+   * @hidden
    */
   constructor(cw) {
-    this.cw = cw;
+    this.cw = cw
   }
 
   /**
    * Create new requests
    *
    * @category Requests
-   * @param {Object} sr_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=RequestBase on the Cityworks instance
+   * @param {Object} sr_data - See /{subdirectory}/apidocs/#/data-type-infodataType=RequestBase on the Cityworks instance
    * @return {Object} Returns Promise that represents an object describing the newly-created request
    */
   create(sr_data: Object) {
@@ -30,32 +30,32 @@ export class Request {
           resolve(r.Value)
         }).catch(e => {
           reject(e)
-        });
+        })
       }
-    });
+    })
   }
 
   /**
    * Update a request
    *
    * @category Requests
-   * @param {object} sr_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=RequestBase on the Cityworks instance
+   * @param {object} sr_data - See /{subdirectory}/apidocs/#/data-type-infodataType=RequestBase on the Cityworks instance
    * @return {Object} Returns Promise that represents an object describing the updated request
    */
   update(sr_data: Object) {
     return new Promise((resolve, reject) => {
       return new Promise((resolve, reject) => {
         if(!_.has(sr_data, 'RequestId')) {
-          reject(new CWError(1, 'RequestId must be provided.', {'provided': sr_data}));
+          reject(new CWError(1, 'RequestId must be provided.', {'provided': sr_data}))
         } else {
           this.cw.runRequest('Ams/ServiceRequest/Update', sr_data).then(r => {
-            resolve(r.Value);
+            resolve(r.Value)
           }).catch(e => {
-            reject(e);
-          });
+            reject(e)
+          })
         }
-      });
-    });
+      })
+    })
   }
 
   /**
@@ -74,19 +74,19 @@ export class Request {
           ProblemSid: problemSid
         }
         this.cw.runRequest('Ams/ServiceRequest/ChangeProblem', data).then(r => {
-          resolve(r.Value);
+          resolve(r.Value)
         }).catch(e => {
-          reject(e);
-        });
-      });
-    });
+          reject(e)
+        })
+      })
+    })
   }
 
   /**
    * Get a request by ID
    *
    * @category Requests
-   * @param {number} requestId - The ID of the reuqest to retrieve
+   * @param {number} requestId - The ID of the request to retrieve
    * @return {Object} Returns Promise that represents an object describing the request
    */
   getById(requestId: number) {
@@ -95,11 +95,11 @@ export class Request {
         RequestId: requestId
       }
       this.cw.runRequest('Ams/ServiceRequest/ById', data).then(r => {
-        resolve(r.Value);
+        resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -115,11 +115,11 @@ export class Request {
         RequestIds: requestIds
       }
       this.cw.runRequest('Ams/ServiceRequest/ByIds', data).then(r => {
-        resolve(r.Value);
+        resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -161,6 +161,50 @@ export class Request {
   }
 
   /**
+   * Change custom field category for provided requests
+   *
+   * @category Requests
+   * @param {Array<number>} requestIds - The RequestIds whose custom fields should be returned
+   * @param {number} categoryId - The new custom field grouping/category which should be assigned to the provided requests
+   * @return {Object} Returns Promise that represents a collection of requests
+   */
+  changeCustomFieldCategory(requestIds: Array<number>, categoryId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        RequestIds: requestIds,
+        CategoryId: categoryId
+      }
+      this.cw.runRequest('Ams/ServiceRequest/ChangeCustomFieldCategory', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Add a comment to a request
+   *
+   * @category Requests
+   * @param {number} requestId - The ID of the request to retrieve
+   * @param {number} comment - The comment text to add
+   * @return {Object} Returns Promise that represents an object describing the comment added
+   */
+  comment(requestId: number, comment: string) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        RequestId: requestId,
+        Comments: comment
+      }
+      this.cw.runRequest('Ams/ServiceRequest/AddComments', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
    * Cancel requests
    *
    * @category Requests
@@ -171,20 +215,20 @@ export class Request {
    */
    cancel(requestIds: Array<number>, cancelReason?: string, dateCancelled?: Date) {
      return new Promise((resolve, reject) => {
-       var m = new Date();
-       var data: {RequestIds: Array<number>, CancelReason?: string, DateCancelled?: Date} = { RequestIds: requestIds };
+       var m = new Date()
+       var data: {RequestIds: Array<number>, CancelReason?: string, DateCancelled?: Date} = { RequestIds: requestIds }
        if(typeof(cancelReason)!=='undefined') {
-         data.CancelReason = cancelReason;
+         data.CancelReason = cancelReason
        }
        if(typeof(dateCancelled)!=='undefined') {
-         data.DateCancelled = dateCancelled;
+         data.DateCancelled = dateCancelled
        }
        this.cw.runRequest('Ams/ServiceRequest/Cancel', data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
-     });
+         reject(e)
+       })
+     })
    }
 
    /**
@@ -198,13 +242,13 @@ export class Request {
       return new Promise((resolve, reject) => {
         var data = {
           RequestIds: requestIds
-        };
+        }
         this.cw.runRequest('Ams/ServiceRequest/Uncancel', data).then(r => {
-          resolve(r.Value);
+          resolve(r.Value)
         }).catch(e => {
-          reject(e);
-        });
-      });
+          reject(e)
+        })
+      })
     }
 
    /**
@@ -218,13 +262,13 @@ export class Request {
       return new Promise((resolve, reject) => {
         var data = {
           RequestIds: requestIds
-        };
+        }
         this.cw.runRequest('Ams/ServiceRequest/Close', data).then(r => {
-          resolve(r.Value);
+          resolve(r.Value)
         }).catch(e => {
-          reject(e);
-        });
-      });
+          reject(e)
+        })
+      })
     }
 
     /**
@@ -238,13 +282,13 @@ export class Request {
        return new Promise((resolve, reject) => {
          var data = {
            RequestIds: requestIds
-         };
+         }
          this.cw.runRequest('Ams/ServiceRequest/Reopen', data).then(r => {
-           resolve(r.Value);
+           resolve(r.Value)
          }).catch(e => {
-           reject(e);
-         });
-       });
+           reject(e)
+         })
+       })
      }
 
   /**
@@ -258,13 +302,80 @@ export class Request {
      return new Promise((resolve, reject) => {
        var data = {
          InspectionIds: inspectionIds
-       };
+       }
        this.cw.runRequest('Ams/Inspection/Delete', data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
-     });
+         reject(e)
+       })
+     })
+   }
+
+   /**
+    * Search for requests
+    *
+    * @category Request Search
+    * @param {Object} searchData - The search information to retrieve matched requests, see instance docs: /{subdirectory}/apidocs/#/service-info/Ams/ServiceRequest
+    * @return {Object} Returns Promise that represents an Array of the matching request IDs
+    */
+   search(searchData: Object) {
+     return new Promise((resolve, reject) => {
+       var data = searchData
+       this.cw.runRequest('Ams/ServiceRequest/Search', data).then(r => {
+         resolve(r.Value)
+       }).catch(e => {
+         reject(e)
+       })
+     })
+   }
+
+   /**
+    * Get the records on the basis of RequestId, only populates RequestId, Description, ProblemCode properties
+    *
+    * @category Request Object Search
+    * @param {string} requestId - ???, see instance docs: /{subdirectory}/apidocs/#/service-info/Ams/ServiceRequest
+    * @return {Object} Returns Promise that represents a collection of the matching (limited) request objects
+    */
+   searchObject(requestId: string) {
+     return new Promise((resolve, reject) => {
+       var data = {
+         RequestId: requestId
+       }
+       this.cw.runRequest('Ams/ServiceRequest/SearchObject', data).then(r => {
+         resolve(r.Value)
+       }).catch(e => {
+         reject(e)
+       })
+     })
+   }
+
+   /**
+    * Create a search definition. Save the definition by setting SaveDefinition = true and supplying a SearchName.
+    *
+    * @category Requests
+    * @param {Object} searchData - Search data variables. See /{subdirectory}/apidocs/#/service-info/Ams/ServiceRequest
+    * @param {number} [searchName] - What to name your search (if it should be saved)
+    * @param {number} [sharedWithin] - What group or domain to share the search to.
+    * @param {boolean} saveDefinition - Whether or not to save the search definition. Defaults to true when a search name is specified.
+    * @param {boolean} enableEurl - Whether or not to enable EURL for the saved search. Defaults to true.
+    * @return {Object} Returns Promise that represents a collection of Cityworks Metadata Objects
+    */
+   createSearchDefinition(searchData: Object, searchName?: string, sharedWithin?: number, saveDefinition: boolean = true, enableEurl: boolean = true) {
+     return new Promise((resolve, reject) => {
+       var data = searchData
+       if(_.isString(searchName)) {
+         _.set(data, 'SearchName', searchName)
+         _.set(data, 'SaveDefinition', saveDefinition)
+         _.set(data, 'EnableEurl', enableEurl)
+         // not sure how to handle sharedWithin...
+         // _.set(data, 'SharedWithin', sharedWithin)
+       }
+       this.cw.runRequest('Ams/ServiceRequest/CreateSearchDefinition', data).then(r => {
+         resolve(r.Value)
+       }).catch(e => {
+         reject(e)
+       })
+     })
    }
 
   /**
@@ -285,9 +396,9 @@ export class Request {
         ViewOnly: viewOnly
       }
       if(typeof displayMode != 'undefined' && _.has(displayMode, 'DisplayTextMode')) {
-        _.set(data, 'DisplayTextMode', _.get(displayMode, 'DisplayTextMode'));
+        _.set(data, 'DisplayTextMode', _.get(displayMode, 'DisplayTextMode'))
         if(_.get(displayMode, 'DisplayTextMode')=='CD' && _.has(displayMode, 'DisplayTextDelimeter')) {
-          _.set(data, 'DisplayTextDelimeter', _.get(displayMode, 'DisplayTextDelimeter'));
+          _.set(data, 'DisplayTextDelimeter', _.get(displayMode, 'DisplayTextDelimeter'))
         }
       }
       this.cw.runRequest('Ams/ServiceRequest/ProblemNodes', data).then(r => {
@@ -313,7 +424,7 @@ export class Request {
         OnlyActiveTemplates: onlyActiveTemplates
       }
       if(typeof domainIds != 'undefined') {
-        _.set(data, 'DomainIds', domainIds);
+        _.set(data, 'DomainIds', domainIds)
       }
       this.cw.runRequest('Ams/ServiceRequest/Problems', data).then(r => {
         resolve(r.Value)
@@ -482,5 +593,171 @@ export class Request {
       })
     })
   }
+
+  /**
+   * Get street codes
+   *
+   * @category Request Options
+   * @return {Object} Returns Promise that represents an Array of Street Codes.
+   */
+  streetCodes() {
+    return new Promise((resolve, reject) => {
+      this.cw.runRequest('Ams/ServiceRequest/AllStreetCode', {}).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get a list of templates
+   *
+   * @category Request Templates
+   * @param {Array<number>} problemSids - An array list of problemSids to retrieve templates for
+   * @param {Date} [minimumDateModified] - ?
+   * @param {Date} [maximumDateModified] - ?
+   * @return {Object} Returns Promise that represents
+   */
+   getTemplatesById(problemSids: Array<number>, minimumDateModified?: Date, maximumDateModified?: Date) {
+     return new Promise((resolve, reject) => {
+       var data = {
+         ProblemSids: null
+       }
+       if(typeof minimumDateModified != 'undefined') {
+         _.set(data, 'MinimumDateModified', minimumDateModified)
+       }
+       if(typeof maximumDateModified != 'undefined') {
+         _.set(data, 'MaximumDateModified', maximumDateModified)
+       }
+
+       this.cw.runRequest('Ams/ServiceRequestTemplate/ByIds', data).then(r => {
+         resolve(r.Value)
+       }).catch(e => {
+         reject(e)
+       })
+     })
+   }
+
+   /**
+    * Create a search definition. Save the definition by setting SaveDefinition = true and supplying a SearchName.
+    *
+    * @category Request Templates
+    * @param {Object} searchData - Search data variables. See /{subdirectory}/apidocs/#/service-info/Ams/ServiceRequestTemplate
+    * @param {number} [searchName] - What to name your search (if it should be saved)
+    * @param {number} [sharedWithin] - What group or domain to share the search to.
+    * @param {boolean} saveDefinition - Whether or not to save the search definition. Defaults to true when a search name is specified.
+    * @return {Object} Returns Promise that represents a collection of Cityworks Metadata Objects. See: /{subdirectory}/apidocs/#/data-type-info;dataType=CWMetadata
+    */
+   createTemplateSearchDefinition(searchData: Object, searchName?: string, sharedWithin?: number, saveDefinition: boolean = true) {
+     return new Promise((resolve, reject) => {
+       var data = searchData
+       if(_.isString(searchName)) {
+         _.set(data, 'SearchName', searchName)
+         _.set(data, 'SaveDefinition', saveDefinition)
+         // not sure how to handle sharedWithin...
+         // _.set(data, 'SharedWithin', sharedWithin)
+       }
+       this.cw.runRequest('Ams/ServiceRequestTemplate/CreateSearchDefinition', data).then(r => {
+         resolve(r.Value)
+       }).catch(e => {
+         reject(e)
+       })
+     })
+   }
+
+   /**
+    * Get the questions and answers for a(many) request template(s)
+    *
+    * @category Request Templates
+    * @param {Array<number>} problemSids - An array list of problemSids to retrieve templates for
+    * @return {Object} Returns Promise that represents a collection of ProblemQAs. See /{subdirectory}/apidocs/#/data-type-info;dataType=ProblemQA
+    */
+    getTemplateQAs(problemSids: Array<number>, minimumDateModified?: Date, maximumDateModified?: Date) {
+      return new Promise((resolve, reject) => {
+        var data = {
+          ProblemSids: null
+        }
+        this.cw.runRequest('Ams/ServiceRequestTemplate/QA', data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
+
+    /**
+     * Get a list of template id results for a provided search parameters
+     *
+     * @category Request Templates
+     * @param {Object} searchData - Search data variables. See /{subdirectory}/apidocs/#/service-info/Ams/ServiceRequestTemplate
+     * @return {Object} Returns Promise that represents a list of template IDs.
+     */
+    searchTemplates(searchData: Object) {
+      return new Promise((resolve, reject) => {
+        var data = searchData
+        this.cw.runRequest('Ams/ServiceRequestTemplate/Search', data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
+
+    /**
+     * Get request templates (problem leaf[s])
+     *
+     * @category Request Templates
+     * @param {Array<number>} [templateIds] - Array of specific template IDs to retrieve
+     * @param {number} canCreate - If true, only return templates the user can create, ignored if false or null, default is false
+     * @param {boolean} includeInactiveIf - If true, returns inactive templates, default is false
+     * @param {Date} [minimumDateModified] - ?
+     * @param {Date} [maximumDateModified] - ?
+     * @return {Object} Returns Promise that represents a collection of Problem Leafs. See /{subdirectory}/apidocs/#/data-type-info;dataType=ProblemLeaf
+     */
+    getTemplates(templateIds: Array<number>, canCreate: boolean = false, includeInactiveIf: boolean = false, minimumDateModified?: Date, maximumDateModified?: Date) {
+      return new Promise((resolve, reject) => {
+        var data = {
+          CanCreate: canCreate,
+          IncludeInactiveIf: includeInactiveIf
+        }
+        if(typeof templateIds != 'undefined') {
+          _.set(data, 'TemplateIds', templateIds)
+        }
+        if(typeof minimumDateModified != 'undefined') {
+          _.set(data, 'MinimumDateModified', minimumDateModified)
+        }
+        if(typeof maximumDateModified != 'undefined') {
+          _.set(data, 'MaximumDateModified', maximumDateModified)
+        }
+        this.cw.runRequest('Ams/ServiceRequestTemplate/Templates', data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
+
+    /**
+     * Get work order templates that are associated to this request template type
+     *
+     * @category Request Templates
+     * @param {Array<number>} problemSids - An array list of problemSids to retrieve Problem WO templates for
+     * @param {boolean} includeInactiveIf - Include inactive work order templates, default is false
+     * @return {Object} Returns Promise that represents a collection of Problem WO Templates. See /{subdirectory}/apidocs/#/data-type-info;dataType=ProblemWOTemplate
+     */
+    getWOTemplates(problemSids: Array<number>, includeInactive: boolean = false) {
+      return new Promise((resolve, reject) => {
+        var data = {
+          ProblemSids: problemSids,
+          IncludeInactive: includeInactive
+        }
+        this.cw.runRequest('Ams/ServiceRequestTemplate/WorkOrderTemplates', data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
 
 }

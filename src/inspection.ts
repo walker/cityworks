@@ -2,13 +2,13 @@ import { CWError } from './error'
 const _ = require('lodash')
 
 export class Inspection {
-  cw: any;
+  /**
+   * @hidden
+   */
+  cw: any
 
   /**
-   * Construct activity link object for Inspection functions
-   *
-   * @param {Object} cw - Feed in the cityworks object instance so that this instance has access to the runRequest from the recursively-linked Cityworks instance
-   * @return {Object} Returns object that is this module
+   * @hidden
    */
   constructor(cw) {
     this.cw = cw
@@ -18,7 +18,7 @@ export class Inspection {
    * Create new inspection
    *
    * @category Inspections
-   * @param {Object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on your Cityworks instance
+   * @param {Object} insp_data - See /{subdirectory}/apidocs/#/data-type-infodataType=InspectionBase on your Cityworks instance
    * @return {Object} Returns Promise that represents an object describing the newly-created inspection
    */
   create(insp_data: Object) {
@@ -30,80 +30,80 @@ export class Inspection {
           resolve(r.Value)
         }).catch(e => {
           reject(e)
-        });
+        })
       }
-    });
+    })
   }
 
   /**
    * Create inspections from an array of entities
    *
    * @category Inspections
-   * @param {Object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on your Cityworks instance
+   * @param {Object} insp_data - See /{subdirectory}/apidocs/#/data-type-infodataType=InspectionBase on your Cityworks instance
    * @return {Object} Returns Promise that represents a collection of objects describing the newly-created inspections
    */
    createFromEntities(insp_data: Object) {
     return new Promise((resolve, reject) => {
      if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId')) {
-       reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}));
+       reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
      } else {
        this.cw.runRequest('Ams/Inspection/CreateFromEntities', insp_data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
+         reject(e)
+       })
      }
-    });
+    })
   }
 
   /**
    * Create an inspection from a parent inspection (TODO: what parent!?)
    *
    * @category Inspections
-   * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on your Cityworks instance
+   * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-infodataType=InspectionBase on your Cityworks instance
    * @return {Object} Returns object that represents an object describing the newly-created inspection
    */
    createFromParent(insp_data: Object) {
     return new Promise((resolve, reject) => {
       // see if it's just InspectionId
      if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId') || !_.has(insp_data, 'InspectionId')) {
-       reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}));
+       reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
      } else {
        this.cw.runRequest('Ams/Inspection/CreateFromParent', insp_data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
+         reject(e)
+       })
      }
-    });
+    })
   }
 
   /**
    * Create an inspection from a service request
    *
    * @category Inspections
-   * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on your Cityworks instance
+   * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-infodataType=InspectionBase on your Cityworks instance
    * @return {Object} Returns object that represents an object describing the newly-created inspection
    */
    createFromServiceRequest(insp_data: Object) {
     return new Promise((resolve, reject) => {
      if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId') || !_.has(insp_data, 'RequestId')) {
-       reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}));
+       reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
      } else {
        this.cw.runRequest('Ams/Inspection/CreateFromServiceRequest', insp_data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
+         reject(e)
+       })
      }
-    });
+    })
   }
 
   /**
    * Create an inspection from a work order
    *
    * @category Inspections
-   * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on your Cityworks instance
+   * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-infodataType=InspectionBase on your Cityworks instance
    * @return {Object} Returns object that represents an object describing the newly-created inspection
    */
    createFromWorkOrder(insp_data: Object) {
@@ -112,38 +112,38 @@ export class Inspection {
       // WorkOrderId
       // WorkOrderSid ...do with only SID first then check
      if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId') || !_.has(insp_data, 'WorkOrderSid')) {
-       reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}));
+       reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
      } else {
        this.cw.runRequest('Ams/Inspection/CreateFromWorkOrder', insp_data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
+         reject(e)
+       })
      }
-    });
+    })
   }
 
   /**
    * Update an inspection
    *
    * @category Inspections
-   * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-info;dataType=InspectionBase on the Cityworks instance
+   * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-infodataType=InspectionBase on the Cityworks instance
    * @return {Object} Returns Promise that represents an object describing the updated inspection
    */
   update(insp_data: Object) {
     return new Promise((resolve, reject) => {
       return new Promise((resolve, reject) => {
         if(!_.has(insp_data, 'InspectionId')) {
-          reject(new CWError(1, 'InspectionId must be provided.', {'provided': insp_data}));
+          reject(new CWError(1, 'InspectionId must be provided.', {'provided': insp_data}))
         } else {
           this.cw.runRequest('Ams/Inspection/Update', insp_data).then(r => {
-            resolve(r.Value);
+            resolve(r.Value)
           }).catch(e => {
-            reject(e);
-          });
+            reject(e)
+          })
         }
-      });
-    });
+      })
+    })
   }
 
   /**
@@ -159,11 +159,11 @@ export class Inspection {
         InspectionId: inspectionId
       }
       this.cw.runRequest('Ams/Inspection/ById', data).then(r => {
-        resolve(r.Value);
+        resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -179,11 +179,11 @@ export class Inspection {
         InspectionIds: inspectionIds
       }
       this.cw.runRequest('Ams/Inspection/ByIds', data).then(r => {
-        resolve(r.Value);
+        resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -197,20 +197,20 @@ export class Inspection {
    */
    cancel(inspectionIds: Array<number>, cancelReason?: string, dateCancelled?: Date) {
      return new Promise((resolve, reject) => {
-       var m = new Date();
-       var data: {InspectionIds: Array<number>, CancelReason?: string, DateCancelled?: Date} = { InspectionIds: inspectionIds };
+       var m = new Date()
+       var data: {InspectionIds: Array<number>, CancelReason?: string, DateCancelled?: Date} = { InspectionIds: inspectionIds }
        if(typeof(cancelReason)!=='undefined') {
-         data.CancelReason = cancelReason;
+         data.CancelReason = cancelReason
        }
        if(typeof(dateCancelled)!=='undefined') {
-         data.DateCancelled = dateCancelled;
+         data.DateCancelled = dateCancelled
        }
        this.cw.runRequest('Ams/Inspection/Cancel', data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
-     });
+         reject(e)
+       })
+     })
    }
 
    /**
@@ -224,13 +224,13 @@ export class Inspection {
       return new Promise((resolve, reject) => {
         var data = {
           InspectionIds: inspectionIds
-        };
+        }
         this.cw.runRequest('Ams/Inspection/Uncancel', data).then(r => {
-          resolve(r.Value);
+          resolve(r.Value)
         }).catch(e => {
-          reject(e);
-        });
-      });
+          reject(e)
+        })
+      })
     }
 
    /**
@@ -244,13 +244,13 @@ export class Inspection {
       return new Promise((resolve, reject) => {
         var data = {
           InspectionIds: inspectionIds
-        };
+        }
         this.cw.runRequest('Ams/Inspection/Close', data).then(r => {
-          resolve(r.Value);
+          resolve(r.Value)
         }).catch(e => {
-          reject(e);
-        });
-      });
+          reject(e)
+        })
+      })
     }
 
   /**
@@ -264,13 +264,13 @@ export class Inspection {
      return new Promise((resolve, reject) => {
        var data = {
          InspectionIds: inspectionIds
-       };
+       }
        this.cw.runRequest('Ams/Inspection/Reopen', data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
-     });
+         reject(e)
+       })
+     })
    }
 
   /**
@@ -284,31 +284,51 @@ export class Inspection {
      return new Promise((resolve, reject) => {
        var data = {
          InspectionIds: inspectionIds
-       };
+       }
        this.cw.runRequest('Ams/Inspection/Delete', data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
-     });
+         reject(e)
+       })
+     })
    }
 
   /**
    * Search for inspections
    *
-   * @category Inspections
-   * @param {Object} searchData - An array of the IDs to retrieve the matched inspections, see instance docs: /{subdirectory}/apidocs/#/service-info/Ams/Inspection
-   * @return {Object} Returns object that represents an array of the matching inspection IDs
+   * @category Inspection Search
+   * @param {Object} searchData - The search information to retrieve matched inspections, see instance docs: /{subdirectory}/apidocs/#/service-info/Ams/Inspection
+   * @return {Object} Returns Promise that represents an array of the matching inspection IDs
    */
   search(searchData: Object) {
     return new Promise((resolve, reject) => {
-      var data = searchData;
+      var data = searchData
       this.cw.runRequest('Ams/Inspection/Search', data).then(r => {
-        resolve(r.Value);
+        resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get the records on the basis of inspectionId, only populates InspectionId, InspTemplateName, and Location properties
+   *
+   * @category Inspection Object Search
+   * @param {string} inspectionId - ???, see instance docs: /{subdirectory}/apidocs/#/service-info/Ams/Inspection
+   * @return {Object} Returns Promise that represents a collection of the matching (limited) inspection objects
+   */
+  searchObject(inspectionId: string) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        InspectionId: inspectionId
+      }
+      this.cw.runRequest('Ams/ServiceRequest/SearchObject', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -320,11 +340,11 @@ export class Inspection {
   statuses() {
     return new Promise((resolve, reject) => {
       this.cw.runRequest('Ams/Inspection/Statuses', {}).then(r => {
-        resolve(r.Value);
+        resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -337,19 +357,19 @@ export class Inspection {
    */
   submitTos(includeInactiveEmployees: boolean = false, domainIds?: Array<number>) {
     return new Promise((resolve, reject) => {
-      var data: {IncludeInactiveEmployees?: boolean, DomainIds?: Array<number>} = {};
+      var data: {IncludeInactiveEmployees?: boolean, DomainIds?: Array<number>} = {}
       if(includeInactiveEmployees) {
-        data.IncludeInactiveEmployees = true;
+        data.IncludeInactiveEmployees = true
       }
       if(typeof(domainIds)!=='undefined') {
-        data.DomainIds = domainIds;
+        data.DomainIds = domainIds
       }
       this.cw.runRequest('Ams/Inspection/SubmitTos', data).then(r => {
-        resolve(r.Value);
+        resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
   }
 
 
@@ -368,23 +388,23 @@ export class Inspection {
    return new Promise((resolve, reject) => {
      var data: {InspectionId: number, EntityType?: string, EntityUid?: string, Entity?: Object, Facility_Id?: string, Level_Id?: string} = {
        InspectionId: inspectionId
-     };
+     }
      if(_.has(entity, 'EntityType') && _.has(entity, 'EntityUid')) {
-       data.EntityType = entity.EntityType;
-       data.EntityUid = entity.EntityUid;
+       data.EntityType = entity.EntityType
+       data.EntityUid = entity.EntityUid
      } else if(_.has(entity, 'Entity')) {
-       data.Entity = entity.Entity;
+       data.Entity = entity.Entity
      } else {
        // Throw error, no entity/asset provided
      }
      if(_.has(facility, 'Facility_Id')) {
-       data.Facility_Id = facility.Facility_Id;
+       data.Facility_Id = facility.Facility_Id
      }
      if(_.has(facility, 'Level_Id')) {
-       data.Level_Id = facility.Level_Id;
+       data.Level_Id = facility.Level_Id
      }
      this.cw.runRequest('Ams/Inspection/AddEntity', data).then(r => {
-       resolve(r.Value);
+       resolve(r.Value)
      }).catch(e => {
        // 4 NotAuthorizedToUpdateInspection
        // 9 InvalidActivityMapLogicXY
@@ -392,9 +412,9 @@ export class Inspection {
        // 30 InvalidField
        // 60 WarningItemNotFound
        // 68 MoveInvalidCityworksWkid
-       reject(e);
-     });
-   });
+       reject(e)
+     })
+   })
   }
 
   /**
@@ -587,22 +607,22 @@ export class Inspection {
    */
   getTemplates(entityTypes?: Array<string>, canCreate?: boolean, options?: {IncludeInactive?: boolean, MaximumDateModified?: Date, MinimumDateModified?: Date, TemplateIds?: Array<number>}) {
     return new Promise((resolve, reject) => {
-      var data: {EntityTypes?: Array<string>, CanCreate?: boolean, IncludeInactive?: boolean, MaximumDateModified?: Date, MinimumDateModified?: Date, TemplateIds?: Array<number>} = {};
+      var data: {EntityTypes?: Array<string>, CanCreate?: boolean, IncludeInactive?: boolean, MaximumDateModified?: Date, MinimumDateModified?: Date, TemplateIds?: Array<number>} = {}
       if(typeof(entityTypes)!=='undefined') {
-        data.EntityTypes = entityTypes;
+        data.EntityTypes = entityTypes
       }
-      data.CanCreate = typeof(canCreate)!=='undefined' ? canCreate : true;
+      data.CanCreate = typeof(canCreate)!=='undefined' ? canCreate : true
       if(typeof(options)==='object') {
         _.forIn(options, (v, k) => {
-          data[k] = v;
-        });
+          data[k] = v
+        })
       }
       this.cw.runRequest('Ams/InspectionTemplate/Templates', data).then(r => {
-        resolve(r.Value);
+        resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -620,15 +640,15 @@ export class Inspection {
       }
       if(typeof(options)==='object') {
         _.forIn(options, (v, k) => {
-          data[k] = v;
-        });
+          data[k] = v
+        })
       }
       this.cw.runRequest('Ams/InspectionTemplate/ByIds', data).then(r => {
-        resolve(r.Value);
+        resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -642,13 +662,13 @@ export class Inspection {
      return new Promise((resolve, reject) => {
        var data = {
          InspTemplateIds: inspTemplateIds
-       };
+       }
        this.cw.runRequest('Ams/InspectionTemplate/EntityTypes', data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
-     });
+         reject(e)
+       })
+     })
    }
 
   /**
@@ -662,13 +682,13 @@ export class Inspection {
     return new Promise((resolve, reject) => {
       var data = {
         InspTemplateIds: inspTemplateIds
-      };
+      }
       this.cw.runRequest('Ams/InspectionTemplate/QA', data).then(r => {
-        resolve(r.Value);
+        resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -682,13 +702,13 @@ export class Inspection {
      return new Promise((resolve, reject) => {
        var data = {
          InspTemplateIds: inspTemplateIds
-       };
+       }
        this.cw.runRequest('Ams/InspectionTemplate/QuestionConditions', data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
-     });
+         reject(e)
+       })
+     })
    }
 
 
@@ -719,13 +739,13 @@ export class Inspection {
      return new Promise((resolve, reject) => {
        var data = {
          AttachmentIds: attachmentIds
-       };
+       }
        this.cw.runRequest('Ams/Attachments/DeleteInspectionAttachments', data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
-     });
+         reject(e)
+       })
+     })
    }
 
   /**
@@ -739,13 +759,13 @@ export class Inspection {
      return new Promise((resolve, reject) => {
        var data = {
          AttachmentId: attachmentId
-       };
+       }
        this.cw.runRequest('Ams/Attachments/DownloadInspectionAttachment', data).then(r => {
-         // TODO, pass file through // resolve(r.Value);
+         // TODO, pass file through // resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
-     });
+         reject(e)
+       })
+     })
    }
 
   /**
@@ -759,13 +779,13 @@ export class Inspection {
      return new Promise((resolve, reject) => {
        var data = {
          AttachmentId: attachmentId
-       };
+       }
        this.cw.runRequest('Ams/Attachments/InspectionAttachmentById', data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
-     });
+         reject(e)
+       })
+     })
    }
 
   /**
@@ -779,12 +799,12 @@ export class Inspection {
      return new Promise((resolve, reject) => {
        var data = {
          InspectionIds: inspectionIds
-       };
+       }
        this.cw.runRequest('Ams/Attachments/InspectionAttachments', data).then(r => {
-         resolve(r.Value);
+         resolve(r.Value)
        }).catch(e => {
-         reject(e);
-       });
-     });
+         reject(e)
+       })
+     })
    }
 }

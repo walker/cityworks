@@ -1,5 +1,11 @@
 export declare class Gis {
+    /**
+     * @hidden
+     */
     cw: any;
+    /**
+     * @hidden
+     */
     constructor(cw: any);
     /**
      * Get gis service configuration for user, group, domain, or service id

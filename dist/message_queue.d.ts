@@ -1,12 +1,26 @@
 export declare class MessageQueue {
+    /**
+     * @hidden
+     */
     cw: any;
+    /**
+     * Statuses -
+     * Pending: 0,
+     * Processing: 1,
+     * Complete: 2,
+     * Failed: 3
+     */
     status: Object;
+    /**
+     * Hook Types -
+     * Unknown: 0,
+     * ActivityUpdate: 1,
+     * Email: 2,
+     * WebHook: 3
+     */
     hook_types: Object;
     /**
-     * Construct activity link object for Message Queue function
-     *
-     * @param {object} cw - Feed in the cityworks object instance so that this instance has access to the runRequest from the recursively-linked Cityworks instance
-     * @return {Object} Returns object that is this module
+     * @hidden
      */
     constructor(cw: any);
     /**

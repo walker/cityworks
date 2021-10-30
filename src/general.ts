@@ -5,10 +5,16 @@ const _ = require('lodash')
  * A plugin that contains "general" methods for a Cityworks install
  */
 export class General {
-  cw: any;
+  /**
+   * @hidden
+   */
+  cw: any
 
+  /**
+   * @hidden
+   */
   constructor(cw) {
-    this.cw = cw;
+    this.cw = cw
   }
 
   /**
@@ -19,9 +25,9 @@ export class General {
   notifications() {
     return new Promise((resolve, reject) => {
       this.cw.runRequest('General/ActivityNotification/User', {}).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
+        resolve(response.Value)
+      })
+    })
   }
 
 
@@ -37,17 +43,17 @@ export class General {
       let aType = {'null': 0, 'case': 1, 'task': 2}
       if(typeof(aType[activityType])=='undefined') {
         // reject with error
-        reject(new CWError(1, "Activity type provided does not exist.", {provided: activityType, potential_activities: aType}));
+        reject(new CWError(1, "Activity type provided does not exist.", {provided: activityType, potential_activities: aType}))
       } else {
         let data = {"ActivityType": aType[activityType], "ActivityId": activityId}
         this.cw.runRequest('General/ActivityNotification/UserWatching', data).then(r => {
-          // console.log(r, 'response');
-          resolve(r.Value);
+          // console.log(r, 'response')
+          resolve(r.Value)
         }).catch(e => {
-          reject(new CWError(2, "Unknown error."));
-        });
+          reject(new CWError(2, "Unknown error."))
+        })
       }
-    });
+    })
   }
 
   /**
@@ -64,9 +70,9 @@ export class General {
       this.cw.runRequest('General/QuickSearch/QuickSearch', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -78,21 +84,21 @@ export class General {
    */
   getActivityMetadataByIds(ids: Array<number>, table: string) {
     return new Promise((resolve, reject) => {
-      let tables = ["INSPECTION", "REQUEST", "WORKORDER"];
+      let tables = ["INSPECTION", "REQUEST", "WORKORDER"]
       if(_.indexOf(tables, table)==-1) {
-        reject(new CWError(2, 'TableName provided does not exist or is mispelled.', {'provided': table, 'available':tables}));
+        reject(new CWError(2, 'TableName provided does not exist or is mispelled.', {'provided': table, 'available':tables}))
       }
       let data = {
         "Ids": ids,
         "TableName": table
       }
       this.cw.runRequest('General/CwMetaData/ByTableNameSids', data).then(r => {
-        console.log(r);
-        resolve(r.Value);
+        console.log(r)
+        resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -107,12 +113,12 @@ export class General {
         "ObjectIds": object_ids
       }
       this.cw.runRequest('General/CostSummary/WorkOrderEntity', data).then(r => {
-        console.log(r);
-        resolve(r.Value);
+        console.log(r)
+        resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -127,11 +133,11 @@ export class General {
         "SearchId": search_id
       }
       this.cw.runRequest('General/CostSummary/WorkOrderEntitySearch', data).then(r => {
-        console.log(r);
-        resolve(r.Value);
+        console.log(r)
+        resolve(r.Value)
       }).catch(e => {
-        reject(e);
-      });
-    });
+        reject(e)
+      })
+    })
   }
 }

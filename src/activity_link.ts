@@ -1,11 +1,11 @@
 import { CWError } from './error'
-import ReversibleMap from 'reversible-map';
+import ReversibleMap from 'reversible-map'
 const _ = require('lodash')
 
 interface ActivityLink {
-  linkTypes: ReversibleMap<string, number>;
-  activityTypes: ReversibleMap<string, number>;
-  cw: any;
+  linkTypes: ReversibleMap<string, number>
+  activityTypes: ReversibleMap<string, number>
+  cw: any
 }
 
 /**
@@ -18,38 +18,35 @@ export class ActivityLinks implements ActivityLink {
    *
    *      "null", "case", "inspection", "request", "workorder", "wipcase"
    */
-  activityTypes: ReversibleMap<string, number>;
+  activityTypes: ReversibleMap<string, number>
   /**
    * Link types to map string to number for internal use. Link types available are:
    *
    *      "null", "parent", "related"
    */
-  linkTypes: ReversibleMap<string, number>;
+  linkTypes: ReversibleMap<string, number>
   /**
-   * Holds the recursively-linked Cityworks instance object
+   * @hidden
    */
-  cw: any;
+  cw: any
 
   /**
-   * Construct activity link object for Activity Link function
-   *
-   * @param {object} cw - Feed in the cityworks object instance so that this instance has access to the runRequest from the recursively-linked Cityworks instance
-   * @return {Object} Returns object that is this module
+   * @hidden
    */
   constructor(cw) {
-    this.cw = cw;
-    this.activityTypes = new ReversibleMap<string, number>();
-    this.activityTypes.set("null", 0);
-    this.activityTypes.set("case", 1);
-    this.activityTypes.set("inspection", 2);
-    this.activityTypes.set("request", 3);
-    this.activityTypes.set("workorder", 4);
-    this.activityTypes.set("wipcase", 5);
+    this.cw = cw
+    this.activityTypes = new ReversibleMap<string, number>()
+    this.activityTypes.set("null", 0)
+    this.activityTypes.set("case", 1)
+    this.activityTypes.set("inspection", 2)
+    this.activityTypes.set("request", 3)
+    this.activityTypes.set("workorder", 4)
+    this.activityTypes.set("wipcase", 5)
 
-    this.linkTypes = new ReversibleMap<string, number>();
-    this.linkTypes.set("null", 0);
-    this.linkTypes.set("parent", 1);
-    this.linkTypes.set("related", 2);
+    this.linkTypes = new ReversibleMap<string, number>()
+    this.linkTypes.set("null", 0)
+    this.linkTypes.set("parent", 1)
+    this.linkTypes.set("related", 2)
   }
 
   /**
@@ -89,11 +86,11 @@ export class ActivityLinks implements ActivityLink {
         DestSid: destination_sid,
         LinkType: this.linkTypes.get(link_type)
       }
-      let path = 'General/ActivityLink/Add';
+      let path = 'General/ActivityLink/Add'
       this.cw.runRequest(path, data).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
+        resolve(response.Value)
+      })
+    })
   }
 
   /**
@@ -118,16 +115,16 @@ export class ActivityLinks implements ActivityLink {
       let _this = this
       let path = 'General/ActivityLink/ByActivitySids'
       this.cw.runRequest(path, data).then((response: any) => {
-        let return_data = new Array();
+        let return_data = new Array()
         _.forEach(response.Value, (link, key) => {
-          link.DestType = _this.activityTypes.get(link.DestType);
-          link.SourceType = _this.activityTypes.get(link.SourceType);
-          link.LinkType = _this.linkTypes.get(link.LinkType);
-          return_data.push(link);
+          link.DestType = _this.activityTypes.get(link.DestType)
+          link.SourceType = _this.activityTypes.get(link.SourceType)
+          link.LinkType = _this.linkTypes.get(link.LinkType)
+          return_data.push(link)
         })
         resolve(return_data)
-      });
-    });
+      })
+    })
   }
 
   /**
@@ -159,11 +156,11 @@ export class ActivityLinks implements ActivityLink {
         DestinationActivityType: this.activityTypes.get(destination_type),
         DestinationActivitySid: destination_sid
       }
-      let path = 'General/ActivityLink/CloneByActivitySid';
+      let path = 'General/ActivityLink/CloneByActivitySid'
       this.cw.runRequest(path, data).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
+        resolve(response.Value)
+      })
+    })
   }
 
   /**
@@ -177,11 +174,11 @@ export class ActivityLinks implements ActivityLink {
       let data = {
         ActivityLinkId: activity_link_id
       }
-      let path = 'General/ActivityLink/Delete';
+      let path = 'General/ActivityLink/Delete'
       this.cw.runRequest(path, data).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
+        resolve(response.Value)
+      })
+    })
   }
 
   /**
@@ -221,10 +218,10 @@ export class ActivityLinks implements ActivityLink {
         DestSid: destination_sid,
         LinkType: this.linkTypes.get(link_type)
       }
-      let path = 'General/ActivityLink/Remove';
+      let path = 'General/ActivityLink/Remove'
       this.cw.runRequest(path, data).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
+        resolve(response.Value)
+      })
+    })
   }
 }
