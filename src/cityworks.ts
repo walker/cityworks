@@ -4,6 +4,8 @@ import { ActivityLinks } from './activity_link'
 import { Gis } from './gis'
 import { MessageQueue } from './message_queue'
 import { Search } from './search'
+import { Request } from './request'
+import { Inspection } from './inspection'
 
 const https = require('https')
 const querystring = require('querystring')
@@ -30,10 +32,10 @@ interface Citywork {
   activity_link?: Object
   message_queue?: Object
   gis?: Object
-  // case: Object
-  // inspection: Object
-  // workorder: Object
-  // request: Object
+  // case?: Object
+  inspection?: Object
+  // workorder?: Object
+  request?: Object
 
   extensions: Object
   features: Object
@@ -81,6 +83,8 @@ module.exports = class Cityworks implements Citywork {
   message_queue?: Object
   gis?: Object
   search?: Object
+  request?: Object
+  inspection?: Object
 
   extensions: Object
   features: Object
@@ -101,7 +105,7 @@ module.exports = class Cityworks implements Citywork {
       secure: true,
       expires: null
     }
-    this.potential_loads = ['general', 'activity_link', 'message_queue', 'gis', 'search']
+    this.potential_loads = ['general', 'activity_link', 'message_queue', 'gis', 'search', 'request']
     if(typeof(domain)!='undefined') {
       this.configure(domain, settings, load)
     }
@@ -133,6 +137,8 @@ module.exports = class Cityworks implements Citywork {
       this.general = new General(this)
       this.activity_link = new ActivityLinks(this)
       this.message_queue = new MessageQueue(this)
+      this.request = new Request(this)
+      this.inspection = new Inspection(this)
     } else {
       let _this = this
       _.forEach(this.potential_loads, function(v) {
@@ -151,6 +157,12 @@ module.exports = class Cityworks implements Citywork {
           break
           case 'search':
             _this.search = new Search(_this)
+          break
+          case 'request':
+            _this.request = new Request(_this)
+          break
+          case 'inspection':
+            _this.inspection = new Inspection(_this)
           break
         }
       })

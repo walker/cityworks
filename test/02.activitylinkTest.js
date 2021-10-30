@@ -16,7 +16,7 @@ before(function(done) {
 });
 
 describe('[ActivityLink (construct)] function test', () => {
-  it('should be undefined', (done) => {
+  it('should be a defined object', (done) => {
     assert.isObject(cw2.activity_link, 'ActivityLink is an object');
     done();
   });

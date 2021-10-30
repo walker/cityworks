@@ -10,13 +10,12 @@ var cw3 = new Cityworks(process.env.domain, {path: process.env.path});
 
 before(function() {
   this.timeout(2000000);
-  cw3.setToken('eyJFbXBsb3llZVNpZCI6MjQ1NSwiRXhwaXJlcyI6bnVsbCwiSXNzdWVkVGltZSI6MTYzNDQ3OTkzODIwNiwiTG9naW5OYW1lIjoibXJyb2JvdCIsIlNpZ25hdHVyZSI6IjhneWdqUzRRWTViZkExWjk0Zkt0QlJNQTFJOWtESC9ESWVWRnlWVlI4MUU9IiwiVG9rZW4iOiJqZnFLaGxpTU5lSSs2ZjlneGdoZmF2VmJSTllqNEowN1BVQ1lNeDhPSGJvPSJ9');
-  // cw3.authenticate(process.env.login, process.env.password).then(resp => {
-  //   done();
-  // }).catch(e => {
-  //   console.log(e, 'unexpected error')
-  //   done();
-  // });
+  cw3.authenticate(process.env.login, process.env.password).then(resp => {
+    done();
+  }).catch(e => {
+    console.log(e, 'unexpected error')
+    done();
+  });
 });
 
 describe('[General::notifications] function test', () => {
