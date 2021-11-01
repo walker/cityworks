@@ -134,10 +134,22 @@ describe('[Request::update] function test', () => {
   });
 });
 
-describe('[Request::delete] function test', () => {
-  it('should return the updated request', (done) => {
-    cw2.request.delete([1520678]).then(resp => { // TODO: Make this pull REQ, _then_ delete
-      console.log(resp);
+// describe('[Request::delete] function test', () => {
+//   it('should return a list of the deleted request ID(s)', (done) => {
+//     cw2.request.delete([1520677]).then(resp => { // TODO: Make this pull REQ, _then_ delete
+//       console.log(resp);
+//       done();
+//     }).catch(e => {
+//       console.log(e);
+//     });
+//   });
+// });
+
+describe('[Request::cancel] function test', () => {
+  it('should return the updated request(s)', (done) => {
+    var ID = 1520676;
+    cw2.request.cancel([ID]).then(resp => { // TODO: Make this pull REQ, _then_ delete
+      expect(_.some(resp, { RequestId: ID })).to.be.true;
       done();
     }).catch(e => {
       console.log(e);
@@ -145,10 +157,16 @@ describe('[Request::delete] function test', () => {
   });
 });
 
-describe('[Request::cancel] function test', () => {
-});
-
 describe('[Request::uncancel] function test', () => {
+  it('should return the updated request(s)', (done) => {
+    var ID = 1520676;
+    cw2.request.uncancel([ID]).then(resp => { // TODO: Make this pull REQ, _then_ delete
+      expect(_.some(resp, { RequestId: ID })).to.be.true;
+      done();
+    }).catch(e => {
+      console.log(e);
+    });
+  });
 });
 
 describe('[Request::close] function test', () => {
