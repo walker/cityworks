@@ -170,10 +170,27 @@ describe('[Request::uncancel] function test', () => {
 });
 
 describe('[Request::close] function test', () => {
+  it('should return the closed request(s)', (done) => {
+    var ID = 1520675;
+    cw2.request.close([ID]).then(resp => { // TODO: Make this pull REQ, _then_ delete
+      expect(_.some(resp, { RequestId: ID })).to.be.true;
+      done();
+    }).catch(e => {
+      console.log(e);
+    });
+  });
 });
 
 describe('[Request::reopen] function test', () => {
-
+  it('should return the reopened request(s)', (done) => {
+    var ID = 1520675;
+    cw2.request.reopen([ID]).then(resp => { // TODO: Make this pull REQ, _then_ delete
+      expect(_.some(resp, { RequestId: ID })).to.be.true;
+      done();
+    }).catch(e => {
+      console.log(e);
+    });
+  });
 });
 
 describe('[Request::comment] function test', () => {

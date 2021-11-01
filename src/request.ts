@@ -260,7 +260,11 @@ export class Request {
           RequestIds: requestIds
         }
         this.cw.runRequest('Ams/ServiceRequest/Close', data).then(r => {
-          resolve(r.Value)
+          if(r.Status>0) {
+            reject(new CWError(5, r.Message, {'response': r}))
+          } else {
+            resolve(r.Value)
+          }
         }).catch(e => {
           reject(e)
         })
