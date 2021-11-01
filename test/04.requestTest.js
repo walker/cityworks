@@ -134,16 +134,16 @@ describe('[Request::update] function test', () => {
   });
 });
 
-// describe('[Request::delete] function test', () => {
-//   it('should return a list of the deleted request ID(s)', (done) => {
-//     cw2.request.delete([1520677]).then(resp => { // TODO: Make this pull REQ, _then_ delete
-//       console.log(resp);
-//       done();
-//     }).catch(e => {
-//       console.log(e);
-//     });
-//   });
-// });
+describe('[Request::delete] function test', () => {
+  it('should return a list of the deleted request ID(s)', (done) => {
+    cw2.request.delete([1520677]).then(resp => { // TODO: Make this pull REQ, _then_ delete
+      console.log(resp);
+      done();
+    }).catch(e => {
+      console.log(e);
+    });
+  });
+});
 
 describe('[Request::cancel] function test', () => {
   it('should return the updated request(s)', (done) => {
