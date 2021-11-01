@@ -123,7 +123,7 @@ export declare class Request {
      * @param {Array<number>} requestIds - An array of the IDs to delete the matched requests
      * @return {Object} Returns object that represents a collection of request Ids which have been deleted
      */
-    delete(inspectionIds: Array<number>): Promise<unknown>;
+    delete(requestIds: Array<number>): Promise<unknown>;
     /**
      * Search for requests
      *

@@ -6,7 +6,7 @@ var Cityworks = require('../dist/index.js');
 var cw2 = new Cityworks(process.env.domain, {path: process.env.path});
 
 before(function(done) {
-  this.timeout(2000000);
+  this.timeout(20000000);
   cw2.authenticate(process.env.login, process.env.password).then(resp => {
     done();
   }).catch(e => {

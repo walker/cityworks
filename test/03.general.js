@@ -8,8 +8,8 @@ chai.use(chaiAsPromised);
 var Cityworks = require('../dist/index.js');
 var cw3 = new Cityworks(process.env.domain, {path: process.env.path});
 
-before(function() {
-  this.timeout(2000000);
+before(function(done) {
+  this.timeout(20000000);
   cw3.authenticate(process.env.login, process.env.password).then(resp => {
     done();
   }).catch(e => {

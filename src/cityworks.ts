@@ -20,13 +20,15 @@ interface postData {
  * Core interface Citywork which defines the access vars for many of the functions and the connection settings
  */
 interface Citywork {
-  domain: any
+  base_url: any
   settings: Object
   login?: string
   password?: string
   Token?: string
   gisToken?: string
   gisTokenUrl?: string
+
+  default_domain?: any
 
   general?: Object
   activity_link?: Object
@@ -48,7 +50,7 @@ module.exports = class Cityworks implements Citywork {
   /**
    * The domain of the cityworks install. Defaults to Cityworks Online
    */
-  domain: string
+  base_url: string
   /**
    * Stores the currently in use authentication token
    */
@@ -70,12 +72,13 @@ module.exports = class Cityworks implements Citywork {
    */
   gisTokenUrl?: string
   /**
-   * Stores settings including path (defaults to "cityworks"), secure (defaults to true), expires (defaults to null - does not expire)
+   * Stores settings including path (defaults to "cityworks"), secure (defaults to true), expires (defaults to null - does not expire), default_domain
    */
   settings: {
     path: string,
     secure: boolean,
-    expires: any
+    expires: any,
+    default_domain?: any
   }
   error?: Object
   general?: Object
@@ -92,39 +95,41 @@ module.exports = class Cityworks implements Citywork {
 
   /**
      * Contructor for a new cityworks instance's object, allows one to optionally configure the domain and other settings right from the get-go
-     * @param {string} [domain] - The first color, in hexadecimal format.
+     * @param {string} [base_url] - The first color, in hexadecimal format.
      * @param {object} [settings] - The second color, in hexadecimal format.
      * @param {array} [load] - allows user to choose which modules to load and make available. Full availability array: ['general', 'activity_link', 'message_queue', 'gis', 'workorder', 'inspection', 'request', 'case']
      */
-  constructor(domain?: string, settings?: Object, load?: Array<string>) {
-    this.domain = 'cityworksonline'
+  constructor(base_url?: string, settings?: Object, load?: Array<string>) {
+    this.base_url = 'cityworksonline'
     this.extensions = {"UnknownExtension": 0, "CwAnalytics": 1, "WebHooks": 2, "PLLPublicApp": 3, "ActivityUpdate": 4, "SingleSignOn": 5}
     this.features = {"UnknownFeature": 0, "ViewInspections": 1, "EditInspections": 2, "ViewServiceRequest": 3, "EditServiceRequest": 4, "ViewWorkOrder": 5, "EditWorkOrder": 6, "EquipmentCheckOut": 7, "OfficeField": 8, "Respond": 9, "Eurl": 10, "PaverInterface": 11, "Contracts": 12, "Storeroom": 13, "PLL": 14, "Cw4XL": 15, "TableEditor": 16, "CCTVInterface": 17, "MobileAndroid": 18, "MobileiOS": 19, "PerformanceBudgeting": 20, "Insights": 21, "RespondCase": 22, "RespondInspection": 23, "RespondServiceRequest": 24, "RespondTaskManager": 25, "RespondWorkOrder": 26, "Workload": 27, "OpX": 28, "TrimbleUnityMobile": 29, "TrimbleVegetationManager": 30}
     this.settings = {
       path: 'cityworks',
       secure: true,
-      expires: null
+      expires: null,
+      default_domain: null
     }
     this.potential_loads = ['general', 'activity_link', 'message_queue', 'gis', 'search', 'request']
-    if(typeof(domain)!='undefined') {
-      this.configure(domain, settings, load)
+    if(typeof(base_url)!='undefined') {
+      this.configure(base_url, settings, load)
     }
   }
 
   /**
      * Configure a new cityworks instance's domain and other settings
      *
-     * @param {string} [domain] - The first color, in hexadecimal format.
+     * @param {string} [base_url] - The first color, in hexadecimal format.
      * @param {object} [settings] - The second color, in hexadecimal format.
      * @param {array} [load] - allows user to choose which modules to load and make available. Full availability array: ['general', 'activity_link', 'message_queue', 'gis', 'search', 'workorder', 'inspection', 'request', 'case']
      * @return {boolean} Returns true if successful, otherwise, throws error
      */
-  configure(domain?: string, settings?: Object, load?: Array<string>) {
-    if(typeof domain !== 'undefined') { this.domain = domain } else { this.domain = 'cityworksonline' }
+  configure(base_url?: string, settings?: Object, load?: Array<string>) {
+    if(typeof base_url !== 'undefined') { this.base_url = base_url } else { this.base_url = 'cityworksonline' }
     this.settings = {
       path: 'cityworks',
       secure: true,
-      expires: null
+      expires: null,
+      default_domain: null
     }
 
     if(typeof(settings)!='undefined') {
@@ -193,7 +198,7 @@ module.exports = class Cityworks implements Citywork {
         Message: string
       }
       let options = {
-        hostname: this.domain,
+        hostname: this.base_url,
         port: 443,
         path: '/' + this.settings.path + '/services/' + path,
         method: 'POST',
@@ -261,7 +266,7 @@ module.exports = class Cityworks implements Citywork {
     return new Promise((resolve, reject) => {
       let data = { LoginName:login, Password:password }
       let path = 'General/Authentication/Authenticate'
-      if(this.domain == 'cityworksonline') {
+      if(this.base_url == 'cityworksonline') {
         path = 'General/Authentication/CityworksOnlineAuthenticate'
       }
       this.runRequest(path, data).then((response: any) => {

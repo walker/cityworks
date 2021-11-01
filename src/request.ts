@@ -24,7 +24,7 @@ export class Request {
   create(sr_data: Object) {
     return new Promise((resolve, reject) => {
       if(!_.has(sr_data, 'ProblemSid')) {
-        reject(new CWError(1, 'ProblemSid must be provided.', {'provided': sr_data}))
+        reject(new CWError(2, 'ProblemSid must be provided.', {'provided': sr_data}))
       } else {
         this.cw.runRequest('Ams/ServiceRequest/Create', sr_data).then(r => {
           resolve(r.Value)
@@ -44,17 +44,15 @@ export class Request {
    */
   update(sr_data: Object) {
     return new Promise((resolve, reject) => {
-      return new Promise((resolve, reject) => {
-        if(!_.has(sr_data, 'RequestId')) {
-          reject(new CWError(1, 'RequestId must be provided.', {'provided': sr_data}))
-        } else {
-          this.cw.runRequest('Ams/ServiceRequest/Update', sr_data).then(r => {
-            resolve(r.Value)
-          }).catch(e => {
-            reject(e)
-          })
-        }
-      })
+      if(!_.has(sr_data, 'RequestId')) {
+        reject(new CWError(3, 'RequestId must be provided.', {'provided': sr_data}))
+      } else {
+        this.cw.runRequest('Ams/ServiceRequest/Update', sr_data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      }
     })
   }
 
@@ -68,16 +66,14 @@ export class Request {
    */
   changeProblem(requestId: number, problemSid: number) {
     return new Promise((resolve, reject) => {
-      return new Promise((resolve, reject) => {
-        var data = {
-          RequestId: requestId,
-          ProblemSid: problemSid
-        }
-        this.cw.runRequest('Ams/ServiceRequest/ChangeProblem', data).then(r => {
-          resolve(r.Value)
-        }).catch(e => {
-          reject(e)
-        })
+      var data = {
+        RequestId: requestId,
+        ProblemSid: problemSid
+      }
+      this.cw.runRequest('Ams/ServiceRequest/ChangeProblem', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
       })
     })
   }
@@ -298,13 +294,17 @@ export class Request {
    * @param {Array<number>} requestIds - An array of the IDs to delete the matched requests
    * @return {Object} Returns object that represents a collection of request Ids which have been deleted
    */
-   delete(inspectionIds: Array<number>) {
+   delete(requestIds: Array<number>) {
      return new Promise((resolve, reject) => {
        var data = {
-         InspectionIds: inspectionIds
+         RequestIds: requestIds
        }
-       this.cw.runRequest('Ams/Inspection/Delete', data).then(r => {
-         resolve(r.Value)
+       this.cw.runRequest('Ams/ServiceRequest/Delete', data).then(r => {
+         if(r.Status>0) {
+           reject(new CWError(4, r.Message, {'response': r}))
+         } else {
+           resolve(r.Value)
+         }
        }).catch(e => {
          reject(e)
        })
@@ -395,13 +395,15 @@ export class Request {
         IncludeCancelled: includeCancelled,
         ViewOnly: viewOnly
       }
-      if(typeof displayMode != 'undefined' && _.has(displayMode, 'DisplayTextMode')) {
+      if(typeof displayMode != 'undefined' && displayMode !== null && _.has(displayMode, 'DisplayTextMode')) {
         _.set(data, 'DisplayTextMode', _.get(displayMode, 'DisplayTextMode'))
         if(_.get(displayMode, 'DisplayTextMode')=='CD' && _.has(displayMode, 'DisplayTextDelimeter')) {
           _.set(data, 'DisplayTextDelimeter', _.get(displayMode, 'DisplayTextDelimeter'))
         }
       }
       this.cw.runRequest('Ams/ServiceRequest/ProblemNodes', data).then(r => {
+        // console.log(_.filter(r, function(o) { return !o.Cancel; }), 'filter');
+        // console.log(_.some(r.Value, ['Cancel', true]), 'some');
         resolve(r.Value)
       }).catch(e => {
         reject(e)

@@ -6,7 +6,7 @@ var Cityworks = require('../dist/index.js');
 var cw1;
 
 before(function(done) {
-  this.timeout(2000000);
+  this.timeout(20000000);
   done();
 });
 

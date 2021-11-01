@@ -1,6 +1,6 @@
 {
   "name": "cityworks",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A Cityworks API wrapper",
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
@@ -12,7 +12,7 @@
   "scripts": {
     "dev": "microbundle watch",
     "build": "microbundle",
-    "test": "mocha ./test/ --recursive --reporter spec",
+    "test": "mocha --recursive --reporter spec ./test/",
     "docs": "./node_modules/typedoc/bin/typedoc --tsconfig ./tsconfig.json"
   },
   "repository": {
