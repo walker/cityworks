@@ -1,4 +1,4 @@
-export declare class Case {
+export declare class CaseWorkflow {
     /**
      * @hidden
      */

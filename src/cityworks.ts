@@ -7,6 +7,11 @@ import { Search } from './search'
 import { Request } from './request'
 import { Inspection } from './inspection'
 
+import { Case } from './case'
+import { CaseData } from './case_data'
+import { CaseFinancial } from './case_financial'
+import { CaseWorkflow} from './case_workflow'
+
 const https = require('https')
 const querystring = require('querystring')
 const _ = require('lodash')
@@ -38,6 +43,11 @@ interface Citywork {
   inspection?: Object
   // workorder?: Object
   request?: Object
+
+  case?: Object
+  case_data?: Object
+  case_workflow?: Object
+  case_financial?: Object
 
   extensions: Object
   features: Object
@@ -89,6 +99,11 @@ module.exports = class Cityworks implements Citywork {
   request?: Object
   inspection?: Object
 
+  case?: Object
+  case_data?: Object
+  case_workflow?: Object
+  case_financial?: Object
+
   extensions: Object
   features: Object
   potential_loads: Array<string>
@@ -109,7 +124,7 @@ module.exports = class Cityworks implements Citywork {
       expires: null,
       default_domain: null
     }
-    this.potential_loads = ['general', 'activity_link', 'message_queue', 'gis', 'search', 'request']
+    this.potential_loads = ['general', 'activity_link', 'message_queue', 'gis', 'search', 'request', 'case', 'case_financial']
     if(typeof(base_url)!='undefined') {
       this.configure(base_url, settings, load)
     }
@@ -144,6 +159,10 @@ module.exports = class Cityworks implements Citywork {
       this.message_queue = new MessageQueue(this)
       this.request = new Request(this)
       this.inspection = new Inspection(this)
+      this.case = new Case(this)
+      this.case_data = new CaseData(this)
+      this.case_workflow = new CaseWorkflow(this)
+      this.case_financial = new CaseFinancial(this)
     } else {
       let _this = this
       _.forEach(this.potential_loads, function(v) {
@@ -165,6 +184,18 @@ module.exports = class Cityworks implements Citywork {
           break
           case 'request':
             _this.request = new Request(_this)
+          break
+          case 'case':
+            _this.case = new Case(_this)
+          break
+          case 'case_data':
+            _this.case_data = new CaseData(_this)
+          break
+          case 'case_workflow':
+            _this.case_workflow = new CaseWorkflow(_this)
+          break
+          case 'case_financial':
+            _this.case_financial = new CaseFinancial(_this)
           break
           case 'inspection':
             _this.inspection = new Inspection(_this)
