@@ -3,12 +3,12 @@ require('dotenv').config();
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 var Cityworks = require('../dist/index.js');
-var cw2 = new Cityworks(process.env.domain, {path: process.env.path});
+var cw4 = new Cityworks(process.env.domain, {path: process.env.path});
 const _ = require('lodash')
 
 before(function(done) {
   this.timeout(20000000);
-  cw2.authenticate(process.env.login, process.env.password).then(resp => {
+  cw4.authenticate(process.env.login, process.env.password).then(resp => {
     done();
   }).catch(e => {
     console.log(e, 'unexpected error')
@@ -18,14 +18,14 @@ before(function(done) {
 
 describe('[Request (construct)] function test', () => {
   it('should be a defined object', (done) => {
-    assert.isObject(cw2.request, 'Request is an object');
+    assert.isObject(cw4.request, 'Request is an object');
     done();
   });
 });
 
 describe('[Request::getProblemNodes] function test', () => {
   it('should return a list of problem nodes for a known domain', (done) => {
-    cw2.request.getProblemNodes(1).then(resp => {
+    cw4.request.getProblemNodes(1).then(resp => {
       assert.property(resp[0], 'Cancel');
       done();
     }).catch(e => {
@@ -33,7 +33,7 @@ describe('[Request::getProblemNodes] function test', () => {
     });
   });
   it('should return a list of problem nodes with view only priviledges', (done) => {
-    cw2.request.getProblemNodes(1, true).then(resp => {
+    cw4.request.getProblemNodes(1, true).then(resp => {
       assert.property(resp[0], 'Cancel');
       done();
     }).catch(e => {
@@ -42,7 +42,7 @@ describe('[Request::getProblemNodes] function test', () => {
   });
   it('should return a list of problem nodes including cancelled nodes', (done) => {
     let result = false;
-    cw2.request.getProblemNodes(1, false, null, true).then(resp => {
+    cw4.request.getProblemNodes(1, false, null, true).then(resp => {
       if(resp.length==0) {
         result = true;
       } else {
@@ -62,7 +62,7 @@ describe('[Request::getProblemNodes] function test', () => {
   it('should return a list of problem nodes code and description delimited by [pipe]', (done) => {
     let delimiter = ' | ';
     let delimiter_test = false;
-    cw2.request.getProblemNodes(1, true, {DisplayTextMode:'CD', DisplayTextDelimeter:delimiter}).then(resp => {
+    cw4.request.getProblemNodes(1, true, {DisplayTextMode:'CD', DisplayTextDelimeter:delimiter}).then(resp => {
       if(resp.length==0) {
         delimiter_test = true;
       } else {
@@ -82,7 +82,7 @@ describe('[Request::getProblemNodes] function test', () => {
   });
   it('should return the description as the name if D is set and description is not empty', (done) => {
     let description_as_name_test = false;
-    cw2.request.getProblemNodes(1, true, {DisplayTextMode:'D'}).then(resp => {
+    cw4.request.getProblemNodes(1, true, {DisplayTextMode:'D'}).then(resp => {
       if(resp.length==0) {
         description_as_name_test = true;
       } else {
@@ -103,7 +103,7 @@ describe('[Request::getProblemNodes] function test', () => {
 
 describe('[Request::getProblems] function test', () => {
   it('should return a list of problems', (done) => {
-    cw2.request.getProblems().then(resp => {
+    cw4.request.getProblems().then(resp => {
       assert.isArray(resp);
       done();
     }).catch(e => {
@@ -114,7 +114,7 @@ describe('[Request::getProblems] function test', () => {
 
 describe('[Request::create] function test', () => {
   it('should return a new request', (done) => {
-    cw2.request.create({ProblemSid: 309}).then(resp => {
+    cw4.request.create({ProblemSid: 309}).then(resp => {
       assert.equal(resp.ProblemSid, 309);
       done();
     }).catch(e => {
@@ -125,7 +125,7 @@ describe('[Request::create] function test', () => {
 
 describe('[Request::update] function test', () => {
   it('should return the updated request', (done) => {
-    cw2.request.update({RequestId: 1520672, Address: '1520 MARKET ST'}).then(resp => {
+    cw4.request.update({RequestId: 1520672, Address: '1520 MARKET ST'}).then(resp => {
       assert.equal(resp.ProbAddress, '1520 MARKET ST');
       done();
     }).catch(e => {
@@ -136,7 +136,7 @@ describe('[Request::update] function test', () => {
 
 describe('[Request::delete] function test', () => {
   it('should return a list of the deleted request ID(s)', (done) => {
-    cw2.request.delete([1520677]).then(resp => { // TODO: Make this pull REQ, _then_ delete
+    cw4.request.delete([1520677]).then(resp => { // TODO: Make this pull REQ, _then_ delete
       console.log(resp);
       done();
     }).catch(e => {
@@ -148,7 +148,7 @@ describe('[Request::delete] function test', () => {
 describe('[Request::cancel] function test', () => {
   it('should return the updated request(s)', (done) => {
     var ID = 1520676;
-    cw2.request.cancel([ID]).then(resp => { // TODO: Make this pull REQ, _then_ delete
+    cw4.request.cancel([ID]).then(resp => { // TODO: Make this pull REQ, _then_ delete
       expect(_.some(resp, { RequestId: ID })).to.be.true;
       done();
     }).catch(e => {
@@ -160,7 +160,7 @@ describe('[Request::cancel] function test', () => {
 describe('[Request::uncancel] function test', () => {
   it('should return the updated request(s)', (done) => {
     var ID = 1520676;
-    cw2.request.uncancel([ID]).then(resp => { // TODO: Make this pull REQ, _then_ delete
+    cw4.request.uncancel([ID]).then(resp => { // TODO: Make this pull REQ, _then_ delete
       expect(_.some(resp, { RequestId: ID })).to.be.true;
       done();
     }).catch(e => {
@@ -172,7 +172,7 @@ describe('[Request::uncancel] function test', () => {
 describe('[Request::close] function test', () => {
   it('should return the closed request(s)', (done) => {
     var ID = 1520675;
-    cw2.request.close([ID]).then(resp => { // TODO: Make this pull REQ, _then_ delete
+    cw4.request.close([ID]).then(resp => { // TODO: Make this pull REQ, _then_ delete
       expect(_.some(resp, { RequestId: ID })).to.be.true;
       done();
     }).catch(e => {
@@ -184,7 +184,7 @@ describe('[Request::close] function test', () => {
 describe('[Request::reopen] function test', () => {
   it('should return the reopened request(s)', (done) => {
     var ID = 1520675;
-    cw2.request.reopen([ID]).then(resp => { // TODO: Make this pull REQ, _then_ delete
+    cw4.request.reopen([ID]).then(resp => { // TODO: Make this pull REQ, _then_ delete
       expect(_.some(resp, { RequestId: ID })).to.be.true;
       done();
     }).catch(e => {

@@ -8,9 +8,6 @@ import { Request } from './request'
 import { Inspection } from './inspection'
 
 import { Case } from './case'
-import { CaseData } from './case_data'
-import { CaseFinancial } from './case_financial'
-import { CaseWorkflow} from './case_workflow'
 
 const https = require('https')
 const querystring = require('querystring')
@@ -45,9 +42,6 @@ interface Citywork {
   request?: Object
 
   case?: Object
-  case_data?: Object
-  case_workflow?: Object
-  case_financial?: Object
 
   extensions: Object
   features: Object
@@ -100,9 +94,6 @@ module.exports = class Cityworks implements Citywork {
   inspection?: Object
 
   case?: Object
-  case_data?: Object
-  case_workflow?: Object
-  case_financial?: Object
 
   extensions: Object
   features: Object
@@ -160,9 +151,6 @@ module.exports = class Cityworks implements Citywork {
       this.request = new Request(this)
       this.inspection = new Inspection(this)
       this.case = new Case(this)
-      this.case_data = new CaseData(this)
-      this.case_workflow = new CaseWorkflow(this)
-      this.case_financial = new CaseFinancial(this)
     } else {
       let _this = this
       _.forEach(this.potential_loads, function(v) {
@@ -187,15 +175,6 @@ module.exports = class Cityworks implements Citywork {
           break
           case 'case':
             _this.case = new Case(_this)
-          break
-          case 'case_data':
-            _this.case_data = new CaseData(_this)
-          break
-          case 'case_workflow':
-            _this.case_workflow = new CaseWorkflow(_this)
-          break
-          case 'case_financial':
-            _this.case_financial = new CaseFinancial(_this)
           break
           case 'inspection':
             _this.inspection = new Inspection(_this)
