@@ -90,7 +90,7 @@ export declare class Request {
      *
      * @category Requests
      * @param {number} requestId - The ID of the request to retrieve
-     * @param {number} comment - The comment text to add
+     * @param {string} comment - The comment text to add
      * @return {Object} Returns Promise that represents an object describing the comment added
      */
     comment(requestId: number, comment: string): Promise<unknown>;

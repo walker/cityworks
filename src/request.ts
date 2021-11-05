@@ -214,7 +214,7 @@ export class Request {
    *
    * @category Requests
    * @param {number} requestId - The ID of the request to retrieve
-   * @param {number} comment - The comment text to add
+   * @param {string} comment - The comment text to add
    * @return {Object} Returns Promise that represents an object describing the comment added
    */
   comment(requestId: number, comment: string) {
@@ -244,12 +244,10 @@ export class Request {
      return new Promise((resolve, reject) => {
        var m = new Date()
        var data: {RequestIds: Array<number>, CancelReason?: string, DateCancelled?: Date} = { RequestIds: requestIds }
-       if(typeof(cancelReason)!=='undefined') {
-         data.CancelReason = cancelReason
-       }
-       if(typeof(dateCancelled)!=='undefined') {
-         data.DateCancelled = dateCancelled
-       }
+       if(typeof(cancelReason)!=='undefined')
+         _.set(data, 'CancelReason', cancelReason);
+       if(typeof(dateCancelled)!=='undefined')
+         _.set(data, 'DateCancelled', dateCancelled);
        this.cw.runRequest('Ams/ServiceRequest/Cancel', data).then(r => {
          resolve(r.Value)
        }).catch(e => {
@@ -314,7 +312,7 @@ export class Request {
          var data = {
            RequestIds: requestIds
          }
-         this.cw.runRequest('Ams/ServiceRequest/Reopen', data).then(r => {
+         this.cw.runRequest('Ams/ServiceRequest/ReOpen', data).then(r => {
            resolve(r.Value)
          }).catch(e => {
            reject(e)
