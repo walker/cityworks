@@ -203,5 +203,5 @@ export class Gis {
    * @param {number} ServiceId
    * @return {Object} Returns Promise object that represents an object describing the provided Geocoder service configuration
    */
-   // gis/GeoCode/GeocodeServer
+   // Gis/GeoCode/GeocodeServer
 }

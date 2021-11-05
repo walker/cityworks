@@ -57,6 +57,37 @@ export class Request {
   }
 
   /**
+   * Move a request's point
+   *
+   * @category Requests
+   * @param {number} requestId
+   * @param {number} x
+   * @param {number} y
+   * @param {Object} projection - Should include WKT or WKID attribute. Can also include VcsWKID attribute.
+   * @param {number} [z] - Optional Z coordinate
+   * @return {Object} Returns Promise that represents an object describing the updated request
+   */
+  move(requestId: number, x: number, y: number, projection: Object, z?: number) {
+    return new Promise((resolve, reject) => {
+      if(!_.has(projection, 'WKID') && !_.has(projection, 'WKT')) {
+        // Throw error
+        reject(new CWError(6, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
+      }
+      var base_data = {
+        RequestId: requestId,
+        X: x,
+        Y: y
+      };
+      var data = _.merge(base_data, projection);
+      this.cw.runRequest('Ams/ServiceRequest/Move', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    });
+  }
+
+  /**
    * Change a request's problem code
    *
    * @category Requests

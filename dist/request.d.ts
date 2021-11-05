@@ -24,6 +24,18 @@ export declare class Request {
      */
     update(sr_data: Object): Promise<unknown>;
     /**
+     * Move a request's point
+     *
+     * @category Requests
+     * @param {number} requestId
+     * @param {number} x
+     * @param {number} y
+     * @param {Object} projection - Should include WKT or WKID attribute. Can also include VcsWKID attribute.
+     * @param {number} [z] - Optional Z coordinate
+     * @return {Object} Returns Promise that represents an object describing the updated request
+     */
+    move(requestId: number, x: number, y: number, projection: Object, z?: number): Promise<unknown>;
+    /**
      * Change a request's problem code
      *
      * @category Requests

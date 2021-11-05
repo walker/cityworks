@@ -13,19 +13,28 @@ export declare class CaseFinancial {
      * @category Case Fees
      * @param {number} caObjectId - The Case Object ID for the case to which to add the fee
      * @param {number} feeSetupId - The fee setup id for the fee to add to the case.
-     * @param {Object} [options] - See /{subdirectory}/apidocs/#/service-info/Pll/CaseFees for more options
+     * @param {Object} [options] - See /{subdirectory}/apidocs/#/service-info/Pll/CaseFees for more options. (Checkboxes -- Autorecalculate -- are Y/N strings)
      * @return {Object} Returns Promise that represents an object describing the newly-added fee. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaFeesItemBase
      */
-    addCaseFee(caObjectId: number, feeSetupId: number, options?: Object): Promise<unknown>;
+    addFee(caObjectId: number, feeSetupId: number, options?: Object): Promise<unknown>;
     /**
-     * Adds Default Case Fees. Adds fees to the case specified by the CaObectId.
+     * Updates a fee specified by the CaFeeId.
      *
      * @category Case Fees
-     * @param {number} busCaseId - The Case Object ID for the case to which to add the fee
-     * @param {number} caObjectId - The fee setup id for the fee to add to the case.
+     * @param {number} caFeeId - The Fee ID for the specific instance of the fee you wish to update
+     * @param {Object} [options] - See /{subdirectory}/apidocs/#/service-info/Pll/CaseFees for more options. (Checkboxes -- Autorecalculate -- are Y/N strings)
+     * @return {Object} Returns Promise that represents an object describing the newly-added fee. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaFeesItemBase
+     */
+    updateFee(caFeeId: number, options?: Object): Promise<unknown>;
+    /**
+     * Adds Default Case Fees. Adds fees to the case specified by the CaObectId and BusCaseId.
+     *
+     * @category Case Fees
+     * @param {number} caObjectId - The Case Object ID for the case to which to add the default fees
+     * @param {number} busCaseId - The business case ID whose default fees should be added to the case
      * @return {Object} Returns Promise that represents a collection of Fee Items. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaFeesItemBase
      */
-    addDefaultCaseFees(caObjectId: number, busCaseId: number): Promise<unknown>;
+    addDefaultFees(caObjectId: number, busCaseId: number): Promise<unknown>;
     /**
      * Gets the fees from the case specified by the CaObectId.
      *
@@ -33,7 +42,7 @@ export declare class CaseFinancial {
      * @param {number} caObjectId - The Case Object ID for the case to which to add the fee
      * @return {Object} Returns Promise that represents an collection of Case Fees.
      */
-    getCaseFees(caObjectId: number): Promise<unknown>;
+    getFees(caObjectId: number): Promise<unknown>;
     /**
      * Delete the fee specified by the caFeeId.
      *
@@ -41,7 +50,7 @@ export declare class CaseFinancial {
      * @param {number} caFeeId - The Case Fee ID which should be deleted
      * @return {Object} Returns Promise that represents a collection of Case Fees.
      */
-    deleteCaseFee(caFeeId: number): Promise<unknown>;
+    deleteFee(caFeeId: number): Promise<unknown>;
     /**
      * Delete Case Fees by Case ObjectId. Delete from the system all Fees linked to a specific Case as specified by the Case Id parameter (CaObjectId).
      *
@@ -49,7 +58,7 @@ export declare class CaseFinancial {
      * @param {number} caObjectId - The Case Object ID whose fees should be deleted
      * @return {Object} Returns Promise that represents a number (?)
      */
-    deleteCaseFeesByCAObjectId(caObjectId: number): Promise<unknown>;
+    deleteFeesByCaseId(caObjectId: number): Promise<unknown>;
     /**
      * Search for Case Fees. Include one or more of the listed search fields. A logical 'and' operation is applied for multiple search fields.
      *
@@ -60,24 +69,24 @@ export declare class CaseFinancial {
      * @param {string} [feeDesc] - The Case Fee ID which should be deleted
      * @return {Object} Returns Promise that represents an Array of case fee IDs
      */
-    searchCaseFees(caFeeId?: number, caObjectId?: number, feeCode?: string, feeDesc?: string): Promise<unknown>;
+    searchFees(caFeeId?: number, caObjectId?: number, feeCode?: string, feeDesc?: string): Promise<unknown>;
     /**
-     * Get All Fees
+     * Get All Fee Templates
      *
      * @category Case Fees
      * @return {Object} Returns Promise that represents an object describing the newly-added fee. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaFeesItemBase
      */
-    getAllFees(): Promise<unknown>;
+    getAllFeeTemplates(): Promise<unknown>;
     /**
      * Search for Fees. Include one or more of the listed search fields. A logical 'and' operation is applied for multiple search fields.
      *
      * @category Case Fees
-     * @param {number} [feeSetupId] - The Case Fee ID which should be deleted
-     * @param {number} [feeTypeId] - The Case Fee ID which should be deleted
-     * @param {string} [feeCode] - The Case Fee ID which should be deleted
-     * @param {string} [feeDesc] - The Case Fee ID which should be deleted
-     * @param {string} [accountCode] - The Case Fee ID which should be deleted
+     * @param {number} [feeSetupId] - The Case Fee ID to search for
+     * @param {number} [feeTypeId] - The Case Fee Type ID to search for
+     * @param {string} [feeCode] - The fee code to search for
+     * @param {string} [feeDesc] - The fee description to search for
+     * @param {string} [accountCode] - The account code to search for
      * @return {Object} Returns Promise that represents an Array of case fee IDs
      */
-    searchFees(feeSetupId?: number, feeTypeId?: number, feeCode?: string, feeDesc?: string, accountCode?: string): Promise<unknown>;
+    searchFeeTemplates(feeSetupId?: number, feeTypeId?: number, feeCode?: string, feeDesc?: string, accountCode?: string): Promise<unknown>;
 }

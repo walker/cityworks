@@ -6,6 +6,7 @@ import { MessageQueue } from './message_queue'
 import { Search } from './search'
 import { Request } from './request'
 import { Inspection } from './inspection'
+import { WorkOrder } from './workorder'
 
 import { Case } from './case'
 
@@ -38,7 +39,7 @@ interface Citywork {
   gis?: Object
   // case?: Object
   inspection?: Object
-  // workorder?: Object
+  workorder?: Object
   request?: Object
 
   case?: Object
@@ -92,6 +93,7 @@ module.exports = class Cityworks implements Citywork {
   search?: Object
   request?: Object
   inspection?: Object
+  workorder?: Object
 
   case?: Object
 
@@ -150,6 +152,7 @@ module.exports = class Cityworks implements Citywork {
       this.message_queue = new MessageQueue(this)
       this.request = new Request(this)
       this.inspection = new Inspection(this)
+      this.workorder = new WorkOrder(this)
       this.case = new Case(this)
     } else {
       let _this = this
@@ -178,6 +181,9 @@ module.exports = class Cityworks implements Citywork {
           break
           case 'inspection':
             _this.inspection = new Inspection(_this)
+          break
+          case 'workorder':
+            _this.workorder = new WorkOrder(_this)
           break
         }
       })
