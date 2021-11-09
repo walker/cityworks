@@ -22,22 +22,10 @@ export declare class WorkOrder {
      *
      * @category WorkOrders
      * @param {Object} wo_data - See /{subdirectory}/apidocs/#/data-type-infodataType=WorkOrder on the Cityworks instance
-     * @param {number} workOrderSId - The workorder S/ID which the entities should be added to. Defaults to SID.
-     * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
+     * @param {string|number} workOrderSId - The workorder S/ID which the entities should be added to. # for SID, string for ID.
      * @return {Object} Returns Promise that represents an object describing the newly-created workorder
      */
-    createFromParent(wo_data: Object, workOrderSId: number, s?: boolean): Promise<unknown>;
-    /**
-     * Add entities to an existing WorkOrder
-     *
-     * @category WorkOrders
-     * @param {number} workOrderSId - The workorder S/ID which the entities should be added to. Defaults to SID.
-     * @param {Object} entityInfo - Entity info object including: (req) EntityType: {string}, (req) EntityUids: {Array<string>}, Facility_Id: {string}, Level_Id: {string}
-     * @param {boolean} updateXY - Update work order xy after adding entit(y|ies), default is true.
-     * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
-     * @return {Object} Returns object that represents a list of entities removed.
-     */
-    addEntities(workOrderSId: number, entityInfo: Object, updateXY?: boolean, s?: boolean): Promise<unknown>;
+    createFromParent(wo_data: Object, workOrderSId: string | number, s?: boolean): Promise<unknown>;
     /**
      * Update a WorkOrder
      *
@@ -60,71 +48,93 @@ export declare class WorkOrder {
      * Move a workorder's point
      *
      * @category WorkOrders
-     * @param {number} workOrderId
+     * @param {string} workOrderId
      * @param {number} x
      * @param {number} y
      * @param {Object} projection - Should include WKT or WKID attribute. Can also include VcsWKID attribute.
      * @param {number} [z] - Optional Z coordinate
      * @return {Object} Returns Promise that represents an object describing the updated workorder
      */
-    move(workOrderId: number, x: number, y: number, projection: Object, z?: number): Promise<unknown>;
+    move(workOrderId: string, x: number, y: number, projection: Object, z?: number): Promise<unknown>;
     /**
      * Get a workorder by S/ID
      *
      * @category WorkOrders
-     * @param {number} workOrderSId - The S/ID of the workorder to retrieve
+     * @param {string|number} workOrderSId - The S/ID of the workorder to retrieve. # for SID, string for ID.
      * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
      * @return {Object} Returns Promise that represents an object describing the workorder
      */
-    getById(workOrderSId: number, s?: boolean): Promise<unknown>;
+    getById(workOrderSId: string | number, s?: boolean): Promise<unknown>;
     /**
      * Get workorders by an array of S/IDs
      *
      * @category WorkOrders
-     * @param {Array<number>} workOrderSIds - The workorder S/IDs to retrieve
-     * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
+     * @param {Array<string|number>} workOrderSIds - The workorder S/IDs to retrieve. If providing WorkOrderID, should be all strings, else provide all numbers for WorkOrderSID
      * @return {Object} Returns Promise that represents a collection of Objects describing the workorders
      */
-    getByIds(workOrderSIds: Array<number>, s?: boolean): Promise<unknown>;
+    getByIds(workOrderSIds: Array<string | number>): Promise<unknown>;
+    /**
+     * Get instructions by an array of workorders S/IDs
+     *
+     * @category WorkOrders
+     * @param {Array<string|number>} workOrderSIds - The workorder S/IDs to retrieve. If providing WorkOrderID, should be all strings, else provide all numbers for WorkOrderSID
+     * @return {Object} Returns Promise that represents an array of String, String describing the workorder instructions
+     */
+    getInstructions(workOrderSIds: Array<string | number>): Promise<unknown>;
     /**
      * Get the audit log for a specific workorder
      *
      * @category WorkOrder
-     * @param {number} id - A WorkOrder S/ID to get the audit log for. SID is default.
-     * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
+     * @param {number} workOrderSId - A WorkOrder S/ID to get the audit log for. SID is default.
      * @return {Object} Returns Promise that represents a collection of Cityworks Metadata Objects
      */
-    getAuditLog(id: number, s?: boolean): Promise<unknown>;
+    getAuditLog(workOrderSId: number): Promise<unknown>;
     /**
      * Get custom field values for the workorder S/IDs
      *
      * @category WorkOrders
-     * @param {Array<number>} workOrderSIds - The workorder S/IDs to retrieve
-     * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
+     * @param {Array<string|number>} workOrderSIds - The workorder S/IDs to retrieve. #s for SID, strings for ID.
      * @return {Object} Returns Promise that represents a collection of Objects describing the workorders
      */
-    getCustomFieldValues(workOrderSIds: Array<number>, s?: boolean): Promise<unknown>;
+    getCustomFieldValues(workOrderSIds: Array<string | number>): Promise<unknown>;
     /**
      * Add a comment to a workorder
      *
      * @category WorkOrders
      * @param {number} workOrderSId - The S/ID of the workorder to retrieve. SID is default.
      * @param {string} comment - The comment text to add.
-     * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
      * @return {Object} Returns Promise that represents an object describing the comment added
      */
-    comment(workOrderSId: Array<number>, comment: string, s?: boolean): Promise<unknown>;
+    comment(workOrderSId: string | number, comment: string): Promise<unknown>;
+    /**
+     * Get entities on an existing WorkOrder
+     *
+     * @category WorkOrders
+     * @param {Array<string|number>} workOrderSIds - The workorder S/IDs which the entities should be added to. # for SID, string for ID.
+     * @param {boolean} getGisData - Query gis to populate Entity.Attributes with current gis data. Defaults to true.
+     * @return {Object} Returns object that represents a list of entities removed.
+     */
+    getEntities(workOrderSIds: Array<string | number>, getGisData?: boolean): Promise<unknown>;
+    /**
+     * Add entities to an existing WorkOrder
+     *
+     * @category WorkOrders
+     * @param {string|number} workOrderSId - The workorder S/ID which the entities should be added to. # for SID, string for ID.
+     * @param {Object} entityInfo - Entity info object including: (req) EntityType: {string}, (req) EntityUids: {Array<string>}, Facility_Id: {string}, Level_Id: {string}
+     * @param {boolean} updateXY - Update work order xy after adding entit(y|ies), default is true.
+     * @return {Object} Returns object that represents a list of entities removed.
+     */
+    addEntities(workOrderSId: string | number, entityInfo: Object, updateXY?: boolean): Promise<unknown>;
     /**
      * Remove entities from a work order. Provide WorkOrderId and either ObjectIds or EntityType and EntityUids
      *
      * @category WorkOrders
-     * @param {number} workOrderSId - The workorder S/ID which the entities should be removed from. Defaults to SID.
+     * @param {number} workOrderSId - The workorder S/ID which the entities should be removed from. # for SID, string for ID.
      * @param {Object} entityInfo - Remove entities by WorkOrderEntity.ObjectId (not gis objectId).
      * @param {boolean} updateXY - Update work order xy after removing entities, default is true.
-     * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
      * @return {Object} Returns object that represents a list of entities removed.
      */
-    removeEntities(workOrderSId: number, entityInfo: Object, updateXY?: boolean, s?: boolean): Promise<unknown>;
+    removeEntities(workOrderSId: string | number, entityInfo: Object, updateXY?: boolean): Promise<unknown>;
     /**
      * Cancel workorders
      *
@@ -181,4 +191,39 @@ export declare class WorkOrder {
      * @return {Object} Returns Promise that represents an array of configured workorder priorities
      */
     getPriorities(): Promise<unknown>;
+    /**
+     * Get Cycle From
+     *
+     * @category WorkOrder Options
+     * @return {Object} Returns Promise that represents an array of string/string Cycle From options for workorders
+     */
+    getCycleFrom(): Promise<unknown>;
+    /**
+     * Get Cycle Intervals
+     *
+     * @category WorkOrder Options
+     * @return {Object} Returns Promise that represents an array of string/string Cycle Interval options for workorders
+     */
+    getCycleIntervals(): Promise<unknown>;
+    /**
+     * Get Cycle Types
+     *
+     * @category WorkOrder Options
+     * @return {Object} Returns Promise that represents an array of string/string Cycle Type options for workorders
+     */
+    getCycleTypes(): Promise<unknown>;
+    /**
+     * Get WorkOrder Stages
+     *
+     * @category WorkOrder Options
+     * @return {Object} Returns Promise that represents an array of string/string Stage options for WorkOrders
+     */
+    getStages(): Promise<unknown>;
+    /**
+     * Get Expense Types
+     *
+     * @category WorkOrder Options
+     * @return {Object} Returns Promise that represents an array of string/string Expense Type options for workorders
+     */
+    getExpenseTypes(): Promise<unknown>;
 }

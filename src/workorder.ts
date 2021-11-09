@@ -28,7 +28,14 @@ export class WorkOrder {
         if(!_.has(wo_data, 'WOTemplateId') || !_.has(wo_data, 'EntityType')) {
           reject(new CWError(2, 'WOTemplateId & EntityType must be provided.', {'provided': wo_data}))
         } else {
-          this.cw.runRequest('Ams/WorkOrder/Create', wo_data).then(r => {
+          var data = wo_data;
+          if(typeof inspectionIds != 'undefined' && inspectionIds != null && !_.has(data, 'InspectionIds')) {
+            _.set(data, 'InspectionIds', inspectionIds);
+          }
+          if(typeof requestIds != 'undefined' && requestIds != null && !_.has(data, 'RequestIds')) {
+            _.set(data, 'RequestIds', requestIds);
+          }
+          this.cw.runRequest('Ams/WorkOrder/Create', data).then(r => {
             resolve(r.Value)
           }).catch(e => {
             reject(e)
@@ -42,20 +49,19 @@ export class WorkOrder {
      *
      * @category WorkOrders
      * @param {Object} wo_data - See /{subdirectory}/apidocs/#/data-type-infodataType=WorkOrder on the Cityworks instance
-     * @param {number} workOrderSId - The workorder S/ID which the entities should be added to. Defaults to SID.
-     * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
+     * @param {string|number} workOrderSId - The workorder S/ID which the entities should be added to. # for SID, string for ID.
      * @return {Object} Returns Promise that represents an object describing the newly-created workorder
      */
-    createFromParent(wo_data: Object, workOrderSId: number, s: boolean = true) {
+    createFromParent(wo_data: Object, workOrderSId: string|number, s: boolean = true) {
       return new Promise((resolve, reject) => {
         if(!_.has(wo_data, 'WOTemplateId') || !_.has(wo_data, 'EntityType')) {
           reject(new CWError(2, 'WOTemplateId & EntityType must be provided.', {'provided': wo_data}))
         } else {
           var data = wo_data;
-          if(s) {
-            _.set(data, 'WorkOrderSid', workOrderSId)
+          if(_.isString(workOrderSId)) {
+            _.set(data, 'WorkOrderId', workOrderSId)
           } else {
-            _.set(data, 'WorkOrderId', _.toString(workOrderSId))
+            _.set(data, 'WorkOrderSid', workOrderSId)
           }
           this.cw.runRequest('Ams/WorkOrder/Create', data).then(r => {
             resolve(r.Value)
@@ -65,49 +71,6 @@ export class WorkOrder {
         }
       })
     }
-
-    /**
-     * Add entities to an existing WorkOrder
-     *
-     * @category WorkOrders
-     * @param {number} workOrderSId - The workorder S/ID which the entities should be added to. Defaults to SID.
-     * @param {Object} entityInfo - Entity info object including: (req) EntityType: {string}, (req) EntityUids: {Array<string>}, Facility_Id: {string}, Level_Id: {string}
-     * @param {boolean} updateXY - Update work order xy after adding entit(y|ies), default is true.
-     * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
-     * @return {Object} Returns object that represents a list of entities removed.
-     */
-     addEntities(workOrderSId: number, entityInfo: Object, updateXY: boolean = true, s: boolean = true) {
-       return new Promise((resolve, reject) => {
-         var data = {
-           UpdateXY: updateXY
-         }
-         if(s) {
-           _.set(data, 'WorkOrderSid', workOrderSId)
-         } else {
-           _.set(data, 'WorkOrderId', _.toString(workOrderSId))
-         }
-         if(_.has(entityInfo, 'Facility_Id'))
-           _.set(data, 'Facility_Id', _.get(entityInfo, 'Facility_Id'))
-         if(_.has(entityInfo, 'Level_Id'))
-           _.set(data, 'Level_Id', _.get(entityInfo, 'Level_Id'))
-         if(_.has(entityInfo, 'EntityUids') && _.has(entityInfo, 'EntityType')) {
-           _.set(data, 'EntityUids', _.get(entityInfo, 'EntityUids'))
-           _.set(data, 'EntityType', _.get(entityInfo, 'EntityType'))
-         } else {
-           reject(new CWError(7, 'No entity info was provided.', {'workorderSId': workOrderSId,'entityInfo': entityInfo}))
-         }
-
-         this.cw.runRequest('Ams/WorkOrder/AddEntities', data).then(r => {
-           if(r.Status>0) {
-             reject(new CWError(4, r.Message, {'response': r}))
-           } else {
-             resolve(r.Value)
-           }
-         }).catch(e => {
-           reject(e)
-         })
-       })
-     }
 
     /**
      * Update a WorkOrder
@@ -163,14 +126,14 @@ export class WorkOrder {
    * Move a workorder's point
    *
    * @category WorkOrders
-   * @param {number} workOrderId
+   * @param {string} workOrderId
    * @param {number} x
    * @param {number} y
    * @param {Object} projection - Should include WKT or WKID attribute. Can also include VcsWKID attribute.
    * @param {number} [z] - Optional Z coordinate
    * @return {Object} Returns Promise that represents an object describing the updated workorder
    */
-  move(workOrderId: number, x: number, y: number, projection: Object, z?: number) {
+  move(workOrderId: string, x: number, y: number, projection: Object, z?: number) {
     return new Promise((resolve, reject) => {
       if(!_.has(projection, 'WKID') && !_.has(projection, 'WKT')) {
         // Throw error
@@ -194,19 +157,19 @@ export class WorkOrder {
    * Get a workorder by S/ID
    *
    * @category WorkOrders
-   * @param {number} workOrderSId - The S/ID of the workorder to retrieve
+   * @param {string|number} workOrderSId - The S/ID of the workorder to retrieve. # for SID, string for ID.
    * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
    * @return {Object} Returns Promise that represents an object describing the workorder
    */
-  getById(workOrderSId: number, s: boolean = true) {
+  getById(workOrderSId: string|number, s: boolean = true) {
     return new Promise((resolve, reject) => {
       var data = {}
-      if(s) {
-        _.set(data, 'WorkOrderSids', workOrderSId)
-        var path = 'Ams/WorkOrder/BySid';
-      } else {
-        _.set(data, 'WorkOrderIds', _.toString(workOrderSId))
+      if(_.isString(workOrderSId)) {
+        _.set(data, 'WorkOrderId', workOrderSId)
         var path = 'Ams/WorkOrder/ById';
+      } else {
+        _.set(data, 'WorkOrderSid', workOrderSId)
+        var path = 'Ams/WorkOrder/BySid';
       }
       this.cw.runRequest(path, data).then(r => {
         resolve(r.Value)
@@ -220,25 +183,67 @@ export class WorkOrder {
    * Get workorders by an array of S/IDs
    *
    * @category WorkOrders
-   * @param {Array<number>} workOrderSIds - The workorder S/IDs to retrieve
-   * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
+   * @param {Array<string|number>} workOrderSIds - The workorder S/IDs to retrieve. If providing WorkOrderID, should be all strings, else provide all numbers for WorkOrderSID
    * @return {Object} Returns Promise that represents a collection of Objects describing the workorders
    */
-  getByIds(workOrderSIds: Array<number>, s: boolean = true) {
+  getByIds(workOrderSIds: Array<string|number>) {
     return new Promise((resolve, reject) => {
       var data = {}
-      if(s) {
-        _.set(data, 'WorkOrderSids', workOrderSIds)
-        var path = 'Ams/WorkOrder/BySids';
+      if(workOrderSIds.length==0) {
+        // throw error
+        reject(new CWError(10, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
       } else {
-        _.set(data, 'WorkOrderIds', _.toString(workOrderSIds))
         var path = 'Ams/WorkOrder/ByIds';
+        if(_.isString(workOrderSIds[0])) {
+          _.set(data, 'WorkOrderIds', workOrderSIds)
+          path = 'Ams/WorkOrder/ByIds';
+        } else if(_.isNumber(workOrderSIds[0])) {
+          _.set(data, 'WorkOrderSids', workOrderSIds)
+          path = 'Ams/WorkOrder/BySids';
+        } else {
+          // throw error - was not number or string
+          reject(new CWError(9, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+        }
+        this.cw.runRequest(path, data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
       }
-      this.cw.runRequest(path, data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
+    })
+  }
+
+  /**
+   * Get instructions by an array of workorders S/IDs
+   *
+   * @category WorkOrders
+   * @param {Array<string|number>} workOrderSIds - The workorder S/IDs to retrieve. If providing WorkOrderID, should be all strings, else provide all numbers for WorkOrderSID
+   * @return {Object} Returns Promise that represents an array of String, String describing the workorder instructions
+   */
+  getInstructions(workOrderSIds: Array<string|number>) {
+    return new Promise((resolve, reject) => {
+      var data = {}
+      if(workOrderSIds.length==0) {
+        // throw error
+        reject(new CWError(10, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+      } else {
+        var path = 'Ams/WorkOrder/ByIds';
+        if(_.isString(workOrderSIds[0])) {
+          _.set(data, 'WorkOrderIds', workOrderSIds)
+          path = 'Ams/WorkOrder/InstructionsByWorkOrderIds';
+        } else if(_.isNumber(workOrderSIds[0])) {
+          _.set(data, 'WorkOrderSids', workOrderSIds)
+          path = 'Ams/WorkOrder/InstructionsByWorkOrderSids';
+        } else {
+          // throw error - was not number or string
+          reject(new CWError(9, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+        }
+        this.cw.runRequest(path, data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      }
     })
   }
 
@@ -246,17 +251,19 @@ export class WorkOrder {
    * Get the audit log for a specific workorder
    *
    * @category WorkOrder
-   * @param {number} id - A WorkOrder S/ID to get the audit log for. SID is default.
-   * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
+   * @param {number} workOrderSId - A WorkOrder S/ID to get the audit log for. SID is default.
    * @return {Object} Returns Promise that represents a collection of Cityworks Metadata Objects
    */
-  getAuditLog(id: number, s: boolean = true) {
+  getAuditLog(workOrderSId: number) {
     return new Promise((resolve, reject) => {
       var data = {}
-      if(s) {
-        _.set(data, 'WorkOrderSid', id)
+      if(_.isString(workOrderSId)) {
+        _.set(data, 'WorkOrderId', workOrderSId)
+      } else if(_.isNumber(workOrderSId)) {
+        _.set(data, 'WorkOrderSid', workOrderSId)
       } else {
-        _.set(data, 'WorkOrderId', _.toString(id))
+        // throw error - was not number or string
+        reject(new CWError(9, 'Workorder S/IDs was not provided.', {'workorderSId': workOrderSId}))
       }
       this.cw.runRequest('Ams/WorkOrder/AuditLog', data).then(r => {
         resolve(r.Value)
@@ -270,19 +277,22 @@ export class WorkOrder {
    * Get custom field values for the workorder S/IDs
    *
    * @category WorkOrders
-   * @param {Array<number>} workOrderSIds - The workorder S/IDs to retrieve
-   * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
+   * @param {Array<string|number>} workOrderSIds - The workorder S/IDs to retrieve. #s for SID, strings for ID.
    * @return {Object} Returns Promise that represents a collection of Objects describing the workorders
    */
-  getCustomFieldValues(workOrderSIds: Array<number>, s: boolean = true) {
+  getCustomFieldValues(workOrderSIds: Array<string|number>) {
     return new Promise((resolve, reject) => {
       var data = {}
-      if(s) {
+      var path = 'Ams/WorkOrder/CustomFields';
+      if(_.isString(workOrderSIds[0])) {
+        _.set(data, 'WorkOrderIds', workOrderSIds)
+        var path = 'Ams/WorkOrder/CustomFields';
+      } else if(_.isNumber(workOrderSIds[0])) {
         _.set(data, 'WorkOrderSids', workOrderSIds)
         var path = 'Ams/WorkOrder/CustomFieldsByWorkOrderSids';
       } else {
-        _.set(data, 'WorkOrderIds', _.toString(workOrderSIds))
-        var path = 'Ams/WorkOrder/CustomFields';
+        // throw error - was not number or string
+        reject(new CWError(9, 'No workorder S/IDs were provided.', {'workorderSIds': workOrderSIds}))
       }
       this.cw.runRequest(path, data).then(r => {
         resolve(r.Value)
@@ -299,18 +309,21 @@ export class WorkOrder {
    * @category WorkOrders
    * @param {number} workOrderSId - The S/ID of the workorder to retrieve. SID is default.
    * @param {string} comment - The comment text to add.
-   * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
    * @return {Object} Returns Promise that represents an object describing the comment added
    */
-  comment(workOrderSId: Array<number>, comment: string, s: boolean = true) {
+  comment(workOrderSId: string|number, comment: string) {
     return new Promise((resolve, reject) => {
       var data = {
         Comments: comment
       }
-      if(s)
+      if(_.isString(workOrderSId)) {
+        _.set(data, 'WorkOrderId', workOrderSId)
+      } else if(_.isNumber(workOrderSId)) {
         _.set(data, 'WorkOrderSid', workOrderSId)
-      else
-        _.set(data, 'WorkOrderId', _.toString(workOrderSId))
+      } else {
+        // throw error - was not number or string
+        reject(new CWError(9, 'Workorder S/IDs was not provided.', {'workorderSId': workOrderSId}))
+      }
       this.cw.runRequest('Ams/WorkOrder/AddComments', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
@@ -320,24 +333,102 @@ export class WorkOrder {
   }
 
   /**
-   * Remove entities from a work order. Provide WorkOrderId and either ObjectIds or EntityType and EntityUids
+   * Get entities on an existing WorkOrder
    *
    * @category WorkOrders
-   * @param {number} workOrderSId - The workorder S/ID which the entities should be removed from. Defaults to SID.
-   * @param {Object} entityInfo - Remove entities by WorkOrderEntity.ObjectId (not gis objectId).
-   * @param {boolean} updateXY - Update work order xy after removing entities, default is true.
-   * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
+   * @param {Array<string|number>} workOrderSIds - The workorder S/IDs which the entities should be added to. # for SID, string for ID.
+   * @param {boolean} getGisData - Query gis to populate Entity.Attributes with current gis data. Defaults to true.
    * @return {Object} Returns object that represents a list of entities removed.
    */
-   removeEntities(workOrderSId: number, entityInfo: Object, updateXY: boolean = true, s: boolean = true) {
+  getEntities(workOrderSIds: Array<string|number>, getGisData: boolean = true) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        GetGisData: getGisData
+      }
+      if(workOrderSIds.length==0) {
+        // throw error
+        reject(new CWError(11, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+      } else {
+        if(_.isString(workOrderSIds[0])) {
+          _.set(data, 'WorkOrderIds', workOrderSIds)
+        } else if(_.isNumber(workOrderSIds[0])) {
+          _.set(data, 'WorkOrderSids', workOrderSIds)
+        } else {
+          reject(new CWError(12, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+        }
+      }
+      this.cw.runRequest('Ams/WorkOrder/Entities', data).then(r => {
+        if(r.Status>0) {
+          reject(new CWError(4, r.Message, {'response': r}))
+        } else {
+          resolve(r.Value)
+        }
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Add entities to an existing WorkOrder
+   *
+   * @category WorkOrders
+   * @param {string|number} workOrderSId - The workorder S/ID which the entities should be added to. # for SID, string for ID.
+   * @param {Object} entityInfo - Entity info object including: (req) EntityType: {string}, (req) EntityUids: {Array<string>}, Facility_Id: {string}, Level_Id: {string}
+   * @param {boolean} updateXY - Update work order xy after adding entit(y|ies), default is true.
+   * @return {Object} Returns object that represents a list of entities removed.
+   */
+   addEntities(workOrderSId: string|number, entityInfo: Object, updateXY: boolean = true) {
      return new Promise((resolve, reject) => {
        var data = {
          UpdateXY: updateXY
        }
-       if(s) {
-         _.set(data, 'WorkOrderSid', workOrderSId)
+       if(_.isString(workOrderSId)) {
+         _.set(data, 'WorkOrderId', workOrderSId)
        } else {
-         _.set(data, 'WorkOrderId', _.toString(workOrderSId))
+         _.set(data, 'WorkOrderSid', workOrderSId)
+       }
+       if(_.has(entityInfo, 'Facility_Id'))
+         _.set(data, 'Facility_Id', _.get(entityInfo, 'Facility_Id'))
+       if(_.has(entityInfo, 'Level_Id'))
+         _.set(data, 'Level_Id', _.get(entityInfo, 'Level_Id'))
+       if(_.has(entityInfo, 'EntityUids') && _.has(entityInfo, 'EntityType')) {
+         _.set(data, 'EntityUids', _.get(entityInfo, 'EntityUids'))
+         _.set(data, 'EntityType', _.get(entityInfo, 'EntityType'))
+       } else {
+         reject(new CWError(7, 'No entity info was provided.', {'workorderSId': workOrderSId,'entityInfo': entityInfo}))
+       }
+
+       this.cw.runRequest('Ams/WorkOrder/AddEntities', data).then(r => {
+         if(r.Status>0) {
+           reject(new CWError(4, r.Message, {'response': r}))
+         } else {
+           resolve(r.Value)
+         }
+       }).catch(e => {
+         reject(e)
+       })
+     })
+   }
+
+  /**
+   * Remove entities from a work order. Provide WorkOrderId and either ObjectIds or EntityType and EntityUids
+   *
+   * @category WorkOrders
+   * @param {number} workOrderSId - The workorder S/ID which the entities should be removed from. # for SID, string for ID.
+   * @param {Object} entityInfo - Remove entities by WorkOrderEntity.ObjectId (not gis objectId).
+   * @param {boolean} updateXY - Update work order xy after removing entities, default is true.
+   * @return {Object} Returns object that represents a list of entities removed.
+   */
+   removeEntities(workOrderSId: string|number, entityInfo: Object, updateXY: boolean = true) {
+     return new Promise((resolve, reject) => {
+       var data = {
+         UpdateXY: updateXY
+       }
+       if(_.isString(workOrderSId)) {
+         _.set(data, 'WorkOrderId', workOrderSId)
+       } else {
+         _.set(data, 'WorkOrderSid', workOrderSId)
        }
        if(_.has(entityInfo, 'ObjectIds')) {
          _.set(data, 'ObjectIds', _.get(entityInfo, 'ObjectIds'))
@@ -498,6 +589,86 @@ export class WorkOrder {
   getPriorities() {
     return new Promise((resolve, reject) => {
       this.cw.runRequest('Ams/WorkOrder/Priorities', {}).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get Cycle From
+   *
+   * @category WorkOrder Options
+   * @return {Object} Returns Promise that represents an array of string/string Cycle From options for workorders
+   */
+  getCycleFrom() {
+    return new Promise((resolve, reject) => {
+      this.cw.runRequest('Ams/WorkOrder/CycleFrom', {}).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get Cycle Intervals
+   *
+   * @category WorkOrder Options
+   * @return {Object} Returns Promise that represents an array of string/string Cycle Interval options for workorders
+   */
+  getCycleIntervals() {
+    return new Promise((resolve, reject) => {
+      this.cw.runRequest('Ams/WorkOrder/CycleIntervals', {}).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get Cycle Types
+   *
+   * @category WorkOrder Options
+   * @return {Object} Returns Promise that represents an array of string/string Cycle Type options for workorders
+   */
+  getCycleTypes() {
+    return new Promise((resolve, reject) => {
+      this.cw.runRequest('Ams/WorkOrder/CycleTypes', {}).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get WorkOrder Stages
+   *
+   * @category WorkOrder Options
+   * @return {Object} Returns Promise that represents an array of string/string Stage options for WorkOrders
+   */
+  getStages() {
+    return new Promise((resolve, reject) => {
+      this.cw.runRequest('Ams/WorkOrder/Stages', {}).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get Expense Types
+   *
+   * @category WorkOrder Options
+   * @return {Object} Returns Promise that represents an array of string/string Expense Type options for workorders
+   */
+  getExpenseTypes() {
+    return new Promise((resolve, reject) => {
+      this.cw.runRequest('Ams/WorkOrder/ExpenseTypes', {}).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
