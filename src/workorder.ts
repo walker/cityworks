@@ -564,6 +564,67 @@ export class WorkOrder {
      })
    }
 
+   /**
+    * Get WorkOrderS/IDs connected to provided entities
+    *
+    * @category WorkOrder Search
+    * @param {string} entityType - The entity type to find connected work orders
+    * @param {Array<string>} entityUIDs - The list of entities to search for connected WorkOrders
+    * @param {boolean} s - Get WorkOrderSids. Defaults to true. When false, returned list is WorkOrderIds
+    * @param {Object} [search] - Any additional search properties of the work order (open/closed, etc)
+    * @return {Object} Returns Promise that represents an array of WorkOrderS/IDs
+    */
+   getWOsByEntities(entityType: string, entityUids: Array<string>, search?: Array<string|number>, s: boolean = true) {
+     return new Promise((resolve, reject) => {
+       var data = {}
+       if(typeof(search)!='undefined') {
+         _.merge(data, search)
+       }
+       if(!_.has(data, 'EntityType')) {
+         _.set(data, 'EntityType', entityType)
+       }
+       if(!_.has(data, 'EntityUids')) {
+         _.set(data, 'EntityUids', entityUids)
+       }
+       var path = 'Ams/WorkOrder/SearchForSids'
+       if(!s) {
+         path = 'Ams/WorkOrder/Search'
+       }
+       this.cw.runRequest(path, data).then(r => {
+         if(r.Status>0) {
+           reject(new CWError(4, r.Message, {'response': r}))
+         } else {
+           resolve(r.Value)
+         }
+       }).catch(e => {
+         reject(e)
+       })
+     })
+   }
+
+   /**
+    * Get WorkOrderSid and description for provided WorkOrderId
+    *
+    * @category WorkOrder Search
+    * @param {string} workOrderId - The WorkOrderId for which to get the WorkOrderSid and description
+    * @return {Object} Returns Promise that represents an object with WorkOrderS/IDs & Description
+    */
+   getSearchList(workOrderId: string) {
+     return new Promise((resolve, reject) => {
+       var data = {}
+       _.set(data, 'WorkOrderId', workOrderId)
+       this.cw.runRequest('Ams/WorkOrder/SearchObject', data).then(r => {
+         if(r.Status>0) {
+           reject(new CWError(4, r.Message, {'response': r}))
+         } else {
+           resolve(r.Value)
+         }
+       }).catch(e => {
+         reject(e)
+       })
+     })
+   }
+
   /**
    * Get categories
    *

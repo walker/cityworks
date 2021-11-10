@@ -178,6 +178,25 @@ export declare class WorkOrder {
      */
     delete(workOrderIds: Array<number>): Promise<unknown>;
     /**
+     * Get WorkOrderS/IDs connected to provided entities
+     *
+     * @category WorkOrder Search
+     * @param {string} entityType - The entity type to find connected work orders
+     * @param {Array<string>} entityUIDs - The list of entities to search for connected WorkOrders
+     * @param {boolean} s - Get WorkOrderSids. Defaults to true. When false, returned list is WorkOrderIds
+     * @param {Object} [search] - Any additional search properties of the work order (open/closed, etc)
+     * @return {Object} Returns Promise that represents an array of WorkOrderS/IDs
+     */
+    getWOsByEntities(entityType: string, entityUids: Array<string>, search?: Array<string | number>, s?: boolean): Promise<unknown>;
+    /**
+     * Get WorkOrderSid and description for provided WorkOrderId
+     *
+     * @category WorkOrder Search
+     * @param {string} workOrderId - The WorkOrderId for which to get the WorkOrderSid and description
+     * @return {Object} Returns Promise that represents an object with WorkOrderS/IDs & Description
+     */
+    getSearchList(workOrderId: string): Promise<unknown>;
+    /**
      * Get categories
      *
      * @category WorkOrder Options
