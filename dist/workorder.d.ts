@@ -126,6 +126,16 @@ export declare class WorkOrder {
      */
     addEntities(workOrderSId: string | number, entityInfo: Object, updateXY?: boolean): Promise<unknown>;
     /**
+     * Update a WorkOrder entity
+     *
+     * @category WorkOrders
+     * @param {string|number} workOrderSId - The workorder S/ID which the entities should be added to. # for SID, string for ID.
+     * @param {Object} entityInfo - Entity info object including: (req) EntityType: {string}, (req) EntityUid: {string}, Facility_Id: {string}, Level_Id: {string}
+     * @param {boolean} workComplete - Update WorkOrder completeness, default is true.
+     * @return {Object} Returns object that represents a list of entities removed.
+     */
+    updateEntity(workOrderSId: string | number, entityInfo: Object, workComplete?: boolean): Promise<unknown>;
+    /**
      * Remove entities from a work order. Provide WorkOrderId and either ObjectIds or EntityType and EntityUids
      *
      * @category WorkOrders
@@ -197,14 +207,49 @@ export declare class WorkOrder {
      */
     getSearchList(workOrderId: string): Promise<unknown>;
     /**
-     * Get categories
+     * Get WorkOrder Employee lists
+     *
+     * @category WorkOrder Options
+     * @param {string} listType - Which list (endpoint) to get. Includes Supervisors & SubmitTos.
+     * @param {boolean} includeInactiveEmployees - Whether to include inactive employees in the returned list. Defaults to false.
+     * @param {Array<number>} [domainIds] - Filter to certain domains within the Cityworks instance.
+     * @return {Object} Returns Promise that represents a collection of employees. See: /{subdirectory}/apidocs/#/data-type-info;dataType=EmployeeNameId
+     */
+    getEmployeeLists(listType: string, includeInactiveEmployees?: boolean, domainIds?: Array<number>): Promise<unknown>;
+    /**
+     * Get SubmitTo list
+     *
+     * @category WorkOrder Options
+     * @param {boolean} includeInactiveEmployees - Whether to include inactive employees in the returned list. Defaults to false.
+     * @param {Array<number>} [domainIds] - Filter to certain domains within the Cityworks instance.
+     * @return {Object} Returns Promise that represents a collection of employees. See: /{subdirectory}/apidocs/#/data-type-info;dataType=EmployeeNameId
+     */
+    getSubmitTos(includeInactiveEmployees?: boolean, domainIds?: Array<number>): Promise<unknown>;
+    /**
+     * Get Supervisors list
+     *
+     * @category WorkOrder Options
+     * @param {boolean} includeInactiveEmployees - Whether to include inactive employees in the returned list. Defaults to false.
+     * @param {Array<number>} [domainIds] - Filter to certain domains within the Cityworks instance.
+     * @return {Object} Returns Promise that represents a collection of employees. See: /{subdirectory}/apidocs/#/data-type-info;dataType=EmployeeNameId
+     */
+    getSupervisors(includeInactiveEmployees?: boolean, domainIds?: Array<number>): Promise<unknown>;
+    /**
+     * Get Status Options
+     *
+     * @category WorkOrder Options
+     * @return {Object} Returns Promise that represents a collection of codes. See: /{subdirectory}/apidocs/#/data-type-info;dataType=CodeDesc
+     */
+    getStatuses(): Promise<unknown>;
+    /**
+     * Get Categories
      *
      * @category WorkOrder Options
      * @return {Object} Returns Promise that represents an array of configured workorder category code descriptions
      */
     getCategories(): Promise<unknown>;
     /**
-     * Get priorities
+     * Get Priorities
      *
      * @category WorkOrder Options
      * @return {Object} Returns Promise that represents an array of configured workorder priorities

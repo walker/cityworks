@@ -221,6 +221,25 @@ export declare class Inspection {
      */
     getDistricts(): Promise<unknown>;
     /**
+     * Get Inspection Employee lists. Abstraction done here, though only one employee list field, AFAIK.
+     *
+     * @category Inspection Options
+     * @param {string} listType - Which list (endpoint) to get. Includes Supervisors & SubmitTos.
+     * @param {boolean} includeInactiveEmployees - Whether to include inactive employees in the returned list. Defaults to false.
+     * @param {Array<number>} [domainIds] - Filter to certain domains within the Cityworks instance.
+     * @return {Object} Returns Promise that represents a collection of employees. See: /{subdirectory}/apidocs/#/data-type-info;dataType=EmployeeNameId
+     */
+    getEmployeeLists(listType: string, includeInactiveEmployees?: boolean, domainIds?: Array<number>): Promise<unknown>;
+    /**
+     * Get SubmitTo list
+     *
+     * @category WorkOrder Options
+     * @param {boolean} includeInactiveEmployees - Whether to include inactive employees in the returned list. Defaults to false.
+     * @param {Array<number>} [domainIds] - Filter to certain domains within the Cityworks instance.
+     * @return {Object} Returns Promise that represents a collection of employees. See: /{subdirectory}/apidocs/#/data-type-info;dataType=EmployeeNameId
+     */
+    getSubmitTos(includeInactiveEmployees?: boolean, domainIds?: Array<number>): Promise<unknown>;
+    /**
      * Move inspection by InspectionId. Must provide well known id (WKID) or well known text (WKT)
      *
      * @category Inspections

@@ -411,6 +411,48 @@ export class WorkOrder {
      })
    }
 
+   /**
+    * Update a WorkOrder entity
+    *
+    * @category WorkOrders
+    * @param {string|number} workOrderSId - The workorder S/ID which the entities should be added to. # for SID, string for ID.
+    * @param {Object} entityInfo - Entity info object including: (req) EntityType: {string}, (req) EntityUid: {string}, Facility_Id: {string}, Level_Id: {string}
+    * @param {boolean} workComplete - Update WorkOrder completeness, default is true.
+    * @return {Object} Returns object that represents a list of entities removed.
+    */
+    updateEntity(workOrderSId: string|number, entityInfo: Object, workComplete: boolean = false) {
+      return new Promise((resolve, reject) => {
+        var data = {
+          WorkComplete: workComplete
+        }
+        if(_.isString(workOrderSId)) {
+          _.set(data, 'WorkOrderId', workOrderSId)
+        } else {
+          _.set(data, 'WorkOrderSid', workOrderSId)
+        }
+        if(_.has(entityInfo, 'Facility_Id'))
+          _.set(data, 'Facility_Id', _.get(entityInfo, 'Facility_Id'))
+        if(_.has(entityInfo, 'Level_Id'))
+          _.set(data, 'Level_Id', _.get(entityInfo, 'Level_Id'))
+        if(_.has(entityInfo, 'EntityUids') && _.has(entityInfo, 'EntityType')) {
+          _.set(data, 'EntityUid', _.get(entityInfo, 'EntityUid'))
+          _.set(data, 'EntityType', _.get(entityInfo, 'EntityType'))
+        } else {
+          reject(new CWError(7, 'No entity info was provided.', {'workorderSId': workOrderSId,'entityInfo': entityInfo}))
+        }
+
+        this.cw.runRequest('Ams/WorkOrder/UpdateEntity', data).then(r => {
+          if(r.Status>0) {
+            reject(new CWError(4, r.Message, {'response': r}))
+          } else {
+            resolve(r.Value)
+          }
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
+
   /**
    * Remove entities from a work order. Provide WorkOrderId and either ObjectIds or EntityType and EntityUids
    *
@@ -625,8 +667,73 @@ export class WorkOrder {
      })
    }
 
+   /**
+    * Get WorkOrder Employee lists
+    *
+    * @category WorkOrder Options
+    * @param {string} listType - Which list (endpoint) to get. Includes Supervisors & SubmitTos.
+    * @param {boolean} includeInactiveEmployees - Whether to include inactive employees in the returned list. Defaults to false.
+    * @param {Array<number>} [domainIds] - Filter to certain domains within the Cityworks instance.
+    * @return {Object} Returns Promise that represents a collection of employees. See: /{subdirectory}/apidocs/#/data-type-info;dataType=EmployeeNameId
+    */
+   getEmployeeLists(listType: string, includeInactiveEmployees: boolean = false, domainIds?: Array<number>) {
+     return new Promise((resolve, reject) => {
+       var data = {
+         IncludeInactiveEmployees: includeInactiveEmployees
+       }
+       if(typeof(domainIds)!='undefined' && domainIds!=null) {
+         _.set(data, 'DomainIds', domainIds)
+       }
+       this.cw.runRequest(`Ams/WorkOrder/${listType}`, data).then(r => {
+         resolve(r.Value)
+       }).catch(e => {
+         reject(e)
+       })
+     })
+   }
+
+   /**
+    * Get SubmitTo list
+    *
+    * @category WorkOrder Options
+    * @param {boolean} includeInactiveEmployees - Whether to include inactive employees in the returned list. Defaults to false.
+    * @param {Array<number>} [domainIds] - Filter to certain domains within the Cityworks instance.
+    * @return {Object} Returns Promise that represents a collection of employees. See: /{subdirectory}/apidocs/#/data-type-info;dataType=EmployeeNameId
+    */
+   getSubmitTos(includeInactiveEmployees: boolean = false, domainIds?: Array<number>) {
+     return this.getEmployeeLists('SubmitTos', includeInactiveEmployees, domainIds);
+   }
+
+   /**
+    * Get Supervisors list
+    *
+    * @category WorkOrder Options
+    * @param {boolean} includeInactiveEmployees - Whether to include inactive employees in the returned list. Defaults to false.
+    * @param {Array<number>} [domainIds] - Filter to certain domains within the Cityworks instance.
+    * @return {Object} Returns Promise that represents a collection of employees. See: /{subdirectory}/apidocs/#/data-type-info;dataType=EmployeeNameId
+    */
+   getSupervisors(includeInactiveEmployees: boolean = false, domainIds?: Array<number>) {
+     return this.getEmployeeLists('Supervisors', includeInactiveEmployees, domainIds);
+   }
+
+   /**
+    * Get Status Options
+    *
+    * @category WorkOrder Options
+    * @return {Object} Returns Promise that represents a collection of codes. See: /{subdirectory}/apidocs/#/data-type-info;dataType=CodeDesc
+    */
+   getStatuses() {
+     return new Promise((resolve, reject) => {
+       this.cw.runRequest('Ams/WorkOrder/Statuses', {}).then(r => {
+         resolve(r.Value)
+       }).catch(e => {
+         reject(e)
+       })
+     })
+   }
+
   /**
-   * Get categories
+   * Get Categories
    *
    * @category WorkOrder Options
    * @return {Object} Returns Promise that represents an array of configured workorder category code descriptions
@@ -642,7 +749,7 @@ export class WorkOrder {
   }
 
   /**
-   * Get priorities
+   * Get Priorities
    *
    * @category WorkOrder Options
    * @return {Object} Returns Promise that represents an array of configured workorder priorities

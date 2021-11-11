@@ -590,18 +590,20 @@ export class Request {
   }
 
   /**
-   * Get a list of possible DispatchTo values
+   * Get a list of possible Employee values
    *
    * @category Request Options
-   * @param {Array<number>} domainId - Domain to return possible dispatchTo values for
-   * @return {Object} Returns Promise that represents an Array of dispatchTo options.
+   * @param {string} listType - Which list (endpoint) to get. Includes DispatchTo & SubmitTo.
+   * @param {number} domainId - Domain to return possible dispatchTo values for
+   * @return {Object} Returns Promise that represents an Array of Employee options.
    */
-  getDispatchTo(domainId: Array<number>) {
+  getEmployeeLists(listType: string, domainId: number) {
     return new Promise((resolve, reject) => {
+      // TODO: make a default domain option on the CW object for cases like this.
       var data = {
         DomainId: domainId
       }
-      this.cw.runRequest('Ams/ServiceRequest/DispatchTo', data).then(r => {
+      this.cw.runRequest(`Ams/ServiceRequest/${listType}`, data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -610,23 +612,27 @@ export class Request {
   }
 
   /**
+   * Get a list of possible DispatchTo values
+   *
+   * @category Request Options
+   * @param {number} domainId - Domain to return possible dispatchTo values for
+   * @return {Object} Returns Promise that represents an Array of dispatchTo options.
+   */
+  getDispatchTos(domainId: number) {
+    // Fix name for choice of non-pluralized endpoint. Unlike WOs & Inspections...
+    return this.getEmployeeLists('DispatchTo', domainId);
+  }
+
+  /**
    * Get a list of possible SubmitTo values
    *
    * @category Request Options
-   * @param {Array<number>} domainId - Domain to return possible submitTo values for
+   * @param {number} domainId - Domain to return possible submitTo values for
    * @return {Object} Returns Promise that represents an Array of submitTo options.
    */
-  getSubmitTo(domainId: Array<number>) {
-    return new Promise((resolve, reject) => {
-      var data = {
-        DmainId: domainId
-      }
-      this.cw.runRequest('Ams/ServiceRequest/SubmitTo', data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
+  getSubmitTos(domainId: number) {
+    // Fix name for choice of non-pluralized endpoint. Unlike WOs & Inspections...
+    return this.getEmployeeLists('SubmitTo', domainId);
   }
 
   /**

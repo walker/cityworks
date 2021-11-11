@@ -551,6 +551,42 @@ export class Inspection {
     })
   }
 
+  /**
+   * Get Inspection Employee lists. Abstraction done here, though only one employee list field, AFAIK.
+   *
+   * @category Inspection Options
+   * @param {string} listType - Which list (endpoint) to get. Includes Supervisors & SubmitTos.
+   * @param {boolean} includeInactiveEmployees - Whether to include inactive employees in the returned list. Defaults to false.
+   * @param {Array<number>} [domainIds] - Filter to certain domains within the Cityworks instance.
+   * @return {Object} Returns Promise that represents a collection of employees. See: /{subdirectory}/apidocs/#/data-type-info;dataType=EmployeeNameId
+   */
+  getEmployeeLists(listType: string, includeInactiveEmployees: boolean = false, domainIds?: Array<number>) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        IncludeInactiveEmployees: includeInactiveEmployees
+      }
+      if(typeof(domainIds)!='undefined' && domainIds!=null) {
+        _.set(data, 'DomainIds', domainIds)
+      }
+      this.cw.runRequest(`Ams/Inspection/${listType}`, data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get SubmitTo list
+   *
+   * @category WorkOrder Options
+   * @param {boolean} includeInactiveEmployees - Whether to include inactive employees in the returned list. Defaults to false.
+   * @param {Array<number>} [domainIds] - Filter to certain domains within the Cityworks instance.
+   * @return {Object} Returns Promise that represents a collection of employees. See: /{subdirectory}/apidocs/#/data-type-info;dataType=EmployeeNameId
+   */
+  getSubmitTos(includeInactiveEmployees: boolean = false, domainIds?: Array<number>) {
+    return this.getEmployeeLists('SubmitTos', includeInactiveEmployees, domainIds);
+  }
 
   /**
    * Move inspection by InspectionId. Must provide well known id (WKID) or well known text (WKT)

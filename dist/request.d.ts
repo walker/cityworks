@@ -233,21 +233,30 @@ export declare class Request {
      */
     getStatuses(domainIds: Array<number>): Promise<unknown>;
     /**
+     * Get a list of possible Employee values
+     *
+     * @category Request Options
+     * @param {string} listType - Which list (endpoint) to get. Includes DispatchTo & SubmitTo.
+     * @param {number} domainId - Domain to return possible dispatchTo values for
+     * @return {Object} Returns Promise that represents an Array of Employee options.
+     */
+    getEmployeeLists(listType: string, domainId: number): Promise<unknown>;
+    /**
      * Get a list of possible DispatchTo values
      *
      * @category Request Options
-     * @param {Array<number>} domainId - Domain to return possible dispatchTo values for
+     * @param {number} domainId - Domain to return possible dispatchTo values for
      * @return {Object} Returns Promise that represents an Array of dispatchTo options.
      */
-    getDispatchTo(domainId: Array<number>): Promise<unknown>;
+    getDispatchTos(domainId: number): Promise<unknown>;
     /**
      * Get a list of possible SubmitTo values
      *
      * @category Request Options
-     * @param {Array<number>} domainId - Domain to return possible submitTo values for
+     * @param {number} domainId - Domain to return possible submitTo values for
      * @return {Object} Returns Promise that represents an Array of submitTo options.
      */
-    getSubmitTo(domainId: Array<number>): Promise<unknown>;
+    getSubmitTos(domainId: number): Promise<unknown>;
     /**
      * Get street codes
      *
