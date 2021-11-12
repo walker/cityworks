@@ -684,11 +684,15 @@ export class WorkOrder {
        if(typeof(domainIds)!='undefined' && domainIds!=null) {
          _.set(data, 'DomainIds', domainIds)
        }
-       this.cw.runRequest(`Ams/WorkOrder/${listType}`, data).then(r => {
-         resolve(r.Value)
-       }).catch(e => {
-         reject(e)
-       })
+       if(!_.includes(['Supervisors', 'SubmitTos'], listType)) {
+         reject(new CWError(2, 'listType must be either SubmitTos or Supervisors.', {'provided': listType}))
+       } else {
+         this.cw.runRequest(`Ams/WorkOrder/${listType}`, data).then(r => {
+           resolve(r.Value)
+         }).catch(e => {
+           reject(e)
+         })
+       }
      })
    }
 

@@ -593,7 +593,7 @@ export class Request {
    * Get a list of possible Employee values
    *
    * @category Request Options
-   * @param {string} listType - Which list (endpoint) to get. Includes DispatchTo & SubmitTo.
+   * @param {string} listType - Which list (endpoint) to get. Includes only DispatchTo & SubmitTo.
    * @param {number} domainId - Domain to return possible dispatchTo values for
    * @return {Object} Returns Promise that represents an Array of Employee options.
    */
@@ -603,11 +603,15 @@ export class Request {
       var data = {
         DomainId: domainId
       }
-      this.cw.runRequest(`Ams/ServiceRequest/${listType}`, data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
+      if(!_.includes(['DispatchTo', 'SubmitTo'], listType)) {
+        reject(new CWError(2, 'listType must be either SubmitTo or DispatchTo.', {'provided': listType}))
+      } else {
+        this.cw.runRequest(`Ams/ServiceRequest/${listType}`, data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      }
     })
   }
 
