@@ -39,6 +39,50 @@ export class CaseFinancial {
   }
 
   /**
+   * Add Case Fee Payment. Adds a payment to the case fee specified by caObjectId.
+   *
+   * @category Case Payments
+   * @param {number} caObjectId - The Case Object ID for the case to which to add the fee
+   * @param {Object} options - See /{subdirectory}/apidocs/#/service-info/Pll/CasePayment for more options, including required fields.
+   * @return {Object} Returns Promise that represents an object describing the newly-added payment. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaPaymentItemBase
+   */
+  addPayment(caObjectId: number, options: Object) {
+    return new Promise((resolve, reject) => {
+      var init_data = {
+        CaObjectId: caObjectId
+      }
+      var data = _.merge(init_data, options);
+      this.cw.runRequest('Pll/CasePayment/Add', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Add Case Deposit Payment. Adds a payment to the case deposit specified by CaDepositId.
+   *
+   * @category Case Payments
+   * @param {number} caDepositId - The Case Deposit ID for the case deposit to which to add the fee
+   * @param {Object} options - See /{subdirectory}/apidocs/#/service-info/Pll/CasePayment for more options, including required fields.
+   * @return {Object} Returns Promise that represents an object describing the newly-added payment. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaPaymentItemBase
+   */
+  addDepositPayment(caDepositId: number, options: Object) {
+    return new Promise((resolve, reject) => {
+      var init_data = {
+        CaDepositId: caDepositId
+      }
+      var data = _.merge(init_data, options);
+      this.cw.runRequest('Pll/CasePayment/AddDeposit', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
    * Adds a deposit to the case specified by the CaObectId.
    *
    * @category Case Deposits
@@ -203,6 +247,26 @@ export class CaseFinancial {
   }
 
   /**
+   * Get Case Payments by Case ObjectId
+   *
+   * @category Case Payments
+   * @param {number} caObjectId - The Case Object ID for the case to which to get the payments
+   * @return {Object} Returns Promise that represents a collection of Case Payments.
+   */
+  getPayments(caObjectId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaObjectId: caObjectId
+      }
+      this.cw.runRequest('Pll/CasePayment/ByCaObjectId', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
    * Gets the instruments from the case specified by the CaObectId.
    *
    * @category Case Instruments
@@ -227,7 +291,7 @@ export class CaseFinancial {
    *
    * @category Case Fees
    * @param {number} caFeeId - The Case Fee ID which should be deleted
-   * @return {Object} Returns Promise that represents a collection of Case Fees.
+   * @return {Object} Returns Promise that represents a Case Fee object.
    */
   deleteFee(caFeeId: number) {
     return new Promise((resolve, reject) => {
@@ -255,6 +319,46 @@ export class CaseFinancial {
         CaObjectId: caObjectId
       }
       this.cw.runRequest('Pll/CaseFees/DeleteByCaObjectId', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Delete a Case Payment by Id. Delete a specific case payment by CaPaymentId.
+   *
+   * @category Case Payments
+   * @param {number} caPaymentId - The Case Payment ID which should be deleted
+   * @return {Object} Returns Promise that represents a Case Payment object.
+   */
+  deletePayment(caFeeId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaFeeId: caFeeId
+      }
+      this.cw.runRequest('Pll/CasePayment/Delete', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Delete Case Payments by Case ObjectId. Delete from the system all payments associated to a specific case as specified by the case id (CaObjectId)
+   *
+   * @category Case Payments
+   * @param {number} caObjectId - The Case Object ID whose payments should be deleted
+   * @return {Object} Returns Promise that represents a number (?)
+   */
+  deletePaymentsByCaseId(caObjectId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaObjectId: caObjectId
+      }
+      this.cw.runRequest('Pll/CasePayment/DeleteByCaObjectId', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -371,6 +475,25 @@ export class CaseFinancial {
         _.set(data, 'FeeDesc', feeDesc);
       }
       this.cw.runRequest('Pll/CaseFees/Search', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Search for Case Payments. Include one or more of the search fields. A logical 'and' operation is applied for multiple search fields.
+   *
+   * @category Case Payments
+   * @param {number} filters - The filters to search for matched Case Payments
+   * @return {Object} Returns Promise that represents an Array of case payment IDs
+   */
+  searchPayments(filters: Object) {
+    return new Promise((resolve, reject) => {
+      var data = {};
+      _.marge(data, filters)
+      this.cw.runRequest('Pll/CasePayment/Search', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)

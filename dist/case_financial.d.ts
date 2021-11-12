@@ -18,6 +18,24 @@ export declare class CaseFinancial {
      */
     addFee(caObjectId: number, feeSetupId: number, options?: Object): Promise<unknown>;
     /**
+     * Add Case Fee Payment. Adds a payment to the case fee specified by caObjectId.
+     *
+     * @category Case Payments
+     * @param {number} caObjectId - The Case Object ID for the case to which to add the fee
+     * @param {Object} options - See /{subdirectory}/apidocs/#/service-info/Pll/CasePayment for more options, including required fields.
+     * @return {Object} Returns Promise that represents an object describing the newly-added payment. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaPaymentItemBase
+     */
+    addPayment(caObjectId: number, options: Object): Promise<unknown>;
+    /**
+     * Add Case Deposit Payment. Adds a payment to the case deposit specified by CaDepositId.
+     *
+     * @category Case Payments
+     * @param {number} caDepositId - The Case Deposit ID for the case deposit to which to add the fee
+     * @param {Object} options - See /{subdirectory}/apidocs/#/service-info/Pll/CasePayment for more options, including required fields.
+     * @return {Object} Returns Promise that represents an object describing the newly-added payment. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaPaymentItemBase
+     */
+    addDepositPayment(caDepositId: number, options: Object): Promise<unknown>;
+    /**
      * Adds a deposit to the case specified by the CaObectId.
      *
      * @category Case Deposits
@@ -84,6 +102,14 @@ export declare class CaseFinancial {
      */
     getDeposits(caObjectId: number): Promise<unknown>;
     /**
+     * Get Case Payments by Case ObjectId
+     *
+     * @category Case Payments
+     * @param {number} caObjectId - The Case Object ID for the case to which to get the payments
+     * @return {Object} Returns Promise that represents a collection of Case Payments.
+     */
+    getPayments(caObjectId: number): Promise<unknown>;
+    /**
      * Gets the instruments from the case specified by the CaObectId.
      *
      * @category Case Instruments
@@ -96,7 +122,7 @@ export declare class CaseFinancial {
      *
      * @category Case Fees
      * @param {number} caFeeId - The Case Fee ID which should be deleted
-     * @return {Object} Returns Promise that represents a collection of Case Fees.
+     * @return {Object} Returns Promise that represents a Case Fee object.
      */
     deleteFee(caFeeId: number): Promise<unknown>;
     /**
@@ -107,6 +133,22 @@ export declare class CaseFinancial {
      * @return {Object} Returns Promise that represents a number (?)
      */
     deleteFeesByCaseId(caObjectId: number): Promise<unknown>;
+    /**
+     * Delete a Case Payment by Id. Delete a specific case payment by CaPaymentId.
+     *
+     * @category Case Payments
+     * @param {number} caPaymentId - The Case Payment ID which should be deleted
+     * @return {Object} Returns Promise that represents a Case Payment object.
+     */
+    deletePayment(caFeeId: number): Promise<unknown>;
+    /**
+     * Delete Case Payments by Case ObjectId. Delete from the system all payments associated to a specific case as specified by the case id (CaObjectId)
+     *
+     * @category Case Payments
+     * @param {number} caObjectId - The Case Object ID whose payments should be deleted
+     * @return {Object} Returns Promise that represents a number (?)
+     */
+    deletePaymentsByCaseId(caObjectId: number): Promise<unknown>;
     /**
      * Delete the fee specified by the caFeeId.
      *
@@ -150,6 +192,14 @@ export declare class CaseFinancial {
      * @return {Object} Returns Promise that represents an Array of case fee IDs
      */
     searchFees(caFeeId?: number, caObjectId?: number, feeCode?: string, feeDesc?: string): Promise<unknown>;
+    /**
+     * Search for Case Payments. Include one or more of the search fields. A logical 'and' operation is applied for multiple search fields.
+     *
+     * @category Case Payments
+     * @param {number} filters - The filters to search for matched Case Payments
+     * @return {Object} Returns Promise that represents an Array of case payment IDs
+     */
+    searchPayments(filters: Object): Promise<unknown>;
     /**
      * Search for Case Deposits. Include one or more of the listed search fields. A logical 'and' operation is applied for multiple search fields.
      *
