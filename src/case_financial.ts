@@ -61,6 +61,30 @@ export class CaseFinancial {
   }
 
   /**
+   * Add Case Payment Refund. Refunds a payment on the case payment specified by caPaymentId.
+   *
+   * @category Case Payment Refunds
+   * @param {number} caPaymentId - The Case Payment ID for the case payment which to refund
+   * @param {number} refundAmount - The amount to refund
+   * @param {string} comment - A comment to append to the refund
+   * @return {Object} Returns Promise that represents an object describing the newly-added payment refund. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaPaymentRefundItemBase
+   */
+  addRefund(caPaymentId: number, refundAmount: number, comment: string) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaPaymentId: caPaymentId,
+        RefundAmount: refundAmount,
+        Comments: comment
+      }
+      this.cw.runRequest('Pll/CasePaymentRefund/Add', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
    * Add Case Deposit Payment. Adds a payment to the case deposit specified by CaDepositId.
    *
    * @category Case Payments
@@ -146,7 +170,7 @@ export class CaseFinancial {
    * @category Case Fees
    * @param {number} caFeeId - The Fee ID for the specific instance of the fee you wish to update
    * @param {Object} [options] - See /{subdirectory}/apidocs/#/service-info/Pll/CaseFees for more options. (Checkboxes -- Autorecalculate -- are Y/N strings)
-   * @return {Object} Returns Promise that represents an object describing the newly-added fee. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaFeesItemBase
+   * @return {Object} Returns Promise that represents an object describing the updated fee. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaFeesItemBase
    */
   updateFee(caFeeId: number, options?: Object) {
     return new Promise((resolve, reject) => {
@@ -155,6 +179,28 @@ export class CaseFinancial {
       }
       var data = _.merge(init_data, options);
       this.cw.runRequest('Pll/CaseFees/Update', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Void a refund.
+   *
+   * @category Case Refund Payment
+   * @param {number} caPaymentRefundId - The Refund ID for the specific refund to void
+   * @param {String} voided - A string. No clue.
+   * @return {Object} Returns Promise that represents an object describing the voided refund. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaPaymentRefundItemBase
+   */
+  voidRefund(caPaymentRefundId: number, voided: string) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaPaymentRefundId: caPaymentRefundId,
+        Voided: voided
+      }
+      this.cw.runRequest('Pll/CasePaymentRefund/Update', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -347,6 +393,26 @@ export class CaseFinancial {
   }
 
   /**
+   * Delete Case Payment Refund. Removes a refund on a payment.
+   *
+   * @category Case Payment Refunds
+   * @param {number} caPaymentRefundId - The Case Payment ID for the case payment which to refund
+   * @return {Object} Returns Promise that represents an object describing the deleted payment refund. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaPaymentRefundItemBase
+   */
+  deleteRefund(caPaymentRefundId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaPaymentRefundId: caPaymentRefundId
+      }
+      this.cw.runRequest('Pll/CasePaymentRefund/Delete', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
    * Delete Case Payments by Case ObjectId. Delete from the system all payments associated to a specific case as specified by the case id (CaObjectId)
    *
    * @category Case Payments
@@ -447,33 +513,18 @@ export class CaseFinancial {
   }
 
   /**
-   * Search for Case Fees. Include one or more of the listed search fields. A logical 'and' operation is applied for multiple search fields.
+   * Search for Case Fees. Include at least one of the search fields. A logical 'and' operation is applied for multiple search fields.
    *
    * @category Case Fees
-   * @param {number} [caFeeId] - The Case Fee ID which should be searched for
-   * @param {number} [caObjectId] - The Case Object ID which should be searched for connected fees
-   * @param {string} [feeCode] - The Case Fee Code which should be searched for
-   * @param {string} [feeDesc] - The Case Fee Description which should be searched for
+   * @param {Object} filters - The parameter(s) to search by
    * @return {Object} Returns Promise that represents an Array of case fee IDs
    */
-  searchFees(caFeeId?: number, caObjectId?: number, feeCode?: string, feeDesc?: string) {
+  searchFees(filters: Object) {
     return new Promise((resolve, reject) => {
-      if(typeof caFeeId == 'undefined' && typeof caObjectId == 'undefined' && typeof feeCode == 'undefined' && typeof feeDesc == 'undefined') {
-        reject(new CWError(1, 'At least one of the arguments (caFeeId, caObjectId, feeCode, feeDesc) must be defined.'))
+      if(_.intersectionBy(filters, ['CaFeeId', 'CaObjectId', 'FeeCode', 'FeeDesc']).length==0) {
+        reject(new CWError(4, 'At least one of the attributes (CaFeeId, CaObjectId, FeeCode, FeeDesc) must be defined.'))
       }
-      var data = {};
-      if(typeof caFeeId != 'undefined') {
-        _.set(data, 'CaFeeId', caFeeId);
-      }
-      if(typeof caObjectId != 'undefined') {
-        _.set(data, 'CaObjectId', caObjectId);
-      }
-      if(typeof feeCode != 'undefined') {
-        _.set(data, 'FeeCode', feeCode);
-      }
-      if(typeof feeDesc != 'undefined') {
-        _.set(data, 'FeeDesc', feeDesc);
-      }
+      var data = filters
       this.cw.runRequest('Pll/CaseFees/Search', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
@@ -486,13 +537,15 @@ export class CaseFinancial {
    * Search for Case Payments. Include one or more of the search fields. A logical 'and' operation is applied for multiple search fields.
    *
    * @category Case Payments
-   * @param {number} filters - The filters to search for matched Case Payments
+   * @param {Object} filters - The filters to search for matched Case Payments
    * @return {Object} Returns Promise that represents an Array of case payment IDs
    */
   searchPayments(filters: Object) {
     return new Promise((resolve, reject) => {
-      var data = {};
-      _.marge(data, filters)
+      if(_.intersectionBy(filters, ['CaPaymentId', 'CommentText', 'FeeAmount', 'FeeCode', 'FeeDesc', 'PaymentAccount', 'PaymentAmount', 'TenderType']).length==0) {
+        reject(new CWError(5, 'At least one of the attributes (CaPaymentId, CommentText, FeeAmount, FeeCode, FeeDesc, PaymentAccount, PaymentAmount, TenderType) must be defined.'))
+      }
+      var data = filters
       this.cw.runRequest('Pll/CasePayment/Search', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
@@ -502,33 +555,39 @@ export class CaseFinancial {
   }
 
   /**
-   * Search for Case Deposits. Include one or more of the listed search fields. A logical 'and' operation is applied for multiple search fields.
+   * Search for Case Payment Refunds. Include one or more of the search fields. A logical 'and' operation is applied for multiple search fields.
+   *
+   * @category Case Payment Refunds
+   * @param {Object} filters - The filters to search for matched Case Payments.
+   * @return {Object} Returns Promise that represents an Array of case payment refund IDs
+   */
+  searchRefunds(filters: Object) {
+    return new Promise((resolve, reject) => {
+      if(_.intersectionBy(filters, ['CaPaymentId', 'CaPaymentRefundId', 'Comments', 'RefundAmount']).length==0) {
+        reject(new CWError(6, 'At least one of the attributes (CaPaymentId, CaPaymentRefundId, Comments, RefundAmount) must be defined.'))
+      }
+      var data = filters
+      this.cw.runRequest('Pll/CasePayment/Search', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Search for Case Deposits. Include at least one of the search fields. A logical 'and' operation is applied for multiple search fields.
    *
    * @category Case Deposits
-   * @param {number} [caDepositId] - The Case Deposit ID which should be searched for
-   * @param {number} [caObjectId] - The Case Object ID which should be searched for connected deposits
-   * @param {string} [depositCode] - The Case Deposit Code which should be searched for
-   * @param {string} [depositDesc] - The Case Deposit Description which should be searched for
+   * @param {Object} filters - The parameters to search by.
    * @return {Object} Returns Promise that represents an Array of case fee IDs
    */
-  searchDeposits(caDepositId?: number, caObjectId?: number, depositCode?: string, depositDesc?: string) {
+  searchDeposits(filters: Object) {
     return new Promise((resolve, reject) => {
-      if(typeof caDepositId == 'undefined' && typeof caObjectId == 'undefined' && typeof depositCode == 'undefined' && typeof depositDesc == 'undefined') {
-        reject(new CWError(1, 'At least one of the arguments (caDepositId, caObjectId, depositCode, depositDesc) must be defined.'))
+      if(_.intersectionBy(filters, ['CaDepositId', 'CaObjectId', 'DepositCode', 'DepositDesc']).length==0) {
+        reject(new CWError(1, 'At least one of the arguments (CaDepositId, CaObjectId, DepositCode, DepositDesc) must be defined.'))
       }
-      var data = {};
-      if(typeof caDepositId != 'undefined') {
-        _.set(data, 'CaDepositId', caDepositId);
-      }
-      if(typeof caObjectId != 'undefined') {
-        _.set(data, 'CaObjectId', caObjectId);
-      }
-      if(typeof depositCode != 'undefined') {
-        _.set(data, 'DepositCode', depositCode);
-      }
-      if(typeof depositDesc != 'undefined') {
-        _.set(data, 'DepositDesc', depositDesc);
-      }
+      var data = filters
       this.cw.runRequest('Pll/CaseDeposit/Search', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
@@ -555,37 +614,18 @@ export class CaseFinancial {
   }
 
   /**
-   * Search for Fees. Include one or more of the listed search fields. A logical 'and' operation is applied for multiple search fields.
+   * Search for Fees. Include at least one of the search fields. A logical 'and' operation is applied for multiple search fields.
    *
    * @category Case Fees
-   * @param {number} [feeSetupId] - The Case Fee ID to search for
-   * @param {number} [feeTypeId] - The Case Fee Type ID to search for
-   * @param {string} [feeCode] - The fee code to search for
-   * @param {string} [feeDesc] - The fee description to search for
-   * @param {string} [accountCode] - The account code to search for
+   * @param {Object} filters - The parameters to search by
    * @return {Object} Returns Promise that represents an Array of case fee IDs
    */
-  searchFeeTemplates(feeSetupId?: number, feeTypeId?: number, feeCode?: string, feeDesc?: string, accountCode?: string) {
+  searchFeeTemplates(filters: Object) {
     return new Promise((resolve, reject) => {
-      if(typeof feeSetupId == 'undefined' && typeof feeTypeId == 'undefined' && typeof feeCode == 'undefined' && typeof feeDesc == 'undefined' && typeof accountCode == 'undefined') {
-        reject(new CWError(1, 'At least one of the arguments (caFeeId, caObjectId, feeCode, feeDesc) must be defined.'))
+      if(_.intersectionBy(filters, ['FeeSetupId', 'FeeTypeId', 'FeeCode', 'FeeDesc', 'AccountCode']).length==0) {
+        reject(new CWError(7, 'At least one of the arguments (FeeSetupId, FeeTypeId, FeeCode, FeeDesc, AccountCode) must be defined.'))
       }
-      var data = {};
-      if(typeof feeSetupId != 'undefined' && feeSetupId!=null) {
-        _.set(data, 'FeeSetupId', feeSetupId);
-      }
-      if(typeof feeTypeId != 'undefined' && feeTypeId!=null) {
-        _.set(data, 'FeeTypeId', feeTypeId);
-      }
-      if(typeof feeCode != 'undefined' && feeCode!=null) {
-        _.set(data, 'FeeCode', feeCode);
-      }
-      if(typeof feeDesc != 'undefined' && feeDesc!=null) {
-        _.set(data, 'FeeDesc', feeDesc);
-      }
-      if(typeof accountCode != 'undefined' && accountCode!=null) {
-        _.set(data, 'AccountCode', accountCode);
-      }
+      var data = filters
       this.cw.runRequest('Pll/FeeSetup/Search', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
@@ -595,14 +635,17 @@ export class CaseFinancial {
   }
 
   /**
-   * Search for Case Instruments. Include one or more of the listed search fields. A logical 'and' operation is applied for multiple search fields.
+   * Search for Case Instruments. Include at least one of the search fields. A logical 'and' operation is applied for multiple search fields.
    *
    * @category Case Instruments
-   * @param {Object} filters - The filters to apply to the search of Case Instruments (AddressLine1, Amount, CaInstrumentId, CityName, CommentText, Company, ContactEmail, ContactName, ContactPhone, CountryCode, InstTypeId, SerialNumber, StateCode, ZipCode)
+   * @param {Object} filters - The parameters to search by (AddressLine1, Amount, CaInstrumentId, CityName, CommentText, Company, ContactEmail, ContactName, ContactPhone, CountryCode, InstTypeId, SerialNumber, StateCode, ZipCode)
    * @return {Object} Returns Promise that represents an Array of case instrument IDs
    */
-  searchCaseInstruments(filters?: Object) {
+  searchCaseInstruments(filters: Object) {
     return new Promise((resolve, reject) => {
+      if(_.intersectionBy(filters, ['AddressLine1', 'Amount', 'CaInstrumentId', 'CityName', 'CommentText', 'Company', 'ContactEmail', 'ContactName', 'ContactPhone', 'CountryCode', 'InstTypeId', 'SerialNumber', 'StateCode', 'ZipCode']).length==0) {
+        reject(new CWError(9, 'At least one of the arguments (AddressLine1, Amount, CaInstrumentId, CityName, CommentText, Company, ContactEmail, ContactName, ContactPhone, CountryCode, InstTypeId, SerialNumber, StateCode, ZipCode) must be defined.'))
+      }
       var data = filters
       this.cw.runRequest('Pll/CaseInstrument/Search', data).then(r => {
         resolve(r.Value)
@@ -697,7 +740,47 @@ export class CaseFinancial {
   searchCaseInstrumentReleases(filters: Object) {
     return new Promise((resolve, reject) => {
       var data = filters
+      if(_.intersectionBy(filters, ['AmountReleased', 'CaInstReleasesId', 'CaInstrumentId', 'CommentText', 'PercentReleased', 'ReleasedBy']).length==0) {
+        reject(new CWError(3, 'At least one of the attributes (AmountReleased, CaInstReleasesId, CaInstrumentId, CommentText, PercentReleased, ReleasedBy) must be defined.'))
+      }
       this.cw.runRequest('Pll/CaseInstReleases/Search', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get All Fees
+   *
+   * @category Fees
+   * @return {Object} Returns Promise that represents a collection of FeeSetups. See /{subdirectory}/apidocs/#/data-type-info;dataType=FeeSetupItemBase
+   */
+  fees() {
+    return new Promise((resolve, reject) => {
+      this.cw.runRequest('Pll/FeeSetup/All', {}).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Search for Fees. Include one or more of the search fields. A logical 'and' operation is applied for muliple search fields.
+   *
+   * @category Fees
+   * @param {Object} filters - Specify at least one.
+   * @return {Object} Returns Promise that represents a collection of FeeSetups. See /{subdirectory}/apidocs/#/data-type-info;dataType=FeeSetupItemBase
+   */
+  searchAvailableFees(filters: {AccountCode?: string, FeeCode?: string, FeeDesc?: string, FeeSetupId?: number, FeeTypeId?: number}) {
+    return new Promise((resolve, reject) => {
+      if(_.intersectionBy(filters, ['AccountCode', 'FeeCode', 'FeeDesc', 'FeeSetupId', 'FeeTypeId']).length==0) {
+        reject(new CWError(8, 'At least one of the attributes (AccountCode, FeeCode, FeeDesc, FeeSetupId, FeeTypeId) must be defined.'))
+      }
+      var data = filters
+      this.cw.runRequest('Pll/FeeSetup/Search', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
