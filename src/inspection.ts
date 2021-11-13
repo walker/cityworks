@@ -599,32 +599,26 @@ export class Inspection {
    * @param {number} inspectionId - The ID of the inspection that should be moved
    * @param {number} x - The X coordinate for the move
    * @param {number} y - The Y coordinate for the move
-   * @param {Object} projection_info - An object which must include either WKID: Int32 or WKT: String. Can also include VcsWKID.
-   * @param {number} [z] - the optional z coordinate for the move
-   * @return {Object} Returns Promise which represents a GISPoint object
+   * @param {Object} projection - Should include at least WKT _or_ WKID attribute. Can also include VcsWKID attribute.
+   * @param {number} [z] - the optional Z coordinate for the move
+   * @return {Object} Returns Promise that represents an object describing the updated GISPoint
    */
-  move(inspectionId: number, x: number, y: number, projection_info?: Object, z?: number) {
+  move(inspectionId: number, x: number, y: number, projection: {WKID?: string, WKT?: string, VcsWKID?: string}, z?: number) {
     return new Promise((resolve, reject) => {
-      var data = {
+      if(!_.has(projection, 'WKID') && !_.has(projection, 'WKT')) {
+        // Throw error
+        reject(new CWError(3, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
+      }
+      var data_init = {
         InspectionId: inspectionId,
-        x: x,
-        y: y
+        X: x,
+        Y: y
       }
       if(typeof z != 'undefined') {
-        _.set(data, 'z', z)
+        _.set(data_init, 'Z', z)
       }
-      if(typeof projection_info != 'undefined') {
-        if(_.has(projection_info, 'WKID')) {
-          _.set(data, 'WKID', _.get(projection_info, 'WKID'))
-        } else if(_.has(projection_info, 'WKT')) {
-          _.set(data, 'WKT', _.get(projection_info, 'WKT'))
-        }
-
-        if(_.has(projection_info, 'VcsWKID')) {
-          _.set(data, 'VcsWKID', _.get(projection_info, 'VcsWKID'))
-        }
-      }
-      this.cw.runRequest('Ams/Inspection/Move', {}).then(r => {
+      var data = _.merge(data_init, projection);
+      this.cw.runRequest('Ams/Inspection/Move', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)

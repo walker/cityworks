@@ -246,11 +246,15 @@ export declare class Inspection {
      * @param {number} inspectionId - The ID of the inspection that should be moved
      * @param {number} x - The X coordinate for the move
      * @param {number} y - The Y coordinate for the move
-     * @param {Object} projection_info - An object which must include either WKID: Int32 or WKT: String. Can also include VcsWKID.
-     * @param {number} [z] - the optional z coordinate for the move
-     * @return {Object} Returns Promise which represents a GISPoint object
+     * @param {Object} projection - Should include at least WKT _or_ WKID attribute. Can also include VcsWKID attribute.
+     * @param {number} [z] - the optional Z coordinate for the move
+     * @return {Object} Returns Promise that represents an object describing the updated GISPoint
      */
-    move(inspectionId: number, x: number, y: number, projection_info?: Object, z?: number): Promise<unknown>;
+    move(inspectionId: number, x: number, y: number, projection: {
+        WKID?: string;
+        WKT?: string;
+        VcsWKID?: string;
+    }, z?: number): Promise<unknown>;
     /**
      * Get inspection templates
      *

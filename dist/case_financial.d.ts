@@ -321,4 +321,28 @@ export declare class CaseFinancial {
         FeeSetupId?: number;
         FeeTypeId?: number;
     }): Promise<unknown>;
+    /**
+     * Get all tender types configured
+     *
+     * @category Tender Types
+     * @return {Object} Returns Promise that represents a collection of tender type objects. See /{subdirectory}/apidocs/#/data-type-info;dataType=TenderTypeItem
+     */
+    getTenderTypes(): Promise<unknown>;
+    /**
+     * Adds a tender type configuration
+     *
+     * @category Tender Types
+     * @param {Object} options - See /{subdirectory}/apidocs/#/service-info/Pll/TenderType
+     * @return {Object} Returns Promise that represents an object describing the newly-added tender type. See /{subdirectory}/apidocs/#/data-type-info;dataType=TenderTypeItem
+     */
+    addTenderType(options: Object): Promise<unknown>;
+    /**
+     * Update a tender type configuration
+     *
+     * @category Tender Types
+     * @param {number} tenderTypeId - ID of the tender type to update
+     * @param {Object} options - See /{subdirectory}/apidocs/#/service-info/Pll/TenderType
+     * @return {Object} Returns Promise that represents an object describing the newly-added tender type. See /{subdirectory}/apidocs/#/data-type-info;dataType=TenderTypeItem
+     */
+    updateTenderType(tenderTypeId: number, options: Object): Promise<unknown>;
 }

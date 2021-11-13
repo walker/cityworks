@@ -787,4 +787,62 @@ export class CaseFinancial {
       })
     })
   }
+
+  /**
+   * Get all tender types configured
+   *
+   * @category Tender Types
+   * @return {Object} Returns Promise that represents a collection of tender type objects. See /{subdirectory}/apidocs/#/data-type-info;dataType=TenderTypeItem
+   */
+  getTenderTypes() {
+    return new Promise((resolve, reject) => {
+      var data = {}
+      this.cw.runRequest('Pll/TenderType/All', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Adds a tender type configuration
+   *
+   * @category Tender Types
+   * @param {Object} options - See /{subdirectory}/apidocs/#/service-info/Pll/TenderType
+   * @return {Object} Returns Promise that represents an object describing the newly-added tender type. See /{subdirectory}/apidocs/#/data-type-info;dataType=TenderTypeItem
+   */
+  addTenderType(options: Object) {
+    return new Promise((resolve, reject) => {
+      var data = options
+      this.cw.runRequest('Pll/TenderType/Add', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Update a tender type configuration
+   *
+   * @category Tender Types
+   * @param {number} tenderTypeId - ID of the tender type to update
+   * @param {Object} options - See /{subdirectory}/apidocs/#/service-info/Pll/TenderType
+   * @return {Object} Returns Promise that represents an object describing the newly-added tender type. See /{subdirectory}/apidocs/#/data-type-info;dataType=TenderTypeItem
+   */
+  updateTenderType(tenderTypeId: number, options: Object) {
+    return new Promise((resolve, reject) => {
+      var data_init = {
+        TenderTypeId: tenderTypeId
+      }
+      var data = _.merge(data_init, options)
+      this.cw.runRequest('Pll/TenderType/Update', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
 }

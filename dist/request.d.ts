@@ -30,11 +30,15 @@ export declare class Request {
      * @param {number} requestId
      * @param {number} x
      * @param {number} y
-     * @param {Object} projection - Should include WKT or WKID attribute. Can also include VcsWKID attribute.
+     * @param {Object} projection - Should include at least WKT _or_ WKID attribute. Can also include VcsWKID attribute.
      * @param {number} [z] - Optional Z coordinate
-     * @return {Object} Returns Promise that represents an object describing the updated request
+     * @return {Object} Returns Promise that represents an object describing the updated GISPoint
      */
-    move(requestId: number, x: number, y: number, projection: Object, z?: number): Promise<unknown>;
+    move(requestId: number, x: number, y: number, projection: {
+        WKID?: string;
+        WKT?: string;
+        VcsWKID?: string;
+    }, z?: number): Promise<unknown>;
     /**
      * Change a request's problem code
      *

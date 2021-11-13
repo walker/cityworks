@@ -144,6 +144,9 @@ export class WorkOrder {
         X: x,
         Y: y
       };
+      if(typeof(z)!='undefined') {
+        _.set(base_data, 'z', z)
+      }
       var data = _.merge(base_data, projection);
       this.cw.runRequest('Ams/WorkOrder/Move', data).then(r => {
         resolve(r.Value)
