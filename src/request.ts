@@ -1,5 +1,6 @@
 import { CWError } from './error'
 const _ = require('lodash')
+import { RequestAdmin } from './request_admin'
 
 export class Request {
   /**
@@ -8,10 +9,16 @@ export class Request {
   cw: any
 
   /**
+   * Request Administration methods
+   */
+  admin?: Object
+
+  /**
    * @hidden
    */
   constructor(cw) {
     this.cw = cw
+    this.admin = new RequestAdmin(cw)
   }
 
   /**

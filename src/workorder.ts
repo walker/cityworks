@@ -1,5 +1,6 @@
 import { CWError } from './error'
 const _ = require('lodash')
+import { WorkOrderAdmin } from './workorder_admin'
 
 export class WorkOrder {
   /**
@@ -8,10 +9,16 @@ export class WorkOrder {
   cw: any
 
   /**
+   * WorkOrder Administration methods
+   */
+  admin?: Object
+
+  /**
    * @hidden
    */
   constructor(cw) {
     this.cw = cw
+    this.admin = new WorkOrderAdmin(cw)
   }
 
     /**

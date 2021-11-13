@@ -4,6 +4,10 @@ export declare class WorkOrder {
      */
     cw: any;
     /**
+     * WorkOrder Administration methods
+     */
+    admin?: Object;
+    /**
      * @hidden
      */
     constructor(cw: any);

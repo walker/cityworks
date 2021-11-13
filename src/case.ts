@@ -4,6 +4,7 @@ const _ = require('lodash')
 import { CaseData } from './case_data'
 import { CaseFinancial } from './case_financial'
 import { CaseWorkflow} from './case_workflow'
+import { CaseAdmin } from './case_admin'
 
 export class Case {
   /**
@@ -24,6 +25,11 @@ export class Case {
    * Payment, Receipt, & Fee methods
    */
   financial?: Object
+  /**
+   * PLL Administration methods
+   */
+  admin?: Object
+
 
   /**
    * @hidden
@@ -33,6 +39,7 @@ export class Case {
     this.data = new CaseData(cw)
     this.workflow = new CaseWorkflow(cw)
     this.financial = new CaseFinancial(cw)
+    this.admin = new CaseAdmin(cw)
   }
 
   /**
@@ -222,6 +229,5 @@ export class Case {
       })
     })
   }
-
 
 }

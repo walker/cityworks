@@ -16,6 +16,10 @@ export declare class Case {
      */
     financial?: Object;
     /**
+     * PLL Administration methods
+     */
+    admin?: Object;
+    /**
      * @hidden
      */
     constructor(cw: any);

@@ -4,6 +4,10 @@ export declare class Inspection {
      */
     cw: any;
     /**
+     * Inspection Administration methods
+     */
+    admin?: Object;
+    /**
      * @hidden
      */
     constructor(cw: any);

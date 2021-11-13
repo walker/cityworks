@@ -4,6 +4,10 @@ export declare class Request {
      */
     cw: any;
     /**
+     * Request Administration methods
+     */
+    admin?: Object;
+    /**
      * @hidden
      */
     constructor(cw: any);
