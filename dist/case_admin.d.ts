@@ -136,4 +136,18 @@ export declare class CaseAdmin {
         FeeSetupId?: number;
         FeeTypeId?: number;
     }): Promise<unknown>;
+    /**
+     * Get all Expirations
+     *
+     * @category Expirations
+     * @return {Object} Returns Promise that represents a collection of ExpirationTypeItems. See: /{subdirectory}/apidocs/#/data-type-info;dataType=ExpirationTypeItem
+     */
+    getExpirations(): Promise<unknown>;
+    /**
+     * Add an Expiration type
+     *
+     * @category Expirations
+     * @return {Object} Returns Promise that represents an object describing the newly-added ExpirationTypeItems. See: /{subdirectory}/apidocs/#/data-type-info;dataType=ExpirationTypeItem
+     */
+    addExpiration(options?: Object): Promise<unknown>;
 }

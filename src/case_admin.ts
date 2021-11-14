@@ -315,4 +315,42 @@ export class CaseAdmin {
       })
     })
   }
+
+  /**
+   * Get all Expirations
+   *
+   * @category Expirations
+   * @return {Object} Returns Promise that represents a collection of ExpirationTypeItems. See: /{subdirectory}/apidocs/#/data-type-info;dataType=ExpirationTypeItem
+   */
+  getExpirations() {
+    return new Promise((resolve, reject) => {
+      var data = {}
+      this.cw.runRequest('Pll/ExpirationType/GetList', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Add an Expiration type
+   *
+   * @category Expirations
+   * @return {Object} Returns Promise that represents an object describing the newly-added ExpirationTypeItems. See: /{subdirectory}/apidocs/#/data-type-info;dataType=ExpirationTypeItem
+   */
+  addExpiration(options?: Object) {
+    return new Promise((resolve, reject) => {
+      if(!_.has(options, 'OrgId') || !_.has(options, 'ExpirationTypeDesc')) {
+        reject(new CWError(5, 'OrgId and ExpirationTypeDesc must both be defined.'))
+      }
+      var data = options
+      this.cw.runRequest('Pll/ExpirationType/Add', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
 }
