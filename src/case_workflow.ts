@@ -77,6 +77,28 @@ export class CaseWorkflow {
   }
 
   /**
+   * Add Task Comment
+   *
+   * @category Comments
+   * @param {number} caTaskId - The Case task ID of the task to add the comment to
+   * @param {string} comment - The comment text
+   * @return {Object} Returns Promise that represents an object describing CaTaskCommentsItemBase.
+   */
+   addTaskComment(caTaskId: number, comment: string) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaTaskId: caTaskId,
+        CommentText: comment
+      }
+      this.cw.runRequest('Pll/CaseTaskComments/Add', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
    * Get tasks by CaObjectId
    *
    * @category Tasks
@@ -141,6 +163,46 @@ export class CaseWorkflow {
   }
 
   /**
+   * Search for CaseTaskComments by CaTaskId
+   *
+   * @category Comments
+   * @param {number} caTaskId - The task ID for which to retrieve attached comments
+   * @return {Object} Returns Promise that represents a collection of CommentRecords.
+   */
+   getCommentsForTask(caTaskId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        caTaskId: caTaskId
+      }
+      this.cw.runRequest('Pll/CaseTaskComments/ByCaTaskId', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Search for CaseTaskComments by CaTaskId
+   *
+   * @category Comments
+   * @param {Array<number>} caTaskIds - The task IDs for which to retrieve attached comments
+   * @return {Object} Returns Promise that represents a collection of CaTaskCommentsItemBase.
+   */
+   getCommentsForTasks(caTaskIds: Array<number>) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        caTaskIds: caTaskIds
+      }
+      this.cw.runRequest('Pll/CaseTaskComments/ByCaTaskIds', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
    * Updates a task
    *
    * @category Tasks
@@ -157,6 +219,32 @@ export class CaseWorkflow {
         data = _.merge(data, options)
       }
       this.cw.runRequest('Pll/CaseTask/Update', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Update Task Comment
+   *
+   * @category Comments
+   * @param {number} caTaskCommentId - The Case task ID of the task to add the comment to
+   * @param {string} comment - The comment text
+   * @param {number} commentId - Probably unnecessary?
+   * @return {Object} Returns Promise that represents an object describing CaTaskCommentsItemBase.
+   */
+   updateTaskComment(caTaskCommentId: number, comment: string, commentId?: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaTaskCommentId: caTaskCommentId,
+        CommentText: comment
+      }
+      if(typeof(commentId)!='undefined') {
+        _.set(data, 'CommentId', commentId)
+      }
+      this.cw.runRequest('Pll/CaseTaskComments/Update', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -225,6 +313,26 @@ export class CaseWorkflow {
         CaObjectId: caObjectId
       }
       this.cw.runRequest('Pll/CaseTask/DeleteByCaObjectId', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Deletes tasks by TaskID
+   *
+   * @category Comments
+   * @param {Array<number>} caTaskCommentIds - The comments to delete
+   * @return {Object} Returns Promise that represents a dictionary of comment IDs.
+   */
+   deleteTaskComments(caTaskCommentIds: Array<number>) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaTaskCommentIds: caTaskCommentIds
+      }
+      this.cw.runRequest('Pll/CaseTaskComments/Delete', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)

@@ -33,6 +33,15 @@ export declare class CaseWorkflow {
      */
     addTaskResult(caObjectId: number, caTaskId: number, resultCode: number, resultID: number, resultSetID: number, options?: Object): Promise<unknown>;
     /**
+     * Add Task Comment
+     *
+     * @category Comments
+     * @param {number} caTaskId - The Case task ID of the task to add the comment to
+     * @param {string} comment - The comment text
+     * @return {Object} Returns Promise that represents an object describing CaTaskCommentsItemBase.
+     */
+    addTaskComment(caTaskId: number, comment: string): Promise<unknown>;
+    /**
      * Get tasks by CaObjectId
      *
      * @category Tasks
@@ -59,6 +68,22 @@ export declare class CaseWorkflow {
      */
     getResultsByTaskId(caTaskIds: Array<number>): Promise<unknown>;
     /**
+     * Search for CaseTaskComments by CaTaskId
+     *
+     * @category Comments
+     * @param {number} caTaskId - The task ID for which to retrieve attached comments
+     * @return {Object} Returns Promise that represents a collection of CommentRecords.
+     */
+    getCommentsForTask(caTaskId: number): Promise<unknown>;
+    /**
+     * Search for CaseTaskComments by CaTaskId
+     *
+     * @category Comments
+     * @param {Array<number>} caTaskIds - The task IDs for which to retrieve attached comments
+     * @return {Object} Returns Promise that represents a collection of CaTaskCommentsItemBase.
+     */
+    getCommentsForTasks(caTaskIds: Array<number>): Promise<unknown>;
+    /**
      * Updates a task
      *
      * @category Tasks
@@ -67,6 +92,16 @@ export declare class CaseWorkflow {
      * @return {Object} Returns Promise that represents an object describing CaTaskItemBase.
      */
     updateTask(caTaskId: number, options?: Object): Promise<unknown>;
+    /**
+     * Update Task Comment
+     *
+     * @category Comments
+     * @param {number} caTaskCommentId - The Case task ID of the task to add the comment to
+     * @param {string} comment - The comment text
+     * @param {number} commentId - Probably unnecessary?
+     * @return {Object} Returns Promise that represents an object describing CaTaskCommentsItemBase.
+     */
+    updateTaskComment(caTaskCommentId: number, comment: string, commentId?: number): Promise<unknown>;
     /**
      * Updates a task
      *
@@ -93,6 +128,14 @@ export declare class CaseWorkflow {
      * @return {Object} Returns Promise that represents the number of the CaObjectID
      */
     deleteTasksOnCase(caObjectId: number): Promise<unknown>;
+    /**
+     * Deletes tasks by TaskID
+     *
+     * @category Comments
+     * @param {Array<number>} caTaskCommentIds - The comments to delete
+     * @return {Object} Returns Promise that represents a dictionary of comment IDs.
+     */
+    deleteTaskComments(caTaskCommentIds: Array<number>): Promise<unknown>;
     /**
      * Search for Case Tasks. Include one or more of the search fields. A logical 'and' operation is applied to muliple search fields
      *
