@@ -8,157 +8,105 @@ export declare class CaseWorkflow {
      */
     constructor(cw: any);
     /**
-     * Add Case Data Group
+     * Adds a task to the case specified by the CaObectId.
      *
-     * @category Data Groups
-     * @param {number} caObjectId - The Case Object to attach the data group to.
-     * @param {number} caseDataGroupId - CaseDataGroupId as defined in CaseDataGroup admin.
-     * @param {string} groupCode - The Group Code.
-     * @param {Object} [options] - Options for CaseDataGroup including GroupDesc, GroupSum, and SumFlag
-     * @return {Object} Returns Promise that represents an object describing CaDataGroupItemBase.
+     * @category Tasks
+     * @param {number} caObjectId - The Case Object to attach the task to
+     * @param {number} taskId - The task ID to add to the case workflow
+     * @param {number} startPoint - The start point in the workflow for the task
+     * @param {number} endPoint - The end point in the workflow for the task
+     * @param {Object} [options] - Options for the Task. See /{subdirectory}/apidocs/#/service-info/Pll/CaseTask
+     * @return {Object} Returns Promise that represents an object describing CaTaskItemBase.
      */
-    addGroup(caObjectId: number, caseDataGroupId: number, groupCode: string, options?: {
-        GroupDesc?: string;
-        GroupSum?: number;
-        SumFlag?: string;
-    }): Promise<unknown>;
+    addTask(caObjectId: number, taskId: number, startPoint: number, endPoint: number, options?: Object): Promise<unknown>;
     /**
-     * Add Default Case Data Groups
+     * Add Task Result
      *
-     * @category Data Groups
-     * @param {number} caObjectId - The Case Object to attach the data group to.
-     * @param {number} busCaseId - The business case ID
-     * @return {Object} Returns Promise that represents a collection of the default CaDataGroupItemBases.
+     * @category Task Results
+     * @param {number} caObjectId - The Case Object to attach the task to
+     * @param {number} caTaskId - The Case task ID to add the result to
+     * @param {number} resultCode - The result Code
+     * @param {number} resultID - The result ID
+     * @param {number} resultSetID - The result set ID
+     * @param {Object} [options] - Options for the Task. See /{subdirectory}/apidocs/#/service-info/Pll/CaseTaskResults
+     * @return {Object} Returns Promise that represents an object describing CaTaskResultsItem.
      */
-    addDefaultGroups(caObjectId: number, busCaseId: number): Promise<unknown>;
+    addTaskResult(caObjectId: number, caTaskId: number, resultCode: number, resultID: number, resultSetID: number, options?: Object): Promise<unknown>;
     /**
-     * Adds a data detail entry to the case data group specified by the CaDataGroupId. The CaDataGroupId is associated to a case.
+     * Get tasks by CaObjectId
      *
-     * @category Data Groups
-     * @param {number} caseDataDetailId - The Data Detail template ID
-     * @param {number} caDataGroupId - The Case Instance Data Group ID
-     * @param {string} columnSequence - The column sequence
-     * @param {string} detailCode - The detail Code
-     * @param {number} detailSequence - The detail order number
-     * @param {Object} [options] - Other options for CaseDataDetail. See WIPAdd here: /{subdirectory}/apidocs/#/service-info/Pll/CaseDataDetail
-     * @return {Object} Returns Promise that represents an object describing CaDataDetailItemBase.
+     * @category Tasks
+     * @param {number} caObjectId - The Case Object to get the attached tasks
+     * @param {boolean} checkRelatedItems - Wherther to check related items. Defaults to false.
+     * @return {Object} Returns Promise that represents a collection of the CaTaskItemBases.
      */
-    wipAddDetail(caseDataDetailId: number, caDataGroupId: number, columnSequence: string, detailCode: string, detailSequence: number, options?: Object): Promise<unknown>;
+    getTasksByCaseId(caObjectId: number, checkRelatedItems?: boolean): Promise<unknown>;
     /**
-     * Add Default Case Data Groups
+     * Get tasks by TaskIds
      *
-     * @category Data Groups
-     * @param {number} caObjectId - The Case Object to get the attached data groups.
-     * @return {Object} Returns Promise that represents a collection of the CaDataGroupItemBases.
+     * @category Tasks
+     * @param {Array<number>} caTaskIds - The IDs of the tasks to retrieve
+     * @param {boolean} checkRelatedItems - Wherther to check related items. Defaults to false.
+     * @return {Object} Returns Promise that represents a collection of the CaTaskItemBases.
      */
-    getGroupsByCaseId(caObjectId: number): Promise<unknown>;
+    getTasksById(caTaskIds: Array<number>, checkRelatedItems?: boolean): Promise<unknown>;
     /**
-     * Delete Case Data Groups by Case Object ID.
+     * Get CaTaskResultsItem by CaTaskIds
      *
-     * @category Data Groups
-     * @param {number} caObjectId - The Case Object to attach the data group to.
-     * @return {Object} Returns Promise that represents a number that is the CaObjectId (?)
+     * @category Task Results
+     * @param {Array<number>} caTaskIds - The IDs of the tasks for which to retrieve results
+     * @return {Object} Returns Promise that represents a collection of CaTaskResultsItems.
      */
-    deleteGroupsByCaseId(caObjectId: number): Promise<unknown>;
+    getResultsByTaskId(caTaskIds: Array<number>): Promise<unknown>;
     /**
-     * Search for Case Data Groups. Include one or more of the search fields. A logical 'and' operation is applied to muliple search fields
+     * Updates a task
      *
-     * @category Data Groups
-     * @param {Object} filters - The parameters to search by. (CaDataGroupId, CaseDataGroupId, GroupCode, GroupDesc, GroupSum, SumFlag)
-     * @return {Object} Returns Promise that represents a number that is the CaObjectId (?)
+     * @category Tasks
+     * @param {number} caTaskId - The Case Object to attach the task to
+     * @param {Object} [options] - Options for Task. See /{subdirectory}/apidocs/#/service-info/Pll/CaseTask
+     * @return {Object} Returns Promise that represents an object describing CaTaskItemBase.
      */
-    searchForGroups(filters?: Object): Promise<unknown>;
+    updateTask(caTaskId: number, options?: Object): Promise<unknown>;
     /**
-     * Get Case Data Groups by Case ObjectId
+     * Updates a task
      *
-     * @category Data Groups
-     * @param {string} entityType - The entity type to check
-     * @param {string} entityUid - The specific entityUID to check
-     * @param {Object} options - The other options for checkGIS. Either CaObjectId or CaseDataGroupId is required.
-     * @return {Object} Returns Promise that represents a collection of the default CaDataGroupItemBases.
+     * @category Tasks
+     * @param {number} caTaskId - The Case Object to attach the task to
+     * @param {string} resultCode - The result code to set for the specified Task
+     * @param {Object} [options] - Options for Task. Specify either or both TaskCompletedBy & TaskCompleteDate. See /{subdirectory}/apidocs/#/service-info/Pll/CaseTask
+     * @return {Object} Returns Promise that represents an object describing CaTaskItemBase.
      */
-    checkGIS(entityType: string, entityUid: string, options: {
-        CaObjectId?: number;
-        CaseDataGroupId?: number;
-        CaseDataDetailId?: number;
-    }): Promise<unknown>;
+    setTaskResult(caTaskId: number, resultCode: string, options?: Object): Promise<unknown>;
     /**
-     * Update data groups on a case based on asset value mappings.
+     * Deletes a task by TaskID
      *
-     * @category Data Groups
-     * @param {number} caObjectId - The case to update
-     * @param {string} entityType - The entity type to check
-     * @param {string} entityUid - The specific entityUID to check
-     * @param {number} [caDataGroupId] - The specific data group ID to limit updates to
-     * @return {Object} Returns Promise that represents a collection of the default CaDataGroupItemBases.
+     * @category Tasks
+     * @param {number} caTaskId - The caTaskId for the task which should be deleted
+     * @return {Object} Returns Promise that represents an object describing CaTaskItemBase.
      */
-    updateGroupsFromAsset(caObjectId: number, entityType: string, entityUid: string, caDataGroupId?: number): Promise<unknown>;
+    deleteTask(caTaskId: number): Promise<unknown>;
     /**
-     * Attach Case Data Detail
+     * Deletes a task by TaskID
      *
-     * @category Data Details
-     * @param {number} caDataGroupId - The Case Data Group ID to attach the data detail to.
-     * @param {number} caseDataDetailId - caseDataDetailId to attach.
-     * @param {Object} [options] - Options
-     * @return {Object} Returns Promise that represents an object describing CaDataGroupItemBase.
+     * @category Tasks
+     * @param {number} caTaskId - The caTaskId for the task which should be deleted
+     * @return {Object} Returns Promise that represents the number of the CaObjectID
      */
-    addDetail(caDataGroupId: number, caseDataDetailId: number, options?: Object): Promise<unknown>;
+    deleteTasksOnCase(caObjectId: number): Promise<unknown>;
     /**
-     * Update Case Data Detail
+     * Search for Case Tasks. Include one or more of the search fields. A logical 'and' operation is applied to muliple search fields
      *
-     * @category Data Details
-     * @param {number} caDataDetailId - The Case Data Group ID to attach the data detail to.
-     * @param {Object} [options] - Options
-     * @return {Object} Returns Promise that represents an object describing CaDataGroupItemBase.
+     * @category Tasks
+     * @param {Object} filters - The parameters to search by. (ResponsibleUserId, TaskAvailable, TaskComplete, TaskType)
+     * @return {Object} Returns Promise that represents a collection of resulting CaTaskIDs
      */
-    updateDetail(caDataDetailId: number, options?: Object): Promise<unknown>;
+    searchForTasks(filters?: Object): Promise<unknown>;
     /**
-     * Lock Case Data Detail
+     * Search for CaseTaskResults Objects. Include one or more of the search fields. A logical 'and' operation is applied to muliple search fields
      *
-     * @category Data Details
-     * @param {number} caDataDetailId - The Case Data Group ID to lock
-     * @return {Object} Returns Promise which represents an object describing the CaDataDetailItem.
+     * @category Task Results
+     * @param {Object} filters - The parameters to search by. See: /{subdirectory}/apidocs/#/service-info/Pll/CaseTaskResults
+     * @return {Object} Returns Promise that represents a collection of resulting CaTaskResultsItem
      */
-    lockDetail(caDataDetailId: number): Promise<unknown>;
-    /**
-     * Unlock Case Data Detail
-     *
-     * @category Data Details
-     * @param {number} caDataDetailId - The Case Data Group ID to unlock
-     * @return {Object} Returns Promise which represents an object describing the CaDataDetailItem.
-     */
-    unlockDetail(caDataDetailId: number): Promise<unknown>;
-    /**
-     * Adds a list of possible values to the data detail entry specified by the CaDataDetailId.
-     *
-     * @category Data List Values
-     * @param {number} caDataDetailId - The Case Object to attach the data group to.
-     * @param {string} listValue - The Group Code.
-     * @return {Object} Returns Promise that represents an object describing CaDataListValuesItemBase.
-     */
-    addListValue(caDataDetailId: number, listValue: string): Promise<unknown>;
-    /**
-     * Delete by Id (Ca Data List Id)
-     *
-     * @category Data List Values
-     * @param {number} CaDataListId - The Case Data List ID
-     * @return {Object} Returns Promise that represents an object describing CaDataListValuesItemBase.
-     */
-    deleteListValue(caDataDetailId: number): Promise<unknown>;
-    /**
-     * Search for List Value IDs. Include one or more of the search fields. A logical 'and' operation is applied to muliple search fields
-     *
-     * @category Data List Values
-     * @param {Object} filters - The parameters to search by. (CaDataDetailId, CaDataListId, ListValue)
-     * @return {Object} Returns Promise that represents an Array of resulting CaDataListIds
-     */
-    searchForListValueIds(filters?: Object): Promise<unknown>;
-    /**
-     * Search for List Value Objects. Include one or more of the search fields. A logical 'and' operation is applied to muliple search fields
-     *
-     * @category Data List Values
-     * @param {Object} filters - The parameters to search by. (CaDataDetailId, CaDataListId, ListValue)
-     * @return {Object} Returns Promise that represents a collection of resulting CaDataListValuesItemBase objects
-     */
-    searchForListValueObjects(filters?: Object): Promise<unknown>;
+    searchForTaskResults(filters?: Object): Promise<unknown>;
 }
