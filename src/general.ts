@@ -57,25 +57,6 @@ export class General {
   }
 
   /**
-   * Do a "quick" search for any string (an ID is best)
-   *
-   * @param {string} text - text to search the system for
-   * @return {Object} Returns Promise object that represents a collection of the currently authenticated user's notifications
-   */
-  quickSearch(text: string) {
-    return new Promise((resolve, reject) => {
-      let data = {
-        "QuickSearchText": text,
-      }
-      this.cw.runRequest('General/QuickSearch/QuickSearch', data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
-  }
-
-  /**
    * Get CwMetatData by Type and CwSid
    *
    * @param {Array<number>} Ids
@@ -93,6 +74,23 @@ export class General {
         "TableName": table
       }
       this.cw.runRequest('General/CwMetaData/ByTableNameSids', data).then(r => {
+        console.log(r)
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get recent history for authenticated user
+   *
+   * @return {Object} Returns Promise object that represents a collection of RecentActivity objects
+   */
+  getHistory() {
+    return new Promise((resolve, reject) => {
+      let data = {}
+      this.cw.runRequest('Ams/Search/RecentActivity', data).then(r => {
         console.log(r)
         resolve(r.Value)
       }).catch(e => {

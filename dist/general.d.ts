@@ -25,13 +25,6 @@ export declare class General {
      */
     amIWatching(activityType: any, activityId: number): Promise<unknown>;
     /**
-     * Do a "quick" search for any string (an ID is best)
-     *
-     * @param {string} text - text to search the system for
-     * @return {Object} Returns Promise object that represents a collection of the currently authenticated user's notifications
-     */
-    quickSearch(text: string): Promise<unknown>;
-    /**
      * Get CwMetatData by Type and CwSid
      *
      * @param {Array<number>} Ids
@@ -39,6 +32,12 @@ export declare class General {
      * @return {Object} Returns Promise object that represents a
      */
     getActivityMetadataByIds(ids: Array<number>, table: string): Promise<unknown>;
+    /**
+     * Get recent history for authenticated user
+     *
+     * @return {Object} Returns Promise object that represents a collection of RecentActivity objects
+     */
+    getHistory(): Promise<unknown>;
     /**
      * Get cost summary for work order entities
      *
