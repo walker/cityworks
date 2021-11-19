@@ -20,14 +20,14 @@ before(function(done) {
 
 describe('[Search::quick] function test', () => {
   it('should resolve results', (done) => {
-    cw7.general.quick('256460').then(r => {
-      assert.property(r, 'Permits');
+    cw7.search.quick('256460').then(r => {
+      assert.property(r, 'ServiceRequests');
       done();
     });
   });
 
   it('should resolve (empty) results even when the string is not found', (done) => {
-    cw7.general.quick('SomethingSidewalk').then(r => {
+    cw7.search.quick('SomethingSidewalk').then(r => {
       assert.property(r, 'Permits');
       done();
     });

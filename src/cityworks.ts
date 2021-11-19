@@ -34,10 +34,10 @@ interface Citywork {
   default_domain?: any
 
   general?: Object
+  search?: Object
   activity_link?: Object
   message_queue?: Object
   gis?: Object
-  // case?: Object
   inspection?: Object
   workorder?: Object
   request?: Object
@@ -87,10 +87,10 @@ module.exports = class Cityworks implements Citywork {
   }
   error?: Object
   general?: Object
+  search?: Object
   activity_link?: Object
   message_queue?: Object
   gis?: Object
-  search?: Object
   request?: Object
   inspection?: Object
   workorder?: Object
@@ -154,6 +154,7 @@ module.exports = class Cityworks implements Citywork {
       this.inspection = new Inspection(this)
       this.workorder = new WorkOrder(this)
       this.case = new Case(this)
+      this.search = new Search(this)
     } else {
       let _this = this
       _.forEach(this.potential_loads, function(v) {
