@@ -4,6 +4,10 @@ export declare class CaseWorkflow {
      */
     cw: any;
     /**
+     * Task sub-methods
+     */
+    task: Object;
+    /**
      * @hidden
      */
     constructor(cw: any);

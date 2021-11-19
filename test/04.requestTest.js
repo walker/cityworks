@@ -193,9 +193,68 @@ describe('[Request::reopen] function test', () => {
   });
 });
 
-describe('[Request::comment] function test', () => {
-
+describe('[Request::comment.add] function test', () => {
+  it('should return the reopened request(s)', (done) => {
+    var ID = 1520675;
+    var comment = 'New comment on ' + Date().toString() + '.';
+    cw4.request.comment.add(ID, comment).then(resp => {
+      assert.equal(resp.Comments, comment);
+      done();
+    }).catch(e => {
+      console.log(e);
+    });
+  });
 });
+
+describe('[Request::comment.update] function test', () => {
+  it('should return the reopened request(s)', (done) => {
+    var ID = 1636877;
+    var comment = 'Updated this comment on ' + Date().toString() + '.';
+    cw4.request.comment.update(ID, comment).then(resp => {
+      assert.equal(resp.Comments, comment);
+      done();
+    }).catch(e => {
+      console.log(e);
+    });
+  });
+});
+
+describe('[Request::comment.get] function test', () => {
+  it('should return the comments for the request', (done) => {
+    var ID = 1520675;
+    cw4.request.comment.get([ID]).then(resp => {
+      console.log(resp[ID]);
+      assert.isArray(resp);
+      done();
+    }).catch(e => {
+      console.log(e);
+    });
+  });
+});
+
+
+describe('[Request::comment.getPredefined] function test', () => {
+  it('should return the comments for the activity type', (done) => {
+    cw4.request.comment.getPredefined(738).then(resp => {
+      assert.isArray(resp);
+      done();
+    }).catch(e => {
+      console.log(e);
+    });
+  });
+});
+
+// describe('[Request::comment.getForActivityList] function test', () => {
+//   it('should return the comments for the activity type', (done) => {
+//     cw4.request.comment.getForActivityList().then(resp => {
+//       console.log(resp);
+//       // assert.isArray(resp);
+//       done();
+//     }).catch(e => {
+//       console.log(e);
+//     });
+//   });
+// });
 
 describe('[Request::changeProblem] function test', () => {
 

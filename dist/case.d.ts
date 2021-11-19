@@ -16,6 +16,10 @@ export declare class Case {
      */
     financial?: Object;
     /**
+     * Commenting methods
+     */
+    comment?: Object;
+    /**
      * PLL Administration methods
      */
     admin?: Object;

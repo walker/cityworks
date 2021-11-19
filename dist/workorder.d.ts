@@ -6,7 +6,11 @@ export declare class WorkOrder {
     /**
      * WorkOrder Administration methods
      */
-    admin?: Object;
+    admin: Object;
+    /**
+     * WorkOrder Comments methods
+     */
+    comment: Object;
     /**
      * @hidden
      */
@@ -101,15 +105,6 @@ export declare class WorkOrder {
      * @return {Object} Returns Promise that represents a collection of Objects describing the workorders
      */
     getCustomFieldValues(workOrderSIds: Array<string | number>): Promise<unknown>;
-    /**
-     * Add a comment to a workorder
-     *
-     * @category WorkOrders
-     * @param {number} workOrderSId - The S/ID of the workorder to retrieve. SID is default.
-     * @param {string} comment - The comment text to add.
-     * @return {Object} Returns Promise that represents an object describing the comment added
-     */
-    comment(workOrderSId: string | number, comment: string): Promise<unknown>;
     /**
      * Get entities on an existing WorkOrder
      *

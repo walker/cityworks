@@ -13,7 +13,12 @@ export class MessageQueue {
    * Complete: 2,
    * Failed: 3
    */
-  status: Object
+  status: Object = {
+    Pending: 0,
+    Processing: 1,
+    Complete: 2,
+    Failed: 3
+  }
   /**
    * Hook Types -
    * Unknown: 0,
@@ -21,25 +26,18 @@ export class MessageQueue {
    * Email: 2,
    * WebHook: 3
    */
-  hook_types: Object
+  hook_types: Object = {
+    Unknown: 0,
+    ActivityUpdate: 1,
+    Email: 2,
+    WebHook: 3
+  }
 
   /**
    * @hidden
    */
   constructor(cw) {
     this.cw = cw
-    this.status = {
-      Pending: 0,
-      Processing: 1,
-      Complete: 2,
-      Failed: 3
-    }
-    this.hook_types = {
-      Unknown: 0,
-      ActivityUpdate: 1,
-      Email: 2,
-      WebHook: 3
-    }
   }
 
   /**

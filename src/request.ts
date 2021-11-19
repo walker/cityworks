@@ -1,6 +1,7 @@
 import { CWError } from './error'
 const _ = require('lodash')
 import { RequestAdmin } from './request_admin'
+import { Comments } from './comments'
 
 export class Request {
   /**
@@ -14,11 +15,17 @@ export class Request {
   admin?: Object
 
   /**
+   * WorkOrder Comments methods
+   */
+  comment: Object
+
+  /**
    * @hidden
    */
   constructor(cw) {
     this.cw = cw
     this.admin = new RequestAdmin(cw)
+    this.comment = new Comments(cw, 'Request')
   }
 
   /**
@@ -212,28 +219,6 @@ export class Request {
         CategoryId: categoryId
       }
       this.cw.runRequest('Ams/ServiceRequest/ChangeCustomFieldCategory', data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
-  }
-
-  /**
-   * Add a comment to a request
-   *
-   * @category Requests
-   * @param {number} requestId - The ID of the request to retrieve
-   * @param {string} comment - The comment text to add
-   * @return {Object} Returns Promise that represents an object describing the comment added
-   */
-  comment(requestId: number, comment: string) {
-    return new Promise((resolve, reject) => {
-      var data = {
-        RequestId: requestId,
-        Comments: comment
-      }
-      this.cw.runRequest('Ams/ServiceRequest/AddComments', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)

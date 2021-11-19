@@ -1,5 +1,6 @@
 import { CWError } from './error'
 const _ = require('lodash')
+import { Comments } from './comments'
 
 export class CaseWorkflow {
   /**
@@ -8,10 +9,18 @@ export class CaseWorkflow {
   cw: any
 
   /**
+   * Task sub-methods
+   */
+  task: Object
+
+  /**
    * @hidden
    */
   constructor(cw) {
     this.cw = cw
+    this.task = {
+      comment: new Comments(cw, 'CaTask')
+    }
   }
 
   /**

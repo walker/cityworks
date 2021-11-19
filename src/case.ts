@@ -5,6 +5,7 @@ import { CaseData } from './case_data'
 import { CaseFinancial } from './case_financial'
 import { CaseWorkflow} from './case_workflow'
 import { CaseAdmin } from './case_admin'
+import { Comments } from './comments'
 
 export class Case {
   /**
@@ -26,10 +27,13 @@ export class Case {
    */
   financial?: Object
   /**
+   * Commenting methods
+   */
+  comment?: Object
+  /**
    * PLL Administration methods
    */
   admin?: Object
-
 
   /**
    * @hidden
@@ -39,6 +43,7 @@ export class Case {
     this.data = new CaseData(cw)
     this.workflow = new CaseWorkflow(cw)
     this.financial = new CaseFinancial(cw)
+    this.comment = new Comments(cw, 'CaObject')
     this.admin = new CaseAdmin(cw)
   }
 

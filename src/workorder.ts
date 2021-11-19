@@ -1,6 +1,7 @@
 import { CWError } from './error'
 const _ = require('lodash')
 import { WorkOrderAdmin } from './workorder_admin'
+import { Comments } from './comments'
 
 export class WorkOrder {
   /**
@@ -11,7 +12,12 @@ export class WorkOrder {
   /**
    * WorkOrder Administration methods
    */
-  admin?: Object
+  admin: Object
+
+  /**
+   * WorkOrder Comments methods
+   */
+  comment: Object
 
   /**
    * @hidden
@@ -19,114 +25,115 @@ export class WorkOrder {
   constructor(cw) {
     this.cw = cw
     this.admin = new WorkOrderAdmin(cw)
+    this.comment = new Comments(cw, 'WorkOrder')
   }
 
-    /**
-     * Create new workorders, including linkin to Requests & Inspections (optionally)
-     *
-     * @category WorkOrders
-     * @param {Object} wo_data - See /{subdirectory}/apidocs/#/data-type-infodataType=WorkOrder on the Cityworks instance
-     * @param {Array<number>} [inspectionIds] - The inspection IDs which the workorder should be linked to.
-     * @param {Array<number>} [requestIds] - The inspection IDs which the workorder should be linked to.
-     * @return {Object} Returns Promise that represents an object describing the newly-created workorder
-     */
-    create(wo_data: Object, inspectionIds?: Array<number>, requestIds?: Array<number>) {
-      return new Promise((resolve, reject) => {
-        if(!_.has(wo_data, 'WOTemplateId') || !_.has(wo_data, 'EntityType')) {
-          reject(new CWError(2, 'WOTemplateId & EntityType must be provided.', {'provided': wo_data}))
-        } else {
-          var data = wo_data;
-          if(typeof inspectionIds != 'undefined' && inspectionIds != null && !_.has(data, 'InspectionIds')) {
-            _.set(data, 'InspectionIds', inspectionIds);
-          }
-          if(typeof requestIds != 'undefined' && requestIds != null && !_.has(data, 'RequestIds')) {
-            _.set(data, 'RequestIds', requestIds);
-          }
-          this.cw.runRequest('Ams/WorkOrder/Create', data).then(r => {
-            resolve(r.Value)
-          }).catch(e => {
-            reject(e)
-          })
+  /**
+   * Create new workorders, including linkin to Requests & Inspections (optionally)
+   *
+   * @category WorkOrders
+   * @param {Object} wo_data - See /{subdirectory}/apidocs/#/data-type-infodataType=WorkOrder on the Cityworks instance
+   * @param {Array<number>} [inspectionIds] - The inspection IDs which the workorder should be linked to.
+   * @param {Array<number>} [requestIds] - The inspection IDs which the workorder should be linked to.
+   * @return {Object} Returns Promise that represents an object describing the newly-created workorder
+   */
+  create(wo_data: Object, inspectionIds?: Array<number>, requestIds?: Array<number>) {
+    return new Promise((resolve, reject) => {
+      if(!_.has(wo_data, 'WOTemplateId') || !_.has(wo_data, 'EntityType')) {
+        reject(new CWError(2, 'WOTemplateId & EntityType must be provided.', {'provided': wo_data}))
+      } else {
+        var data = wo_data;
+        if(typeof inspectionIds != 'undefined' && inspectionIds != null && !_.has(data, 'InspectionIds')) {
+          _.set(data, 'InspectionIds', inspectionIds);
         }
-      })
-    }
-
-    /**
-     * Create new workorder linked to parent workorder
-     *
-     * @category WorkOrders
-     * @param {Object} wo_data - See /{subdirectory}/apidocs/#/data-type-infodataType=WorkOrder on the Cityworks instance
-     * @param {string|number} workOrderSId - The workorder S/ID which the entities should be added to. # for SID, string for ID.
-     * @return {Object} Returns Promise that represents an object describing the newly-created workorder
-     */
-    createFromParent(wo_data: Object, workOrderSId: string|number, s: boolean = true) {
-      return new Promise((resolve, reject) => {
-        if(!_.has(wo_data, 'WOTemplateId') || !_.has(wo_data, 'EntityType')) {
-          reject(new CWError(2, 'WOTemplateId & EntityType must be provided.', {'provided': wo_data}))
-        } else {
-          var data = wo_data;
-          if(_.isString(workOrderSId)) {
-            _.set(data, 'WorkOrderId', workOrderSId)
-          } else {
-            _.set(data, 'WorkOrderSid', workOrderSId)
-          }
-          this.cw.runRequest('Ams/WorkOrder/Create', data).then(r => {
-            resolve(r.Value)
-          }).catch(e => {
-            reject(e)
-          })
+        if(typeof requestIds != 'undefined' && requestIds != null && !_.has(data, 'RequestIds')) {
+          _.set(data, 'RequestIds', requestIds);
         }
-      })
-    }
+        this.cw.runRequest('Ams/WorkOrder/Create', data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      }
+    })
+  }
 
-    /**
-     * Update a WorkOrder
-     *
-     * @category WorkOrders
-     * @param {object} wo_data - See /{subdirectory}/apidocs/#/data-type-infodataType=WorkOrder on the Cityworks instance
-     * @return {Object} Returns Promise that represents an object describing the updated workorder
-     */
-    update(wo_data: Object) {
-      return new Promise((resolve, reject) => {
-        if(!_.has(wo_data, 'WorkOrderSid') && !_.has(wo_data, 'WorkOrderId')) {
-          reject(new CWError(3, 'WorkOrderId or WorkOrderSid must be provided.', {'provided': wo_data}))
+  /**
+   * Create new workorder linked to parent workorder
+   *
+   * @category WorkOrders
+   * @param {Object} wo_data - See /{subdirectory}/apidocs/#/data-type-infodataType=WorkOrder on the Cityworks instance
+   * @param {string|number} workOrderSId - The workorder S/ID which the entities should be added to. # for SID, string for ID.
+   * @return {Object} Returns Promise that represents an object describing the newly-created workorder
+   */
+  createFromParent(wo_data: Object, workOrderSId: string|number, s: boolean = true) {
+    return new Promise((resolve, reject) => {
+      if(!_.has(wo_data, 'WOTemplateId') || !_.has(wo_data, 'EntityType')) {
+        reject(new CWError(2, 'WOTemplateId & EntityType must be provided.', {'provided': wo_data}))
+      } else {
+        var data = wo_data;
+        if(_.isString(workOrderSId)) {
+          _.set(data, 'WorkOrderId', workOrderSId)
         } else {
-          this.cw.runRequest('Ams/WorkOrder/Update', wo_data).then(r => {
-            resolve(r.Value)
-          }).catch(e => {
-            reject(e)
-          })
+          _.set(data, 'WorkOrderSid', workOrderSId)
         }
-      })
-    }
+        this.cw.runRequest('Ams/WorkOrder/Create', data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      }
+    })
+  }
 
-    /**
-     * Combine WorkOrders
-     *
-     * @category WorkOrders
-     * @param {Array<string>} fromWorkOrderIds - The workorder IDs which should be combined.
-     * @param {string} toWorkOrderId - The work order ID for the single work order that should contain the info/entities from the other work orders
-     * @param {boolean} cancelCombinedWorkOrders - If the work orders combined into the single should then be canceled, default is true.
-     * @return {Object} Returns object that represents a collection of WorkOrders
-     */
-     combine(fromWorkOrderIds: Array<string>, toWorkOrderId: string, cancelCombinedWorkOrders: boolean = true) {
-       return new Promise((resolve, reject) => {
-         var data = {
-           CancelCombinedWorkOrders: cancelCombinedWorkOrders,
-           ToWorkOrderId: toWorkOrderId,
-           FromWorkOrderIds: fromWorkOrderIds
+  /**
+   * Update a WorkOrder
+   *
+   * @category WorkOrders
+   * @param {object} wo_data - See /{subdirectory}/apidocs/#/data-type-infodataType=WorkOrder on the Cityworks instance
+   * @return {Object} Returns Promise that represents an object describing the updated workorder
+   */
+  update(wo_data: Object) {
+    return new Promise((resolve, reject) => {
+      if(!_.has(wo_data, 'WorkOrderSid') && !_.has(wo_data, 'WorkOrderId')) {
+        reject(new CWError(3, 'WorkOrderId or WorkOrderSid must be provided.', {'provided': wo_data}))
+      } else {
+        this.cw.runRequest('Ams/WorkOrder/Update', wo_data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      }
+    })
+  }
+
+  /**
+   * Combine WorkOrders
+   *
+   * @category WorkOrders
+   * @param {Array<string>} fromWorkOrderIds - The workorder IDs which should be combined.
+   * @param {string} toWorkOrderId - The work order ID for the single work order that should contain the info/entities from the other work orders
+   * @param {boolean} cancelCombinedWorkOrders - If the work orders combined into the single should then be canceled, default is true.
+   * @return {Object} Returns object that represents a collection of WorkOrders
+   */
+   combine(fromWorkOrderIds: Array<string>, toWorkOrderId: string, cancelCombinedWorkOrders: boolean = true) {
+     return new Promise((resolve, reject) => {
+       var data = {
+         CancelCombinedWorkOrders: cancelCombinedWorkOrders,
+         ToWorkOrderId: toWorkOrderId,
+         FromWorkOrderIds: fromWorkOrderIds
+       }
+       this.cw.runRequest('Ams/WorkOrder/Combine', data).then(r => {
+         if(r.Status>0) {
+           reject(new CWError(4, r.Message, {'response': r}))
+         } else {
+           resolve(r.Value)
          }
-         this.cw.runRequest('Ams/WorkOrder/Combine', data).then(r => {
-           if(r.Status>0) {
-             reject(new CWError(4, r.Message, {'response': r}))
-           } else {
-             resolve(r.Value)
-           }
-         }).catch(e => {
-           reject(e)
-         })
+       }).catch(e => {
+         reject(e)
        })
-     }
+     })
+   }
 
 
   /**
@@ -305,36 +312,6 @@ export class WorkOrder {
         reject(new CWError(9, 'No workorder S/IDs were provided.', {'workorderSIds': workOrderSIds}))
       }
       this.cw.runRequest(path, data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
-  }
-
-
-  /**
-   * Add a comment to a workorder
-   *
-   * @category WorkOrders
-   * @param {number} workOrderSId - The S/ID of the workorder to retrieve. SID is default.
-   * @param {string} comment - The comment text to add.
-   * @return {Object} Returns Promise that represents an object describing the comment added
-   */
-  comment(workOrderSId: string|number, comment: string) {
-    return new Promise((resolve, reject) => {
-      var data = {
-        Comments: comment
-      }
-      if(_.isString(workOrderSId)) {
-        _.set(data, 'WorkOrderId', workOrderSId)
-      } else if(_.isNumber(workOrderSId)) {
-        _.set(data, 'WorkOrderSid', workOrderSId)
-      } else {
-        // throw error - was not number or string
-        reject(new CWError(9, 'Workorder S/IDs was not provided.', {'workorderSId': workOrderSId}))
-      }
-      this.cw.runRequest('Ams/WorkOrder/AddComments', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)

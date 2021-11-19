@@ -8,6 +8,10 @@ export declare class Request {
      */
     admin?: Object;
     /**
+     * WorkOrder Comments methods
+     */
+    comment: Object;
+    /**
      * @hidden
      */
     constructor(cw: any);
@@ -93,15 +97,6 @@ export declare class Request {
      * @return {Object} Returns Promise that represents a collection of requests
      */
     changeCustomFieldCategory(requestIds: Array<number>, categoryId: number): Promise<unknown>;
-    /**
-     * Add a comment to a request
-     *
-     * @category Requests
-     * @param {number} requestId - The ID of the request to retrieve
-     * @param {string} comment - The comment text to add
-     * @return {Object} Returns Promise that represents an object describing the comment added
-     */
-    comment(requestId: number, comment: string): Promise<unknown>;
     /**
      * Cancel requests
      *
