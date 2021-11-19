@@ -10,6 +10,8 @@ Configure the instance that is then available:
 
       cityworks.configure('my.cityworks.domain')
 
+## Authentication
+
 Authenticate with the Cityworks install:
 
       cityworks.authenticate('myuser', 'mypassword').then(resp => {
@@ -26,6 +28,8 @@ Get the currently valid token in order to store it in a session or cookie:
 Provide a saved token instead of the standard u/p auth:
 
       cityworks.setToken('mytoken');
+
+## Main method calls
 
 Access the primary AMS ([Inspection](https://walker.github.io/cityworks/classes/inspection.Inspection.html), [WorkOrder](https://walker.github.io/cityworks/classes/workorder.WorkOrder.html), & [{Service} Request](https://walker.github.io/cityworks/classes/request.Request.html)) & [PLL](https://walker.github.io/cityworks/classes/case.Case.html) object libraries like so:
 
@@ -74,6 +78,8 @@ Some of the methods are general or top-level, and so, are accessed separately ar
 
       })
 
+## Case finnacials, data details, and admin
+
 For the sake of organizing some of the other methods needed by the primary and secondary libraries, there are also objects and methods accessed within those main libraries:
 
 For [PLL case financial actions](https://walker.github.io/cityworks/classes/case_financial.CaseFinancial.html):
@@ -97,5 +103,21 @@ For PLL case [workflow and task actions](https://walker.github.io/cityworks/clas
 For [PLL administration actions](https://walker.github.io/cityworks/classes/case_admin.CaseAdmin.html):
 
       cityworks.case.admin.methodHere().then(resp => {
+
+      })
+
+## Commenting
+
+For any object in Cityworks which can be commented on, use the [Comments class](https://walker.github.io/cityworks/classes/case_admin.CaseAdmin.html) via the class the comment is to be made on:
+
+      cityworks.case.comment.add(CaObjectIdGoesHere, "Comment goes here").then(resp => {
+
+      })
+
+      cityworks.workorder.comment.add(WorkOrderSIDGoesHere, "Comment goes here").then(resp => {
+
+      })
+
+      cityworks.request.comment.add(RequestIDGoesHere, "Comment goes here").then(resp => {
 
       })
