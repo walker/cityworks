@@ -82,7 +82,9 @@ export class Search {
    */
   execute(searchId: number, options?: {EmployeeSid?: number, ExcludeEmptyXY?: boolean, Extent?: Object, Frequency?: boolean, IdsOnly?: boolean, IncludeSearchOrder?: boolean, MaxResults?: number, ResultFields?: Array<string>, TotalOnly?: boolean}) {
     return new Promise((resolve, reject) => {
-      var data = {}
+      var data = {
+        SearchId: searchId
+      }
       data = _.merge(data, options)
       this.cw.runRequest('Ams/Search/Execute', data).then(r => {
         resolve(r.Value)
@@ -106,7 +108,7 @@ export class Search {
     return new Promise((resolve, reject) => {
       if(!_.has(this.searchTypes, searchType)) {
         reject(new CWError(2, 'SearchType provided does not exist or is mispelled.', {'provided': searchType, 'available':this.searchTypes}))
-      } else if(typeof(applyToEntities)!='undefined' && applyToEntities!=null && (typeof(employeeSid)!='undefined' || typeof(domainId)!='undefined')) {
+      } else if(typeof(applyToEntities)!='undefined' && applyToEntities!=null && applyToEntities.length>0 && (typeof(employeeSid)!='undefined' || typeof(domainId)!='undefined')) {
         reject(new CWError(3, 'You cannot specify both applyToEntities AND employeeSid/domainId'))
       }
       var data = {}

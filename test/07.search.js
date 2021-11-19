@@ -33,3 +33,45 @@ describe('[Search::quick] function test', () => {
     });
   });
 });
+
+describe('[Search::execute] function test', () => {
+  it('should resolve a collection of search results', (done) => {
+    cw7.search.execute(3897).then(r => {
+      assert.isArray(r);
+      done();
+    });
+  });
+
+  it('should resolve an empty array if search ID is not found', (done) => {
+    cw7.search.execute(999999999).then(r => {
+      assert.isEmpty(r);
+      done();
+    });
+  });
+});
+
+describe('[Search::getSaved] function test', () => {
+  it('should resolve a collection of saved searches', (done) => {
+    cw7.search.getSaved('Request').then(r => {
+      assert.isArray(r);
+      done();
+    });
+  });
+
+  it('should reject with an error if the search type does not exist', (done) => {
+    cw7.search.getSaved('ServiceRequest').then(r => {
+    }).catch(e => {
+      // console.log(e)
+      assert.equal(e.message, 'SearchType provided does not exist or is mispelled.')
+      done();
+    });
+  });
+
+  it('should reject with an error if the applyToEntities and employeeSid/domainId are all set at the same time', (done) => {
+    cw7.search.getSaved('Request', ['EASEMENT_TREES'], 127, 1).then(r => {
+    }).catch(e => {
+      assert.equal(e.message, 'You cannot specify both applyToEntities AND employeeSid/domainId')
+      done();
+    });
+  });
+});
