@@ -75,3 +75,59 @@ describe('[Search::getSaved] function test', () => {
     });
   });
 });
+
+describe('[Search::displayFields] function test', () => {
+  it('should resolve a collection of display fields', (done) => {
+    cw7.search.displayFields('WorkOrder').then(r => {
+      assert.isArray(r);
+      done();
+    });
+  });
+
+  it('should reject with an error if the searchType is not found', (done) => {
+    cw7.search.displayFields('ServiceRequest').then(r => {
+    }).catch(e => {
+      assert.equal(e.message, 'SearchType provided does not exist or is mispelled.')
+      done();
+    });
+  });
+});
+
+describe('[Search::types] function test', () => {
+  it('should resolve a collection of types', (done) => {
+    cw7.search.types().then(r => {
+      assert.isArray(r);
+      done();
+    });
+  });
+});
+
+describe('[Search::disableServices] function test', () => {
+  it('should resolve dictionary of searchIDs and boolean', (done) => {
+    cw7.search.disableServices([4338]).then(r => {
+      assert.propertyVal(r, 4338, true);
+      done();
+    });
+  });
+  it('should always be "False" if search ID does not exist', (done) => {
+    cw7.search.disableServices([9999999]).then(r => {
+      assert.propertyVal(r, 9999999, false);
+      done();
+    });
+  });
+});
+
+describe('[Search::enableServices] function test', () => {
+  it('should resolve dictionary of searchIDs and boolean', (done) => {
+    cw7.search.enableServices([4338]).then(r => {
+      assert.propertyVal(r, 4338, true);
+      done();
+    });
+  });
+  it('should always be "False" if search ID does not exist', (done) => {
+    cw7.search.enableServices([9999999]).then(r => {
+      assert.propertyVal(r, 9999999, false);
+      done();
+    });
+  });
+});
