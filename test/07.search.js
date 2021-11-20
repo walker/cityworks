@@ -131,3 +131,62 @@ describe('[Search::enableServices] function test', () => {
     });
   });
 });
+
+describe('[Search::getDefinition] function test', () => {
+  it('should resolve the definition of the search', (done) => {
+    cw7.search.getDefinition(4338).then(r => {
+      assert.isObject(r);
+      done();
+    });
+  });
+  it('should be blanked search definition if the definition doesn\'t exist', (done) => {
+    cw7.search.getDefinition(9999999).then(r => {
+      assert.isEmpty(r.SearchFields);
+      done();
+    });
+  });
+});
+
+describe('[Search::getDefinitions] function test', () => {
+  it('should resolve the definition of the search', (done) => {
+    cw7.search.getDefinitions([4338,4337,4336]).then(r => {
+      assert.isArray(r);
+      done();
+    });
+  });
+  it('should be blanked search definition(s) if the definitions don\'t exist', (done) => {
+    cw7.search.getDefinitions([9999999,99999999,999999999]).then(r => {
+      assert.isEmpty(r[0].SearchFields);
+      done();
+    });
+  });
+});
+
+describe('[Search::getDefinitionNames] function test', () => {
+  it('should resolve a collection', (done) => {
+    cw7.search.getDefinitionNames([1,2,3,4,5]).then(r => {
+      assert.isArray(r);
+      done();
+    });
+  });
+});
+
+describe('[Search::saveDefinition] function test', () => {
+  it('should resolve a collection', (done) => {
+    cw7.search.saveDefinition('Request').then(r => {
+      assert.isNumber(r.SearchId);
+      done();
+    });
+  });
+});
+
+describe('[Search::deleteDefinitions] function test', () => {
+  it('should resolve a list of success or failure to delete per id', (done) => {
+    cw7.search.saveDefinition('Request').then(r => {
+      cw7.search.deleteDefinitions([r.SearchId]).then(rez => {
+        assert.isBoolean(rez[r.SearchId]);
+        done();
+      });
+    });
+  });
+});

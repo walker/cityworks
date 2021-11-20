@@ -246,26 +246,6 @@ export class Search {
   }
 
   /**
-   * Get search definition names
-   *
-   * @category Search Definitions
-   * @param {Array<number>} searchIds - SearchIds to get.
-   * @return {Object} Returns Promise object that represents a collection of SearchDefinitionNames
-   */
-  getDefinitionNames(searchIds: Array<number>) {
-    return new Promise((resolve, reject) => {
-      var data = {
-        SearchIds: searchIds
-      }
-      this.cw.runRequest('Ams/Search/DefinitionNames', data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
-  }
-
-  /**
    * Get search definitions
    *
    * @category Search Definitions
@@ -282,6 +262,26 @@ export class Search {
         _.set(data, 'EmployeeSid', employeeSid)
       }
       this.cw.runRequest('Ams/Search/Definitions', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get search definition names
+   *
+   * @category Search Definitions
+   * @param {Array<number>} searchIds - SearchIds to get.
+   * @return {Object} Returns Promise object that represents a collection of SearchDefinitionNames
+   */
+  getDefinitionNames(searchIds: Array<number>) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        SearchIds: searchIds
+      }
+      this.cw.runRequest('Ams/Search/DefinitionNames', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
