@@ -142,7 +142,7 @@ export class CaseAdmin {
    */
   searchCaseTypeIDs(filters: Object) {
     return new Promise((resolve, reject) => {
-      if(_.intersectionBy(filters, ['CaseType', 'CaseTypeDesc', 'CaseTypeId']).length==0) {
+      if(_.intersectionBy(_.keysIn(filters), ['CaseType', 'CaseTypeDesc', 'CaseTypeId']).length==0) {
         reject(new CWError(2, 'At least one of the attributes (CaFeeId, CaObjectId, FeeCode, FeeDesc) must be defined.'))
       }
       var data = filters
@@ -163,7 +163,7 @@ export class CaseAdmin {
    */
   searchCaseTypeObjects(filters: Object) {
     return new Promise((resolve, reject) => {
-      if(_.intersectionBy(filters, ['CaseType', 'CaseTypeDesc', 'CaseTypeId']).length==0) {
+      if(_.intersectionBy(_.keysIn(filters), ['CaseType', 'CaseTypeDesc', 'CaseTypeId']).length==0) {
         reject(new CWError(3, 'At least one of the attributes (CaseType, CaseTypeDesc, CaseTypeId) must be defined.'))
       }
       var data = filters
@@ -263,7 +263,7 @@ export class CaseAdmin {
    */
   searchFees(filters: {AccountCode?: string, FeeCode?: string, FeeDesc?: string, FeeSetupId?: number, FeeTypeId?: number}) {
     return new Promise((resolve, reject) => {
-      if(_.intersectionBy(filters, ['AccountCode', 'FeeCode', 'FeeDesc', 'FeeSetupId', 'FeeTypeId']).length==0) {
+      if(_.intersectionBy(_.keysIn(filters), ['AccountCode', 'FeeCode', 'FeeDesc', 'FeeSetupId', 'FeeTypeId']).length==0) {
         reject(new CWError(4, 'At least one of the attributes (AccountCode, FeeCode, FeeDesc, FeeSetupId, FeeTypeId) must be defined.'))
       }
       var data = filters
@@ -338,7 +338,7 @@ export class CaseAdmin {
    */
   searchDeposits(filters: {AccountCode?: string, DepositCode?: string, DepositDesc?: string, DepositId?: number, DepositTypeId?: number}) {
     return new Promise((resolve, reject) => {
-      if(_.intersectionBy(filters, ['AccountCode', 'DepositCode', 'DepositDesc', 'DepositId', 'DepositTypeId']).length==0) {
+      if(_.intersectionBy(_.keysIn(filters), ['AccountCode', 'DepositCode', 'DepositDesc', 'DepositId', 'DepositTypeId']).length==0) {
         reject(new CWError(4, 'At least one of the attributes (AccountCode, DepositCode, DepositDesc, DepositId, DepositTypeId) must be defined.'))
       }
       var data = filters

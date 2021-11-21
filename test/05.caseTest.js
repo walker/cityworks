@@ -18,7 +18,27 @@ before(function(done) {
 
 describe('[Case (construct)] function test', () => {
   it('should be a defined object', (done) => {
-    assert.isObject(cw5.case, 'Request is an object');
+    assert.isObject(cw5.case, 'Case is an object');
+    done();
+  });
+  it('should have an financial property which is a defined object', (done) => {
+    assert.isObject(cw5.case.financial, 'Financial is an object');
+    done();
+  });
+  it('should have an data property which is a defined object', (done) => {
+    assert.isObject(cw5.case.data, 'Financial is an object');
+    done();
+  });
+  it('should have an workflow property which is a defined object', (done) => {
+    assert.isObject(cw5.case.workflow, 'Financial is an object');
+    done();
+  });
+  it('should have an comment property which is a defined object', (done) => {
+    assert.isObject(cw5.case.comment, 'Financial is an object');
+    done();
+  });
+  it('should have an admin property which is a defined object', (done) => {
+    assert.isObject(cw5.case.admin, 'Financial is an object');
     done();
   });
 });

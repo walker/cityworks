@@ -143,7 +143,7 @@ export class CaseData {
    */
    searchForGroups(filters?: Object) {
     return new Promise((resolve, reject) => {
-      if(_.intersectionBy(filters, ['CaDataGroupId', 'CaseDataGroupId', 'GroupCode', 'GroupDesc', 'GroupSum', 'SumFlag']).length==0) {
+      if(_.intersectionBy(_.keysIn(filters), ['CaDataGroupId', 'CaseDataGroupId', 'GroupCode', 'GroupDesc', 'GroupSum', 'SumFlag']).length==0) {
         reject(new CWError(2, 'At least one of the attributes (CaDataGroupId, CaseDataGroupId, GroupCode, GroupDesc, GroupSum, SumFlag) must be defined.'))
       }
       var data = filters
@@ -359,7 +359,7 @@ export class CaseData {
    */
    searchForListValueIds(filters?: Object) {
     return new Promise((resolve, reject) => {
-      if(_.intersectionBy(filters, ['CaDataDetailId', 'CaDataListId', 'ListValue']).length==0) {
+      if(_.intersectionBy(_.keysIn(filters), ['CaDataDetailId', 'CaDataListId', 'ListValue']).length==0) {
         reject(new CWError(3, 'At least one of the attributes (CaDataDetailId, CaDataListId, ListValue) must be defined.'))
       }
       var data = filters
@@ -380,7 +380,7 @@ export class CaseData {
    */
    searchForListValueObjects(filters?: Object) {
     return new Promise((resolve, reject) => {
-      if(_.intersectionBy(filters, ['CaDataDetailId', 'CaDataListId', 'ListValue']).length==0) {
+      if(_.intersectionBy(_.keysIn(filters), ['CaDataDetailId', 'CaDataListId', 'ListValue']).length==0) {
         reject(new CWError(3, 'At least one of the attributes (CaDataDetailId, CaDataListId, ListValue) must be defined.'))
       }
       var data = filters

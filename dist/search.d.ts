@@ -90,14 +90,6 @@ export declare class Search {
      */
     getDefinition(searchId: number, employeeSid?: number): Promise<unknown>;
     /**
-     * Get search definition names
-     *
-     * @category Search Definitions
-     * @param {Array<number>} searchIds - SearchIds to get.
-     * @return {Object} Returns Promise object that represents a collection of SearchDefinitionNames
-     */
-    getDefinitionNames(searchIds: Array<number>): Promise<unknown>;
-    /**
      * Get search definitions
      *
      * @category Search Definitions
@@ -106,6 +98,14 @@ export declare class Search {
      * @return {Object} Returns Promise object that represents a collection of SearchDefinition objects
      */
     getDefinitions(searchIds: Array<number>, employeeSid?: number): Promise<unknown>;
+    /**
+     * Get search definition names
+     *
+     * @category Search Definitions
+     * @param {Array<number>} searchIds - SearchIds to get.
+     * @return {Object} Returns Promise object that represents a collection of SearchDefinitionNames
+     */
+    getDefinitionNames(searchIds: Array<number>): Promise<unknown>;
     /**
      * Delete search definitions
      *

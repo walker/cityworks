@@ -23,9 +23,9 @@ describe('[CaseFinancial (construct)] function test', () => {
   });
 });
 
-describe('[CaseFinancial::getCaseFees] function test', () => {
+describe('[CaseFinancial::getFees] function test', () => {
   it('should resolve a collection of case fees', (done) => {
-    cw6.case.financial.getCaseFees(16086).then(r => { // TODO: find case, then get fees
+    cw6.case.financial.getFees(16086).then(r => { // TODO: find case, then get fees
       assert.isArray(r);
       done();
     });
@@ -73,11 +73,11 @@ describe('[CaseFinancial::getAllFeeTemplates] function test', () => {
 
 describe('[CaseFinancial::searchFeeTemplates] function test', () => {
   it('should resolve a collection of case fees with interest in the name', (done) => {
-    cw6.case.financial.searchFeeTemplates(null, null, null, 'interest').then(r => { // TODO: find case, then get fees
+    cw6.case.financial.searchFeeTemplates({FeeDesc: 'interest'}).then(r => { // TODO: find case, then get fees
       assert.isArray(r);
       done();
     }).catch(e => {
-      console.log(e, e)
+      console.log(e, 'e')
     })
   });
 });
