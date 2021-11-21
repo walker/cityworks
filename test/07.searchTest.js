@@ -61,7 +61,6 @@ describe('[Search::getSaved] function test', () => {
   it('should reject with an error if the search type does not exist', (done) => {
     cw7.search.getSaved('ServiceRequest').then(r => {
     }).catch(e => {
-      // console.log(e)
       assert.equal(e.message, 'SearchType provided does not exist or is mispelled.')
       done();
     });
