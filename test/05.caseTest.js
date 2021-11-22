@@ -8,7 +8,7 @@ const _ = require('lodash')
 
 before(function(done) {
   this.timeout(20000000);
-  cw5.authenticate(process.env.login, process.env.password).then(resp => {
+  cw5.authenticate(process.env.login, process.env.password).then(r => {
     done();
   }).catch(e => {
     console.log(e, 'unexpected error')
@@ -43,7 +43,55 @@ describe('[Case (construct)] function test', () => {
   });
 });
 
-describe('[Case (construct)] function test', () => {
-  // it('should resolve a boolean', (done) => {
-  // });
+describe('[Case::create] function test', () => {
+  it('should resolve an object describing the new case', (done) => {
+    cw5.case.create(51, 93).then(r => {
+      assert.isObject(r);
+      done();
+    });
+  });
+  it('should resolve null if case type/subtype do not exist', (done) => {
+    cw5.case.create(999999, 99999999).then(r => {
+      assert.isNull(r);
+      done();
+    }).catch(e => {
+      console.log(e, 'unexpected error')
+      done();
+    });
+  });
+});
+
+describe('[Case::createChild] function test', () => {
+  it('should resolve an object describing the new case', (done) => {
+  });
+});
+
+describe('[Case::createFromRequest] function test', () => {
+  it('should resolve an object describing the new case', (done) => {
+  });
+});
+
+describe('[Case::update] function test', () => {
+  it('should resolve an object describing the updated case', (done) => {
+  });
+});
+
+describe('[Case::getByIds] function test', () => {
+  it('should resolve a collection of case objects', (done) => {
+  });
+});
+
+describe('[Case::search] function test', () => {
+  it('should resolve a collection of case objects meeting the search criteria', (done) => {
+  });
+});
+
+describe('[Case::move] function test', () => {
+  it('should resolve an object describing the moved case', (done) => {
+  });
+});
+
+describe('[Case::delete] function test', () => {
+  it('should resolve an object describing the deleted case', (done) => {
+  });
 });
