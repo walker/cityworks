@@ -212,7 +212,7 @@ export class Case {
       }).catch(e => {
         reject(e)
       })
-    });
+    })
   }
 
   /**
@@ -225,7 +225,7 @@ export class Case {
   delete(caObjectId: number) {
     return new Promise((resolve, reject) => {
       var data = {
-        CaObjectId: caObjectId,
+        CaObjectId: caObjectId
       }
       this.cw.runRequest('Pll/CaseObject/DeleteCase', data).then(r => {
         resolve(r.Value)

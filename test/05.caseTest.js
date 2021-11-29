@@ -92,6 +92,19 @@ describe('[Case::move] function test', () => {
 });
 
 describe('[Case::delete] function test', () => {
-  it('should resolve an object describing the deleted case', (done) => {
+  it('should resolve a 1 (success) or 0 (failure)', (done) => {
+    cw5.case.delete(44069).then(rez => {
+      expect(rez).to.satisfy(function (deletionSwitch) {
+          if (deletionSwitch===1 || deletionSwitch===0) {
+              return true;
+          } else {
+              return false;
+          }
+      });
+      done();
+    }).catch(e => {
+      console.log(e, 'unexpected error')
+      done();
+    });
   });
 });

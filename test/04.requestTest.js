@@ -21,6 +21,14 @@ describe('[Request (construct)] function test', () => {
     assert.isObject(cw4.request, 'Request is an object');
     done();
   });
+  it('should have an admin property which is a defined object', (done) => {
+    assert.isObject(cw4.request.admin, 'Admin is an object');
+    done();
+  });
+  it('should have an comment property which is a defined object', (done) => {
+    assert.isObject(cw4.request.comment, 'Comment is an object');
+    done();
+  });
 });
 
 describe('[Request::getProblemNodes] function test', () => {

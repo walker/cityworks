@@ -249,7 +249,6 @@ module.exports = class Cityworks implements Citywork {
                   // failed
                   reject(new CWError(10, 'No response received from Cityworks API.'))
                 } else if(typeof(obj)!='undefined' && typeof(obj.Value)!='undefined') { // && typeof(response.Value.Token)!='undefined') {
-                  // console.log(str, options, pd, obj)
                   resolve(obj)
                 } else {
                   reject(new CWError(3, "Unknown error.", {options: options, postedData: pd, api_returned_string: obj}))
