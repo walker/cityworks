@@ -4,11 +4,11 @@ This API wrapper for Cityworks follows the Cityworks release schedule as closely
 
 Require the class:
 
-      var cityworks = require('cityworks');
+      const Cityworks = require('cityworks');
 
-Configure the instance that is then available:
+Instantiate the Class for the instance of Cityworks available given a domain:
 
-      cityworks.configure('my.cityworks.domain')
+      let cw = new Cityworks(CW_DOMAIN)
 
 ## Authentication
 
