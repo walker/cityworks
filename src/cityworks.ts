@@ -225,7 +225,6 @@ module.exports = class Cityworks implements Citywork {
         },
         timeout: 10000000
       }
-
       let request = https.request(options, (response) => {
           let str=''
           response.on('error',function(e){
@@ -249,20 +248,34 @@ module.exports = class Cityworks implements Citywork {
                   // failed
                   reject(new CWError(10, 'No response received from Cityworks API.'))
                 } else if(typeof(obj)!='undefined' && typeof(obj.Value)!='undefined') { // && typeof(response.Value.Token)!='undefined') {
-                  resolve(obj)
+                  switch(obj.Status) {
+                    case 1:
+                      reject(new CWError(1, 'Error', obj))
+                      break;
+                    case 2:
+                      reject(new CWError(2, 'Unauthorized', obj))
+                      break;
+                    case 3:
+                      reject(new CWError(3, 'InvalidCredentials', obj))
+                      break;
+                    case 0:
+                    default:
+                      resolve(obj);
+                      break;
+                  }
                 } else {
-                  reject(new CWError(3, "Unknown error.", {options: options, postedData: pd, api_returned_string: obj}))
+                  reject(new CWError(4, "Unknown error.", {options: options, postedData: pd, api_returned_string: obj}))
                 }
               } else {
-                reject(new CWError(1, "Error parsing JSON. Cityworks returned HTML.", {response: str}))
+                reject(new CWError(5, "Error parsing JSON. Cityworks returned HTML.", {response: str}))
               }
             } catch (e) {
               if (e instanceof SyntaxError) {
                 console.log('try/catch error on JSON')
-                reject(new CWError(1, "Error parsing JSON.", {error: e}))
+                reject(new CWError(6, "Error parsing JSON.", {error: e}))
               } else {
-                console.log('try/catch error on JSON')
-                reject(new CWError(1, "Error parsing JSON."))
+                console.log('try/catch error on JSON - but not an instance of SyntaxError')
+                reject(new CWError(7, "Error parsing JSON."))
               }
             }
           })
@@ -286,20 +299,20 @@ module.exports = class Cityworks implements Citywork {
         path = 'General/Authentication/CityworksOnlineAuthenticate'
       }
       this.runRequest(path, data).then((response: any) => {
-        if(response.Status>0) {
-          // failed
-          reject(new CWError(10, response.Message))
-        } else if(typeof(response.Value)!='undefined' && typeof(response.Value.Token)!='undefined') {
+        // if(response.Status>0) {
+        //   // failed
+        //   reject(new CWError(100, response.Message))
+        // } else if(typeof(response.Value)!='undefined' && typeof(response.Value.Token)!='undefined') {
           this.login = login
           this.password = password
           this.Token = response.Value.Token
           resolve(true)
-        } else {
-          // failed
-          reject(new CWError(11, 'Unknown Error'))
-        }
+        // } else {
+        //   // failed
+        //   reject(new CWError(11, 'Unknown Error'))
+        // }
       }).catch(error => {
-        reject(error)
+        reject(error);
       })
     })
   }
