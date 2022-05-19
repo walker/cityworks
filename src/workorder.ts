@@ -208,7 +208,7 @@ export class WorkOrder {
       var data = {}
       if(workOrderSIds.length==0) {
         // throw error
-        reject(new CWError(10, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+        reject(new CWError(101, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
       } else {
         var path = 'Ams/WorkOrder/ByIds';
         if(_.isString(workOrderSIds[0])) {
@@ -242,7 +242,7 @@ export class WorkOrder {
       var data = {}
       if(workOrderSIds.length==0) {
         // throw error
-        reject(new CWError(10, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+        reject(new CWError(102, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
       } else {
         var path = 'Ams/WorkOrder/ByIds';
         if(_.isString(workOrderSIds[0])) {

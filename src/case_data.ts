@@ -381,7 +381,7 @@ export class CaseData {
    searchForListValueObjects(filters?: Object) {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaDataDetailId', 'CaDataListId', 'ListValue']).length==0) {
-        reject(new CWError(3, 'At least one of the attributes (CaDataDetailId, CaDataListId, ListValue) must be defined.'))
+        reject(new CWError(4, 'At least one of the attributes (CaDataDetailId, CaDataListId, ListValue) must be defined.'))
       }
       var data = filters
       this.cw.runRequest('Pll/CaseDataGroup/SearchObject', data).then(r => {

@@ -26,6 +26,8 @@ export class General {
     return new Promise((resolve, reject) => {
       this.cw.runRequest('General/ActivityNotification/User', {}).then((response: any) => {
         resolve(response.Value)
+      }).catch(e => {
+        reject(e)
       })
     })
   }
@@ -50,7 +52,7 @@ export class General {
           // console.log(r, 'response')
           resolve(r.Value)
         }).catch(e => {
-          reject(new CWError(2, "Unknown error."))
+          reject(e)
         })
       }
     })
