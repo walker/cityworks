@@ -101,7 +101,7 @@ export class Request {
       }).catch(e => {
         reject(e)
       })
-    });
+    })
   }
 
   /**

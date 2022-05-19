@@ -89,6 +89,8 @@ export class ActivityLinks implements ActivityLink {
       let path = 'General/ActivityLink/Add'
       this.cw.runRequest(path, data).then((response: any) => {
         resolve(response.Value)
+      }).catch(e => {
+        reject(e)
       })
     })
   }
@@ -123,6 +125,8 @@ export class ActivityLinks implements ActivityLink {
           return_data.push(link)
         })
         resolve(return_data)
+      }).catch(e => {
+        reject(e)
       })
     })
   }
@@ -148,7 +152,7 @@ export class ActivityLinks implements ActivityLink {
         reject(new CWError(1, 'Source type not found.', {'provided': source_type, 'options':this.activityTypes}))
       }
       if(!this.activityTypes.has(destination_type)) {
-        reject(new CWError(1, 'Destination type not found.', {'provided': destination_type, 'options':this.activityTypes}))
+        reject(new CWError(2, 'Destination type not found.', {'provided': destination_type, 'options':this.activityTypes}))
       }
       let data = {
         SourceActivityType: this.activityTypes.get(source_type),
@@ -159,6 +163,8 @@ export class ActivityLinks implements ActivityLink {
       let path = 'General/ActivityLink/CloneByActivitySid'
       this.cw.runRequest(path, data).then((response: any) => {
         resolve(response.Value)
+      }).catch(e => {
+        reject(e)
       })
     })
   }
@@ -177,6 +183,8 @@ export class ActivityLinks implements ActivityLink {
       let path = 'General/ActivityLink/Delete'
       this.cw.runRequest(path, data).then((response: any) => {
         resolve(response.Value)
+      }).catch(e => {
+        reject(e)
       })
     })
   }
@@ -221,6 +229,8 @@ export class ActivityLinks implements ActivityLink {
       let path = 'General/ActivityLink/Remove'
       this.cw.runRequest(path, data).then((response: any) => {
         resolve(response.Value)
+      }).catch(e => {
+        reject(e)
       })
     })
   }

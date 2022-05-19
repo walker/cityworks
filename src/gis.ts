@@ -5,13 +5,13 @@ export class Gis {
   /**
    * @hidden
    */
-  cw: any;
+  cw: any
 
   /**
    * @hidden
    */
   constructor(cw) {
-    this.cw = cw;
+    this.cw = cw
   }
 
   /**
@@ -25,27 +25,29 @@ export class Gis {
    */
   getConfig(whichType, whichId, getGisData: boolean = true, context: Array<string> = []) {
     return new Promise((resolve, reject) => {
-      let path = 'Gis/MapService/Domain';
-      whichType = whichType.toLowerCase();
+      let path = 'Gis/MapService/Domain'
+      whichType = whichType.toLowerCase()
       let data: {DomainId?: any, GroupId?: any, MapServiceId?: any, UserId?: any, GetGisData: boolean, Security: Array<string>}
       switch(whichType) {
         case 'domain':
           data = {DomainId:whichId, GetGisData: getGisData, Security: context}
-          break;
+          break
         case 'group':
           data = {GroupId:whichId, GetGisData: getGisData, Security: context}
-          break;
+          break
         case 'mapservice':
           data = {MapServiceId:whichId, GetGisData: getGisData, Security: context}
-          break;
+          break
         case 'user':
           data = {UserId:whichId, GetGisData: getGisData, Security: context}
-          break;
+          break
       }
       this.cw.runRequest(path, {}).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
+        resolve(response.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -56,14 +58,16 @@ export class Gis {
     */
   domain(domainId, getGisData: boolean = true) {
     return new Promise((resolve, reject) => {
-      let path = 'Gis/MapService/Domain';
+      let path = 'Gis/MapService/Domain'
       let data = {
         DomainId: domainId
       }
       this.cw.runRequest(path, {}).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
+        resolve(response.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -74,14 +78,16 @@ export class Gis {
      */
   downloadMobile(cacheId, getGisData: boolean = true) {
     return new Promise((resolve, reject) => {
-      let path = 'Gis/MapService/DownloadMobileMapCache';
+      let path = 'Gis/MapService/DownloadMobileMapCache'
       let data = {
         MobileMapCacheId: cacheId
       }
       this.cw.runRequest(path, {}).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
+        resolve(response.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -91,12 +97,14 @@ export class Gis {
    */
   initialExtent() {
     return new Promise((resolve, reject) => {
-      let path = 'Gis/MapService/InitialExtent';
+      let path = 'Gis/MapService/InitialExtent'
       let data = {};
       this.cw.runRequest(path, {}).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
+        resolve(response.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -108,15 +116,17 @@ export class Gis {
    */
   request(requestId, getGisData: boolean = true) {
     return new Promise((resolve, reject) => {
-      let path = 'Gis/MapService/ServiceRequestConfiguration';
+      let path = 'Gis/MapService/ServiceRequestConfiguration'
       let data = {
         RequestId: requestId,
         GetGisData: getGisData
       }
       this.cw.runRequest(path, {}).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
+        resolve(response.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -128,15 +138,17 @@ export class Gis {
      */
   inspection(inspectionId, getGisData: boolean = true) {
     return new Promise((resolve, reject) => {
-      let path = 'Gis/MapService/InspectionConfiguration';
+      let path = 'Gis/MapService/InspectionConfiguration'
       let data = {
         InspectionId: inspectionId,
         GetGisData: getGisData
       }
       this.cw.runRequest(path, {}).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
+        resolve(response.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -148,15 +160,17 @@ export class Gis {
      */
   workOrder(workOrderSid, getGisData: boolean = true) {
     return new Promise((resolve, reject) => {
-      let path = 'Gis/MapService/WorkOrderConfiguration';
+      let path = 'Gis/MapService/WorkOrderConfiguration'
       let data = {
         WorkOrderSid: workOrderSid,
         GetGisData: getGisData
       }
       this.cw.runRequest(path, {}).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
+        resolve(response.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -170,7 +184,7 @@ export class Gis {
      */
   user(context: Array<string> = [], allDomains: boolean = true, allGroups: boolean = true, getGisData: boolean = true) {
     return new Promise((resolve, reject) => {
-      let path = 'Gis/MapService/User';
+      let path = 'Gis/MapService/User'
       let data = {
         AllDomains: allDomains,
         AllGroups: allGroups,
@@ -178,23 +192,11 @@ export class Gis {
         Security: context
       }
       this.cw.runRequest(path, {}).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
-  }
-
-
-  /**
-     * Get currently selected entities from the Cityworks install's session for your user
-     * @return {Object} Returns Promise object that represents an Object with the currently-selected entities
-     */
-  selectedEntities() {
-    return new Promise((resolve, reject) => {
-      let path = 'General/AppData/SelectedEntities';
-      this.cw.runRequest(path, {}).then((response: any) => {
-        resolve(response.Value);
-      });
-    });
+        resolve(response.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
   }
 
   /**
@@ -204,4 +206,37 @@ export class Gis {
    * @return {Object} Returns Promise object that represents an object describing the provided Geocoder service configuration
    */
    // Gis/GeoCode/GeocodeServer
+
+   /**
+      * Get currently selected entities from the Cityworks install's session for your user
+      * @return {Object} Returns Promise object that represents an Object with the currently-selected entities
+      */
+   selectedEntities() {
+     return new Promise((resolve, reject) => {
+       let path = 'General/AppData/SelectedEntities'
+       this.cw.runRequest(path, {}).then((response: any) => {
+         resolve(response.Value)
+       }).catch(e => {
+         reject(e)
+       })
+     })
+   }
+
+   /**
+      * Get attributes available for provided entity
+      *
+      * @param {string} entityType - The entity type to describe
+      * @return {Object} Returns Promise object that represents a collection of attribute description objects
+      */
+   getEntityAttributes(entityType:string) {
+     return new Promise((resolve, reject) => {
+       let data = {EntityType: entityType}
+       let path = 'AMS/Entity/Attributes'
+       this.cw.runRequest(path, data).then((response: any) => {
+         resolve(response.Value)
+       }).catch(e => {
+         reject(e)
+       })
+     })
+   }
 }

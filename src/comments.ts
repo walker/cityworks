@@ -59,6 +59,8 @@ export class Comments {
       }
       this.cw.runRequest('Ams/Comment/Add', data).then((response: any) => {
         resolve(response.Value)
+      }).catch(e => {
+        reject(e)
       })
     })
   }
@@ -79,6 +81,8 @@ export class Comments {
       }
       this.cw.runRequest('Ams/Comment/Update', data).then((response: any) => {
         resolve(response.Value)
+      }).catch(e => {
+        reject(e)
       })
     })
   }
@@ -126,6 +130,8 @@ export class Comments {
       _.set(data, 'ActivityType', this.activityTypes.get(this.currentActivityType))
       this.cw.runRequest('Ams/Comment/PredefinedComments', data).then((response: any) => {
         resolve(response.Value)
+      }).catch(e => {
+        reject(e)
       })
     })
   }
@@ -152,7 +158,9 @@ export class Comments {
   //     console.log(data, 'data')
   //     this.cw.runRequest('Ams/Comment/ByActivityTypes', data).then((response: any) => {
   //       resolve(response.Value)
-  //     })
+  //     }).catch(e => {
+  //      reject(e)
+  //    })
   //   })
   // }
 

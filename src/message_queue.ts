@@ -53,6 +53,8 @@ export class MessageQueue {
       let path = 'General/WebHookEvent/ProcessMessages'
       this.cw.runRequest(path, data).then((response: any) => {
         // TODO
+      }).catch(e => {
+        reject(e)
       })
     })
   }
@@ -78,6 +80,8 @@ export class MessageQueue {
       let path = 'General/MessageQueue/ByIds'
       this.cw.runRequest(path, data).then((response: any) => {
         // TODO
+      }).catch(e => {
+        reject(e)
       })
     })
   }
@@ -103,6 +107,8 @@ export class MessageQueue {
       let path = 'General/MessageQueue/Delete'
       this.cw.runRequest(path, data).then((response: any) => {
         // TODO
+      }).catch(e => {
+        reject(e)
       })
     })
   }
@@ -117,6 +123,8 @@ export class MessageQueue {
       let path = 'General/MessageQueue/Preferences'
       this.cw.runRequest(path, data).then((response: any) => {
         // TODO
+      }).catch(e => {
+        reject(e)
       })
     })
   }
@@ -148,6 +156,8 @@ export class MessageQueue {
           response.Value = []
         }
         resolve(response.Value)
+      }).catch(e => {
+        reject(e)
       })
     })
   }
