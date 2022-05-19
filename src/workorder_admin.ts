@@ -73,7 +73,7 @@ export class WorkOrderAdmin {
    * @return {Object} Returns Promise that represents a collection of all
    */
   updateTemplate(wOTemplate:Object) {
-    let valid_fields = {"AcctNum", "AutoCreateTask", "Cancel", "Comments", "CopyCustomFieldVal", "CycleFrom", "CycleIncludeWeekends", "CycleIntervalNum", "CycleIntervalUnit", "CycleType", "DaysToComplete", "DefaultProject", "DefaultProjectSid", "Description", "Effort", "ExpenseType", "Instructions", "IsReactive", "MaintScore", "NumDaysBefore", "Priority",   "RequireAssetOnClose", "Shop", "Stage", "SubmitToEmployeeSid", "SupervisorEmployeeSid", "UnitsAccompDesc", "UnitsAccompDescLock", "WOCategory", "WOCustFieldCatId", "WOPrintTmpt", "WOTemplateId", "WorkMonth"}
+    let valid_fields = ["AcctNum", "AutoCreateTask", "Cancel", "Comments", "CopyCustomFieldVal", "CycleFrom", "CycleIncludeWeekends", "CycleIntervalNum", "CycleIntervalUnit", "CycleType", "DaysToComplete", "DefaultProject", "DefaultProjectSid", "Description", "Effort", "ExpenseType", "Instructions", "IsReactive", "MaintScore", "NumDaysBefore", "Priority",   "RequireAssetOnClose", "Shop", "Stage", "SubmitToEmployeeSid", "SupervisorEmployeeSid", "UnitsAccompDesc", "UnitsAccompDescLock", "WOCategory", "WOCustFieldCatId", "WOPrintTmpt", "WOTemplateId", "WorkMonth"]
     return new Promise((resolve, reject) => {
       var data = wOTemplate
       this.cw.runRequest('Ams/Designer/WOTemplates', data).then(r => {
@@ -94,7 +94,7 @@ export class WorkOrderAdmin {
   getTemplateGroupRights(wOTemplateIds:Array<number>) {
     return new Promise((resolve, reject) => {
       var data = {WOTemplateIds: wOTemplateIds}
-      this.cw.runRequest('Ams/Designer/WOTemplates', data).then(r => {
+      this.cw.runRequest('Ams/Designer/WOTemplates', data).then(r => { // TODO: Update this URL
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -109,7 +109,7 @@ export class WorkOrderAdmin {
    * @param {Array<number>} wOTemplateIds - Array one or more WorkOrder Template IDs
    * @return {Object} Returns Promise that represents a collection of all
    */
-  getTemplateGroupRights(wOTemplateIds:Array<number>) {
+  getTemplateActivity(wOTemplateIds:Array<number>) {
     return new Promise((resolve, reject) => {
       var data = {WOTemplateIds: wOTemplateIds}
       this.cw.runRequest('Ams/Designer/WOTemplateActivityService', data).then(r => {
@@ -199,7 +199,7 @@ export class WorkOrderAdmin {
    * @param {number} wOTemplateId - WorkOrder Template ID
    * @return {Object} Returns Promise that represents a collection of all
    */
-  getTemplateLabor(wOTemplateId:number) {
+  getTemplateMapLayerFields(wOTemplateId:number) {
     return new Promise((resolve, reject) => {
       var data = {WorkOrderTemplateId: wOTemplateId}
       this.cw.runRequest('Ams/Designer/WorkOrderTemplateMapLayerFields', data).then(r => {
@@ -217,7 +217,7 @@ export class WorkOrderAdmin {
    * @param {number} wOTemplateId - WorkOrder Template ID
    * @return {Object} Returns Promise that represents a collection of all tasks on work order template
    */
-  getTemplateLabor(wOTemplateId:number) {
+  getTemplateTasks(wOTemplateId:number) {
     return new Promise((resolve, reject) => {
       var data = {WOTemplateId: wOTemplateId}
       this.cw.runRequest('Ams/Tasks/ByWorkOrderTemplate', data).then(r => {
@@ -235,7 +235,7 @@ export class WorkOrderAdmin {
    * @param {number} wOTemplateId - WorkOrder Template ID
    * @return {Object} Returns Promise that represents a collection of all tasks on work order template
    */
-  getTemplateLabor(wOTemplateId:number) {
+  getRelatedInspectionTemplates(wOTemplateId:number) {
     return new Promise((resolve, reject) => {
       var data = {WOTemplateId: wOTemplateId}
       this.cw.runRequest('Ams/Designer/WOTemplateInspections', data).then(r => {

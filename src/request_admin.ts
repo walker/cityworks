@@ -18,9 +18,10 @@ export class RequestAdmin {
    * Get service request templates
    *
    * @category Requests Admin
+   * @param {Object} searchData - search data
    * @return {Object} Returns Promise that represents a collection of all Service Request Templates
    */
-  getTemplates() {
+  getTemplates(searchData: Object) {
     return new Promise((resolve, reject) => {
       var data = searchData
       this.cw.runRequest('Ams/ServiceRequestTemplate/Templates', data).then(r => {

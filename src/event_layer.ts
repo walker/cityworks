@@ -63,7 +63,7 @@ export class EventLayer {
    * @param {Array<string>} queryTypes -
    * @return {Object} Returns Promise object which represents a xxxxx indicating xxxxxxx
    */
-   update(eventLayerId: number, enabled: boolean) {
+   createByID(createBySids: Array<number>, queryTypes: Array<number>) {
      return new Promise((resolve, reject) => {
        let data = {"CreateBySids": createBySids, "QueryTypes": queryTypes}
        this.cw.runRequest('Ams/EurlQuery/IdNames', data).then(r => {
@@ -83,9 +83,9 @@ export class EventLayer {
    * @param {Object} defaultValue - {all: [3]}
    * @return {Object} Returns Promise object which represents a xxxxx indicating xxxxxxx
    */
-   update(element: number, category: boolean, defaultValue: Object) {
+   updatePreferences(element: number, category: boolean, defaultValue: Object) {
      return new Promise((resolve, reject) => {
-       let data = {"Element": createBySids, "Category": category, "DefaultValue": defaultValue}
+       let data = {"Element": element, "Category": category, "DefaultValue": defaultValue}
        this.cw.runRequest('Ams/Preferences/UserSave', data).then(r => {
          // console.log(r, 'response')
          resolve(r.Value)
@@ -170,7 +170,7 @@ export class EventLayer {
    * @param {Array<string>} categories - ["qe-map"]
    * @return {Object} Returns Promise object which represents a xxxxx indicating xxxxxxx
    */
-   xxxxxx(element: number, category: boolean, defaultValue: Object) {
+   xxxxxx(preferenceNames: Array<string>, categories: Array<string>) {
      return new Promise((resolve, reject) => {
        let data = {"PreferenceNames": preferenceNames, "Categories": categories}
        this.cw.runRequest('Ams/Preferences/User', data).then(r => {
