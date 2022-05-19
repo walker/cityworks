@@ -1,3 +1,5 @@
+const _ = require('lodash')
+
 interface CWErrorInt {
   name: string
   code: number
@@ -42,6 +44,8 @@ export class CWError implements CWErrorInt {
     this.code = code
     this.message = message
     if(typeof(info) !== 'undefined') {
+      if(_.has(info, 'Message'))
+        this.message = _.get(info, 'Message')
       this.info = JSON.stringify(info)
     }
   }
