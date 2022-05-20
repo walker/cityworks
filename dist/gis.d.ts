@@ -72,8 +72,21 @@ export declare class Gis {
        */
     user(context?: Array<string>, allDomains?: boolean, allGroups?: boolean, getGisData?: boolean): Promise<unknown>;
     /**
+     * Get Geocode server info by ServerId
+     *
+     * @param {number} ServiceId
+     * @return {Object} Returns Promise object that represents an object describing the provided Geocoder service configuration
+     */
+    /**
        * Get currently selected entities from the Cityworks install's session for your user
        * @return {Object} Returns Promise object that represents an Object with the currently-selected entities
        */
     selectedEntities(): Promise<unknown>;
+    /**
+       * Get attributes available for provided entity
+       *
+       * @param {string} entityType - The entity type to describe
+       * @return {Object} Returns Promise object that represents a collection of attribute description objects
+       */
+    getEntityAttributes(entityType: string): Promise<unknown>;
 }

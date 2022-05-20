@@ -1,11 +1,15 @@
 import ReversibleMap from 'reversible-map';
-interface ActivityLink {
+/**
+ * ActivityLink interface for ActivityLinks
+ *
+ */
+export interface ActivityLink {
     linkTypes: ReversibleMap<string, number>;
     activityTypes: ReversibleMap<string, number>;
     cw: any;
 }
 /**
- * ActivityLinks implements the activity link functions
+ * ActivityLinks implements the activity link functions via using the ActivityLink interface
  *
  */
 export declare class ActivityLinks implements ActivityLink {
@@ -104,4 +108,3 @@ export declare class ActivityLinks implements ActivityLink {
      */
     remove(source_type: string, source_sid: number, destination_type: string, destination_sid: number, link_type?: string): Promise<unknown>;
 }
-export {};

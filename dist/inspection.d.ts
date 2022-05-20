@@ -266,7 +266,7 @@ export declare class Inspection {
      * @param {Array<string>} [entityTypes] - The Entity Type(s) to return potential inspections for
      * @param {boolean} [canCreate] - If true, only return templates the user can create, ignored if false or null, default is true
      * @param {Object} [options] - An object which can include: [IncludeInactive]: boolean, MaximumDateModified: Date, MinimumDateModified: Date, TemplateIds: Array<number>
-     * @return {Object} Returns Promise that represents a collection of all possible employees for an Inspection's SubmitTo
+     * @return {Object} Returns Promise that represents a collection of all Inspections matching the provided parameters
      */
     getTemplates(entityTypes?: Array<string>, canCreate?: boolean, options?: {
         IncludeInactive?: boolean;

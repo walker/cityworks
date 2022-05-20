@@ -2,14 +2,18 @@ import { CWError } from './error'
 import ReversibleMap from 'reversible-map'
 const _ = require('lodash')
 
-interface ActivityLink {
+/**
+ * ActivityLink interface for ActivityLinks
+ *
+ */
+export interface ActivityLink {
   linkTypes: ReversibleMap<string, number>
   activityTypes: ReversibleMap<string, number>
   cw: any
 }
 
 /**
- * ActivityLinks implements the activity link functions
+ * ActivityLinks implements the activity link functions via using the ActivityLink interface
  *
  */
 export class ActivityLinks implements ActivityLink {

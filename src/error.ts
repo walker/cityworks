@@ -1,6 +1,12 @@
 const _ = require('lodash')
 
-interface CWErrorInt {
+/**
+ * CWErrorInt interface definition for implementation by CWError
+ *
+ * `{name: string, code: number, message: string, info?: string}`
+ *
+ */
+export interface CWErrorInt {
   name: string
   code: number
   message: string
@@ -9,8 +15,6 @@ interface CWErrorInt {
 
 /**
  * CWError implements a custom error class for this codebase with additional information
- *
- * `{name: string, code:number, info: object}`
  *
  */
 export class CWError implements CWErrorInt {
