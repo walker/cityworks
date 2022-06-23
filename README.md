@@ -4,11 +4,11 @@ This API wrapper for Cityworks follows the Cityworks release schedule as closely
 
 Require the class:
 
-      const Cityworks = require('cityworks');
+      const Cityworks = require('cityworks')
 
 Instantiate the Class for the instance of Cityworks available given a domain:
 
-      let cw = new Cityworks(CW_DOMAIN)
+      let cw = new Cityworks('cw.domain.tld', {path: 'cityworks'})
 
 ## Authentication
 
@@ -17,17 +17,17 @@ Authenticate with the Cityworks install:
       cw.authenticate('myuser', 'mypassword').then(resp => {
 
       }).catch(error => {
-        console.log(error.message);
-      });
+        console.log(error.message)
+      })
 
 
 Get the currently valid token in order to store it in a session or cookie:
 
-      cityworks.getToken();
+      cityworks.getToken()
 
 Provide a saved token instead of the standard u/p auth:
 
-      cityworks.setToken('mytoken');
+      cityworks.setToken('mytoken')
 
 ## Main method calls
 
