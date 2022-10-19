@@ -156,4 +156,32 @@ export declare class CaseWorkflow {
      * @return {Object} Returns Promise that represents a collection of resulting CaTaskResultsItem
      */
     searchForTaskResults(filters?: Object): Promise<unknown>;
+    /**
+       * Adds a task to the case specified by the CaObectId.
+       *
+       * @category Task Attachments
+       * @param {number} caTaskId - The Task ID to attach the document to
+       * @param {number} caObjectId - The Case Object ID
+       * @param {string} docName - The file name as it should display in the system
+       * @param {string} locationType - The location of the file...leave blank
+       * @param {any} file - The binary string for the file
+       * @return {Object} Returns Promise that represents an object describing added Attachment
+       */
+    addTaskAttachment(caTaskId: number, caObjectId: number, docName: number, file: any, locationType?: string): Promise<unknown>;
+    /**
+       * Gets each Document Attached to the specified Task
+       *
+       * @category Task Attachments
+       * @param {number} caTaskId - The Task ID to attach the document to
+       * @return {Object} Returns Promise that represents a collection of objects describing each Attachment on the provided task
+       */
+    getTaskAttachments(caTaskId: number): Promise<unknown>;
+    /**
+     * Deletes a task attachment by caRelDocId (Related Case Document ID). Same as RelDocs delete for case.
+     *
+     * @category Task Attachments
+     * @param {number} caRelDocId - The caRelDocId for the related document which should be deleted
+     * @return {Object} Returns Promise that represents the an object describing the deleted document.
+     */
+    deleteTaskAttachment(caRelDocId: number): Promise<unknown>;
 }

@@ -387,4 +387,76 @@ export class CaseWorkflow {
       })
     })
   }
+
+  /**
+     * Adds a task to the case specified by the CaObectId.
+     *
+     * @category Task Attachments
+     * @param {number} caTaskId - The Task ID to attach the document to
+     * @param {number} caObjectId - The Case Object ID
+     * @param {string} docName - The file name as it should display in the system
+     * @param {string} locationType - The location of the file...leave blank
+     * @param {any} file - The binary string for the file
+     * @return {Object} Returns Promise that represents an object describing added Attachment
+     */
+  addTaskAttachment(caTaskId: number, caObjectId: number, docName: number, file: any, locationType?: string) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaObjectId: caObjectId,
+        CaTaskId: caTaskId,
+        DocName: docName
+      }
+      if(typeof(locationType)!='undefined') {
+        _.set(data, 'LocationType', locationType)
+      }
+      this.cw.runRequest('Pll/CaseRelDocs/AddTaskRelDoc', data, file).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+     * Gets each Document Attached to the specified Task
+     *
+     * @category Task Attachments
+     * @param {number} caTaskId - The Task ID to attach the document to
+     * @return {Object} Returns Promise that represents a collection of objects describing each Attachment on the provided task
+     */
+  getTaskAttachments(caTaskId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaTaskId: caTaskId
+      }
+      this.cw.runRequest('Pll/CaseRelDocs/ByCaTaskId', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Deletes a task attachment by caRelDocId (Related Case Document ID). Same as RelDocs delete for case.
+   *
+   * @category Task Attachments
+   * @param {number} caRelDocId - The caRelDocId for the related document which should be deleted
+   * @return {Object} Returns Promise that represents the an object describing the deleted document.
+   */
+  deleteTaskAttachment(caRelDocId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaRelDocId: caRelDocId
+      }
+      this.cw.runRequest('PLL/CaseRelDocs/Delete', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
 }
+
+
+

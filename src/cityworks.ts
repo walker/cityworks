@@ -17,6 +17,7 @@ const _ = require('lodash')
 interface postData {
   data?: string
   token?: string
+  file?: any
 }
 
 /**
@@ -200,20 +201,27 @@ module.exports = class Cityworks implements Citywork {
      *
      * @param {string} path - The path to the particular endpoint
      * @param {Object} data - The data object to be sent to the Cityworks API
+     * @param {any} file - The file to send in binary to the Cityworks API
      * @return {Object} Returns Promise object that represents the json object returned from the Cityworks API
      */
-  runRequest(path, data) {
+  runRequest(path, data, file?: any) {
     return new Promise((resolve, reject) => {
       let pd = {} as postData
       pd.data = JSON.stringify(data)
 
+      if(typeof(file) !== 'undefined' && (path=='Pll/CaseRelDocs/AddTaskRelDoc' || path=='Pll/CaseRelDocs/Add')) {
+        pd.file = file
+      }
+
       if(typeof(this.Token) !== 'undefined' && this.Token != '' && path!='General/Authentication/CityworksOnlineAuthenticate' && path!='General/Authentication/Authenticate') {
         pd.token = this.Token
       }
+
       let obj: {
         Status: number,
         Message: string
       }
+
       let options = {
         hostname: this.base_url,
         port: 443,
