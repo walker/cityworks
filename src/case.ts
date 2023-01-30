@@ -6,6 +6,7 @@ import { CaseFinancial } from './case_financial'
 import { CaseWorkflow} from './case_workflow'
 import { CaseAdmin } from './case_admin'
 import { Comments } from './comments'
+import { CaseAssets } from './case_assets'
 
 export class Case {
   /**
@@ -18,6 +19,10 @@ export class Case {
    * Data Detail methods
    */
   data?: Object
+  /**
+   * Asset (Address) methods
+   */
+  assets?: Object
   /**
    * Workflow & task methods
    */
@@ -41,6 +46,7 @@ export class Case {
   constructor(cw) {
     this.cw = cw
     this.data = new CaseData(cw)
+    this.assets = new CaseAssets(cw)
     this.workflow = new CaseWorkflow(cw)
     this.financial = new CaseFinancial(cw)
     this.comment = new Comments(cw, 'CaObject')
@@ -234,5 +240,4 @@ export class Case {
       })
     })
   }
-
 }
