@@ -1,6 +1,6 @@
 {
   "name": "cityworks",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "description": "A Cityworks API wrapper",
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
@@ -36,17 +36,17 @@
   "homepage": "https://walker.github.io/cityworks/",
   "devDependencies": {
     "chai": "*",
-    "chai-as-promised": "^7.1.1",
-    "dotenv": "^10.0.0",
-    "jsdoc-to-markdown": "^7.0.1",
-    "microbundle": "^0.13.3",
-    "mocha": "^9.1.2",
-    "typedoc": "^0.22.4",
-    "typescript": "^4.4.2",
-    "winston": "^3.3.3"
+    "chai-as-promised": "~7.1.1",
+    "dotenv": "~16.0.0",
+    "jsdoc-to-markdown": "~8.0.0",
+    "microbundle": "~0.15.1",
+    "mocha": "~10.2.0",
+    "typedoc": "~0.23.24",
+    "typescript": "^4.9.5",
+    "winston": "~3.8.2"
   },
   "dependencies": {
-    "lodash": "^4.17.21",
-    "reversible-map": "^1.0.1"
+    "lodash": "~4.17.21",
+    "reversible-map": "~1.0.1"
   }
 }

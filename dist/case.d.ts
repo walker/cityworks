@@ -8,6 +8,10 @@ export declare class Case {
      */
     data?: Object;
     /**
+     * Asset (Address) methods
+     */
+    assets?: Object;
+    /**
      * Workflow & task methods
      */
     workflow?: Object;

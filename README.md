@@ -78,7 +78,7 @@ Some of the methods are general or top-level, and so, are accessed separately ar
 
       })
 
-## Case finnacials, data details, and admin
+## Case financials, data details, and admin
 
 For the sake of organizing some of the other methods needed by the primary and secondary libraries, there are also objects and methods accessed within those main libraries:
 
