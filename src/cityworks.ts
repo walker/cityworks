@@ -204,11 +204,14 @@ module.exports = class Cityworks implements Citywork {
      * @param {any} file - The file to send in binary to the Cityworks API
      * @return {Object} Returns Promise object that represents the json object returned from the Cityworks API
      */
-  runRequest(path, data, file?: any) {
+  runRequest(path, data?, file?: any) {
     return new Promise((resolve, reject) => {
       let pd = {} as postData
-      pd.data = JSON.stringify(data)
 
+      if(typeof(data) !== 'undefined') {
+        pd.data = JSON.stringify(data)
+      }
+      
       if(typeof(file) !== 'undefined' && (path=='Pll/CaseRelDocs/AddTaskRelDoc' || path=='Pll/CaseRelDocs/Add')) {
         pd.file = file
       }
