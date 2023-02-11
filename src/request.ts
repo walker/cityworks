@@ -799,11 +799,11 @@ export class Request {
     }
 
     /**
-     * Get work order templates that are associated to this request template type
+     * Get WorkOrder templates that are associated to this request template type
      *
      * @category Request Templates
      * @param {Array<number>} problemSids - An array list of problemSids to retrieve Problem WO templates for
-     * @param {boolean} includeInactiveIf - Include inactive work order templates, default is false
+     * @param {boolean} includeInactiveIf - Include inactive WorkOrder templates, default is false
      * @return {Object} Returns Promise that represents a collection of Problem WO Templates. See /{subdirectory}/apidocs/#/data-type-info;dataType=ProblemWOTemplate
      */
     getWOTemplates(problemSids: Array<number>, includeInactive: boolean = false) {

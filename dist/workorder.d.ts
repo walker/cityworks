@@ -47,8 +47,8 @@ export declare class WorkOrder {
      *
      * @category WorkOrders
      * @param {Array<string>} fromWorkOrderIds - The workorder IDs which should be combined.
-     * @param {string} toWorkOrderId - The work order ID for the single work order that should contain the info/entities from the other work orders
-     * @param {boolean} cancelCombinedWorkOrders - If the work orders combined into the single should then be canceled, default is true.
+     * @param {string} toWorkOrderId - The WorkOrder ID for the single WorkOrder that should contain the info/entities from the other WorkOrders
+     * @param {boolean} cancelCombinedWorkOrders - If the WorkOrders combined into the single should then be canceled, default is true.
      * @return {Object} Returns object that represents a collection of WorkOrders
      */
     combine(fromWorkOrderIds: Array<string>, toWorkOrderId: string, cancelCombinedWorkOrders?: boolean): Promise<unknown>;
@@ -120,7 +120,7 @@ export declare class WorkOrder {
      * @category WorkOrders
      * @param {string|number} workOrderSId - The workorder S/ID which the entities should be added to. # for SID, string for ID.
      * @param {Object} entityInfo - Entity info object including: (req) EntityType: {string}, (req) EntityUids: {Array<string>}, Facility_Id: {string}, Level_Id: {string}
-     * @param {boolean} updateXY - Update work order xy after adding entit(y|ies), default is true.
+     * @param {boolean} updateXY - Update WorkOrder xy after adding entit(y|ies), default is true.
      * @return {Object} Returns object that represents a list of entities removed.
      */
     addEntities(workOrderSId: string | number, entityInfo: Object, updateXY?: boolean): Promise<unknown>;
@@ -135,12 +135,12 @@ export declare class WorkOrder {
      */
     updateEntity(workOrderSId: string | number, entityInfo: Object, workComplete?: boolean): Promise<unknown>;
     /**
-     * Remove entities from a work order. Provide WorkOrderId and either ObjectIds or EntityType and EntityUids
+     * Remove entities from a WorkOrder. Provide WorkOrderId and either ObjectIds or EntityType and EntityUids
      *
      * @category WorkOrders
      * @param {number} workOrderSId - The workorder S/ID which the entities should be removed from. # for SID, string for ID.
      * @param {Object} entityInfo - Remove entities by WorkOrderEntity.ObjectId (not gis objectId).
-     * @param {boolean} updateXY - Update work order xy after removing entities, default is true.
+     * @param {boolean} updateXY - Update WorkOrder xy after removing entities, default is true.
      * @return {Object} Returns object that represents a list of entities removed.
      */
     removeEntities(workOrderSId: string | number, entityInfo: Object, updateXY?: boolean): Promise<unknown>;
@@ -190,10 +190,10 @@ export declare class WorkOrder {
      * Get WorkOrderS/IDs connected to provided entities
      *
      * @category WorkOrder Search
-     * @param {string} entityType - The entity type to find connected work orders
+     * @param {string} entityType - The entity type to find connected WorkOrders
      * @param {Array<string>} entityUIDs - The list of entities to search for connected WorkOrders
      * @param {boolean} s - Get WorkOrderSids. Defaults to true. When false, returned list is WorkOrderIds
-     * @param {Object} [search] - Any additional search properties of the work order (open/closed, etc)
+     * @param {Object} [search] - Any additional search properties of the WorkOrder (open/closed, etc)
      * @return {Object} Returns Promise that represents an array of WorkOrderS/IDs
      */
     getWOsByEntities(entityType: string, entityUids: Array<string>, search?: Array<string | number>, s?: boolean): Promise<unknown>;

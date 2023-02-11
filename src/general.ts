@@ -102,7 +102,7 @@ export class General {
   }
 
   /**
-   * Get cost summary for work order entities
+   * Get cost summary for WorkOrder entities
    *
    * @param {Array<number>} ObjectIds
    * @return {Object} Returns Promise object that represents a
@@ -122,7 +122,7 @@ export class General {
   }
 
   /**
-   * Get cost summary for work order entities selected through a search definition
+   * Get cost summary for WorkOrder entities selected through a search definition
    *
    * @param {number} SearchId - Search Definition Id
    * @return {Object} Returns Promise object that represents a

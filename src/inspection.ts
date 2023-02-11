@@ -107,7 +107,7 @@ export class Inspection {
   }
 
   /**
-   * Create an inspection from a work order
+   * Create an inspection from a WorkOrder
    *
    * @category Inspections
    * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-infodataType=InspectionBase on your Cityworks instance

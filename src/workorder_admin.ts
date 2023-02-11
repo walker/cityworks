@@ -35,7 +35,7 @@ export class WorkOrderAdmin {
    * Get entity types
    *
    * @category WorkOrders Admin
-   * @return {Object} Returns Promise that represents a collection of all GIS Work Order entity types
+   * @return {Object} Returns Promise that represents a collection of all GIS WorkOrder entity types
    */
   getEntityTypes(entityGroups:Array<string>) {
     return new Promise((resolve, reject) => {
@@ -49,10 +49,10 @@ export class WorkOrderAdmin {
   }
 
   /**
-   * Get work order templates
+   * Get WorkOrder templates
    *
    * @category WorkOrders Admin
-   * @return {Object} Returns Promise that represents a collection of all Work Order templates
+   * @return {Object} Returns Promise that represents a collection of all WorkOrder templates
    */
   getTemplates(entityType:string, includeComments:boolean=true, includeInstructions:boolean=true) {
     return new Promise((resolve, reject) => {
@@ -66,10 +66,10 @@ export class WorkOrderAdmin {
   }
 
   /**
-   * Update Work Order template
+   * Update WorkOrder template
    *
    * @category WorkOrders Admin
-   * @param {Object} wOTemplate - Obect that describes the Work Order Template
+   * @param {Object} wOTemplate - Obect that describes the WorkOrder Template
    * @return {Object} Returns Promise that represents a collection of all
    */
   updateTemplate(wOTemplate:Object) {
@@ -193,7 +193,7 @@ export class WorkOrderAdmin {
   }
 
   /**
-   * Get map layer fields configured for provided work order template
+   * Get map layer fields configured for provided WorkOrder template
    *
    * @category WorkOrders Admin
    * @param {number} wOTemplateId - WorkOrder Template ID
@@ -211,11 +211,11 @@ export class WorkOrderAdmin {
   }
 
   /**
-   * Get tasks configured for provided work order template
+   * Get tasks configured for provided WorkOrder template
    *
    * @category WorkOrders Admin
    * @param {number} wOTemplateId - WorkOrder Template ID
-   * @return {Object} Returns Promise that represents a collection of all tasks on work order template
+   * @return {Object} Returns Promise that represents a collection of all tasks on WorkOrder template
    */
   getTemplateTasks(wOTemplateId:number) {
     return new Promise((resolve, reject) => {
@@ -229,11 +229,11 @@ export class WorkOrderAdmin {
   }
 
   /**
-   * Get inspections connected to provided work order template
+   * Get inspections connected to provided WorkOrder template
    *
    * @category WorkOrders Admin
    * @param {number} wOTemplateId - WorkOrder Template ID
-   * @return {Object} Returns Promise that represents a collection of all tasks on work order template
+   * @return {Object} Returns Promise that represents a collection of all tasks on WorkOrder template
    */
   getRelatedInspectionTemplates(wOTemplateId:number) {
     return new Promise((resolve, reject) => {

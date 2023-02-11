@@ -34,7 +34,7 @@ describe('[WorkOrder (construct)] function test', () => {
 });
 
 describe('[WorkOrder::create] function test', () => {
-  it('should resolve collection of work orders', (done) => {
+  it('should resolve collection of WorkOrders', (done) => {
     cw8.workorder.create({WOTemplateId: 209, EntityType: 'MAINTENANCE_CATEGORIZATION'}).then(r => {
       assert.property(r[0], 'WorkOrderSid');
       done();

@@ -39,14 +39,14 @@ export declare class General {
      */
     getHistory(): Promise<unknown>;
     /**
-     * Get cost summary for work order entities
+     * Get cost summary for WorkOrder entities
      *
      * @param {Array<number>} ObjectIds
      * @return {Object} Returns Promise object that represents a
      */
     getWOEntityCostSummary(object_ids: Array<number>): Promise<unknown>;
     /**
-     * Get cost summary for work order entities selected through a search definition
+     * Get cost summary for WorkOrder entities selected through a search definition
      *
      * @param {number} SearchId - Search Definition Id
      * @return {Object} Returns Promise object that represents a

@@ -110,7 +110,7 @@ export class Gis {
   /**
    * Get service request gis services
    *
-   * @param {number} requestId - The work order to check against.
+   * @param {number} requestId - The WorkOrder to check against.
    * @param {boolean} getGisData - If true, check for feature server JSON data, default is true.
    * @return {Object} Returns Promise object that represents an Object with the specified request's entit(y|ies)
    */
@@ -132,7 +132,7 @@ export class Gis {
   /**
      * Get inspection gis services
      *
-     * @param {number} inspectionId - The work order to check against.
+     * @param {number} inspectionId - The WorkOrder to check against.
      * @param {boolean} getGisData - If true, check for feature server JSON data, default is true.
      * @return {Object} Returns Promise object that represents an Object with the specified inspection's entity
      */
@@ -154,9 +154,9 @@ export class Gis {
   /**
      * Get workorder gis services
      *
-     * @param {number} workOrderSid - The work order to check against.
+     * @param {number} workOrderSid - The WorkOrder to check against.
      * @param {boolean} getGisData - If true, check for feature server JSON data, default is true.
-     * @return {Object} Returns Promise object that represents an Object with the specified work order's entit(y|ies)
+     * @return {Object} Returns Promise object that represents an Object with the specified WorkOrder's entit(y|ies)
      */
   workOrder(workOrderSid, getGisData: boolean = true) {
     return new Promise((resolve, reject) => {
