@@ -105,6 +105,26 @@ export class Request {
   }
 
   /**
+   * Update request's map layer fields
+   *
+   * @category Requests
+   * @param {number} requestId
+   * @return {Object} Returns Promise that represents an object describing the updated map layer fields
+   */
+  updateMLF = (requestId: number) => {
+    return new Promise((resolve, reject) => {
+      var data = {
+        ServiceRequestId: requestId
+      }
+      this.cw.runRequest('Ams/TemplateMapLayer/ServiceRequestInstanceMapLayersByRequestId', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    });
+  }
+
+  /**
    * Change a request's problem code
    *
    * @category Requests
