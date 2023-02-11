@@ -48,6 +48,14 @@ export declare class Request {
         VcsWKID?: string;
     }, z?: number): Promise<unknown>;
     /**
+     * Update request's map layer fields
+     *
+     * @category Requests
+     * @param {number} requestId
+     * @return {Object} Returns Promise that represents an object describing the updated map layer fields
+     */
+    updateMLF: (requestId: number) => Promise<unknown>;
+    /**
      * Change a request's problem code
      *
      * @category Requests

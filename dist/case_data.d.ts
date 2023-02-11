@@ -157,7 +157,7 @@ export declare class CaseData {
      * Search for List Value Objects. Include one or more of the search fields. A logical 'and' operation is applied to muliple search fields
      *
      * @category Data List Values
-     * @param {Object} filters - The parameters to search by. (CaDataDetailId, CaDataListId, ListValue)
+     * @param {Object} filters - The parameters to search by. (CaDataDetailId, CaDataListId, ListValue, CaDataGroupId)
      * @return {Object} Returns Promise that represents a collection of resulting CaDataListValuesItemBase objects
      */
     searchForListValueObjects(filters?: Object): Promise<unknown>;

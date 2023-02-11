@@ -10,7 +10,7 @@ export declare class Case {
     /**
      * Asset (Address) methods
      */
-    assets?: Object;
+    asset?: Object;
     /**
      * Workflow & task methods
      */

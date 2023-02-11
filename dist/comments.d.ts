@@ -20,7 +20,7 @@ export declare class Comments {
      */
     constructor(cw: any, activityType: any);
     /**
-     * Add a comment
+     * Add a comment - for adding a comment to an object when the object is already known. Always call comment.add from request, case, workorder, or inspection.
      *
      * @param {number} sid - The SID of the activity to which the comment should be attached
      * @param {string} comment - The text for the comment
