@@ -22,7 +22,7 @@ export class Case {
   /**
    * Asset (Address) methods
    */
-  assets?: Object
+  asset?: Object
   /**
    * Workflow & task methods
    */
@@ -46,7 +46,7 @@ export class Case {
   constructor(cw) {
     this.cw = cw
     this.data = new CaseData(cw)
-    this.assets = new CaseAssets(cw)
+    this.asset = new CaseAssets(cw)
     this.workflow = new CaseWorkflow(cw)
     this.financial = new CaseFinancial(cw)
     this.comment = new Comments(cw, 'CaObject')
@@ -240,4 +240,43 @@ export class Case {
       })
     })
   }
+
+  // importCase(caseTypeId: number, subTypeId: number, caseName: string, location: string, x: number, y:number, appData: object, comment: string, expiration: string, assetIds: object) {
+  //   return new Promise(resolve => {
+  //     const _this = this;
+  //     let case_data = {"CaseName":caseName, "Location":location, "DateExpiration": expiration, "X":x,"Y":y}
+  //     this.create(caseTypeId, subTypeId, case_data).then((response: any) => {
+  //       if(response) {
+  //         if(typeof(response.CaObjectId)!='undefined') {
+  //           var CaObjectId = response.CaObjectId
+  //           if(typeof(comment) != 'undefined') {
+  //             _this.comments.add(CaObjectId, comment)
+  //           }
+  //           if(assetIds) {
+  //             _this.assets!.attach(CaObjectId, true, assetIds)
+  //           }
+  //           if(appData) {
+  //             _this.data!.getGroupsByCaseId(response.CaObjectId).then(response_one => {
+  //               // loop through all groups
+  //               let data_details_items = []
+  //               _this.data!.caseDataGroupIterator(appData, response_one, data_details_items).then(di => {
+  //                 _this.data!.caseDataDetailIterator(appData, di).then(resp => {
+  //                   resolve(response)
+  //                 })
+  //               })
+  //             })
+  //           } else {
+  //             resolve(response)
+  //           }
+  //         } else {
+  //           console.log('Error creating case: '+ JSON.stringify(case_data))
+  //           process.exit(0)
+  //         }
+  //       } else {
+  //         resolve(false)
+  //       }
+  //     })
+  //   })
+  // }
+
 }
