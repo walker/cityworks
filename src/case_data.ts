@@ -375,13 +375,13 @@ export class CaseData {
    * Search for List Value Objects. Include one or more of the search fields. A logical 'and' operation is applied to muliple search fields
    *
    * @category Data List Values
-   * @param {Object} filters - The parameters to search by. (CaDataDetailId, CaDataListId, ListValue)
+   * @param {Object} filters - The parameters to search by. (CaDataDetailId, CaDataListId, ListValue, CaDataGroupId)
    * @return {Object} Returns Promise that represents a collection of resulting CaDataListValuesItemBase objects
    */
    searchForListValueObjects(filters?: Object) {
     return new Promise((resolve, reject) => {
-      if(_.intersectionBy(_.keysIn(filters), ['CaDataDetailId', 'CaDataListId', 'ListValue']).length==0) {
-        reject(new CWError(4, 'At least one of the attributes (CaDataDetailId, CaDataListId, ListValue) must be defined.'))
+      if(_.intersectionBy(_.keysIn(filters), ['CaDataDetailId', 'CaDataListId', 'ListValue', 'CaDataGroupId']).length==0) {
+        reject(new CWError(4, 'At least one of the attributes (CaDataDetailId, CaDataListId, ListValue, CaDataGroupId) must be defined.'))
       }
       var data = filters
       this.cw.runRequest('Pll/CaseDataGroup/SearchObject', data).then(r => {
@@ -391,5 +391,56 @@ export class CaseData {
       })
     })
   }
+
+  // caseDataGroupIterator(appData: object, groups: Array<number>, items: Array<object>) {
+  //   return new Promise(resolve => {
+  //     var detail_items = items
+  //     var dataDetailGroup = groups.pop()
+  //     this.searchForListValueObjects({CaDataGroupId: dataDetailGroup!.CaDataGroupId}).then(r => {
+  //       r.forEach(function (item) {
+  //         detail_items.push(item)
+  //       })
+  //       if(groups.length>0) {
+  //         this.caseDataGroupIterator(appData, groups, detail_items).then(di => {
+  //           resolve(di)
+  //         })
+  //       } else {
+  //         resolve(detail_items)
+  //       }
+  //     })
+  //   })
+  // }
+
+  // caseDataDetailIterator(appData: object, detail_items: Array<object>) {
+  //   return new Promise(resolve => {
+  //     const this_data_detail = detail_items.pop()
+  //     const detailCode = this_data_detail.DetailCode
+  //     const detailId = this_data_detail.CaDataDetailId
+  //     if(typeof(this_data_detail)!='undefined' && typeof(appData[detailCode])!='undefined') {
+  //       this.searchForListValueObjects(detailId).then(r => {
+  //         var CaseDataDetailUpdate = r.Value
+  //         var rType = r.Value
+  //         CaseDataDetailUpdate[rType] = appData[CaseDataDetailUpdate.DetailCode]
+  //         this.updateDetail(CaseDataDetailUpdate).then(response => {
+  //           if(detail_items.length > 0) {
+  //             this.caseDataDetailIterator(appData, detail_items).then(resp => {
+  //               resolve(resp)
+  //             })
+  //           } else {
+  //             resolve(true)
+  //           }
+  //         })
+  //       })
+  //     } else {
+  //       if(detail_items.length > 0) {
+  //         this.caseDataDetailIterator(appData, detail_items).then(resp => {
+  //           resolve(resp)
+  //         })
+  //       } else {
+  //         resolve(true)
+  //       }
+  //     }
+  //   });
+  // }
 
 }
