@@ -25,7 +25,7 @@ export class Comments {
   /**
    * @hidden
    */
-  constructor(cw, activityType) {
+  constructor(cw: any, activityType: string) {
     this.cw = cw
     this.activityTypes = new ReversibleMap<string, number>()
     this.activityTypes.set("Unknown", 0)
@@ -38,7 +38,7 @@ export class Comments {
     this.activityTypes.set("Contract", 7)
 
     if(!this.activityTypes.has(activityType)) {
-      throw new CWError(1, 'Activity type not found.', {'provided': activityType, 'options':this.activityTypes})
+      throw new CWError(1, 'Comment activity type not found.', {'provided': activityType, 'options':this.activityTypes})
     }
     this.currentActivityType = activityType
   }
