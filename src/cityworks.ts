@@ -52,7 +52,7 @@ interface Citywork {
 /**
  * Core class Cityworks with most of the authentication and install capabilities functions
  */
-module.exports = class Cityworks implements Citywork {
+export class Cityworks implements Citywork {
   /**
    * The domain of the cityworks install. Defaults to Cityworks Online
    */

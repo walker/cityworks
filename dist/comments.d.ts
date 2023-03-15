@@ -18,7 +18,7 @@ export declare class Comments {
     /**
      * @hidden
      */
-    constructor(cw: any, activityType: any);
+    constructor(cw: any, activityType: string);
     /**
      * Add a comment - for adding a comment to an object when the object is already known. Always call comment.add from request, case, workorder, or inspection.
      *
