@@ -44,16 +44,16 @@ export declare class Cityworks implements Citywork {
      * Stores settings including path (defaults to "cityworks"), secure (defaults to true), expires (defaults to null - does not expire), default_domain
      */
     private settings;
-    error?: Object;
-    general?: Object;
-    search?: Object;
-    activity_link?: Object;
-    message_queue?: Object;
-    gis?: Object;
-    request?: Object;
-    inspection?: Object;
-    workorder?: Object;
-    case?: Object;
+    error?: any;
+    general?: any;
+    search?: any;
+    activity_link?: any;
+    message_queue?: any;
+    gis?: any;
+    request?: any;
+    inspection?: any;
+    workorder?: any;
+    case?: any;
     private extensions;
     private features;
     private potential_loads;
