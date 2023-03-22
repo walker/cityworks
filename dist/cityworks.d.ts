@@ -2,14 +2,6 @@
  * Core interface Citywork which defines the access vars for many of the functions and the connection settings
  */
 interface Citywork {
-    base_url: any;
-    settings: Object;
-    login?: string;
-    password?: string;
-    Token?: string;
-    gisToken?: string;
-    gisTokenUrl?: string;
-    default_domain?: any;
     general?: Object;
     search?: Object;
     activity_link?: Object;
@@ -19,8 +11,6 @@ interface Citywork {
     workorder?: Object;
     request?: Object;
     case?: Object;
-    extensions: Object;
-    features: Object;
 }
 /**
  * Core class Cityworks with most of the authentication and install capabilities functions
@@ -29,36 +19,31 @@ export declare class Cityworks implements Citywork {
     /**
      * The domain of the cityworks install. Defaults to Cityworks Online
      */
-    base_url: string;
+    private base_url;
     /**
      * Stores the currently in use authentication token
      */
-    Token?: string;
+    private Token?;
     /**
      * Stores the login username
      */
-    login?: string;
+    private login?;
     /**
      * Holds the login password
      */
-    password?: string;
+    private password?;
     /**
      * Holds the GIS Token for GIS-based Authentication (Portal)
      */
-    gisToken?: string;
+    private gisToken?;
     /**
      * Holds the GIS Token URL for GIS-based Authentication (Portal)
      */
-    gisTokenUrl?: string;
+    private gisTokenUrl?;
     /**
      * Stores settings including path (defaults to "cityworks"), secure (defaults to true), expires (defaults to null - does not expire), default_domain
      */
-    settings: {
-        path: string;
-        secure: boolean;
-        expires: any;
-        default_domain?: any;
-    };
+    private settings;
     error?: Object;
     general?: Object;
     search?: Object;
@@ -69,9 +54,9 @@ export declare class Cityworks implements Citywork {
     inspection?: Object;
     workorder?: Object;
     case?: Object;
-    extensions: Object;
-    features: Object;
-    potential_loads: Array<string>;
+    private extensions;
+    private features;
+    private potential_loads;
     /**
        * Contructor for a new cityworks instance's object, allows one to optionally configure the domain and other settings right from the get-go
        * @param {string} [base_url] - The first color, in hexadecimal format.

@@ -24,16 +24,6 @@ interface postData {
  * Core interface Citywork which defines the access vars for many of the functions and the connection settings
  */
 interface Citywork {
-  base_url: any
-  settings: Object
-  login?: string
-  password?: string
-  Token?: string
-  gisToken?: string
-  gisTokenUrl?: string
-
-  default_domain?: any
-
   general?: Object
   search?: Object
   activity_link?: Object
@@ -44,9 +34,6 @@ interface Citywork {
   request?: Object
 
   case?: Object
-
-  extensions: Object
-  features: Object
 }
 
 /**
@@ -56,51 +43,51 @@ export class Cityworks implements Citywork {
   /**
    * The domain of the cityworks install. Defaults to Cityworks Online
    */
-  base_url: string
+  private base_url: string
   /**
    * Stores the currently in use authentication token
    */
-  Token?: string
+  private Token?: string
   /**
    * Stores the login username
    */
-  login?: string
+  private login?: string
   /**
    * Holds the login password
    */
-  password?: string
+  private password?: string
   /**
    * Holds the GIS Token for GIS-based Authentication (Portal)
    */
-  gisToken?: string
+  private gisToken?: string
   /**
    * Holds the GIS Token URL for GIS-based Authentication (Portal)
    */
-  gisTokenUrl?: string
+  private gisTokenUrl?: string
   /**
    * Stores settings including path (defaults to "cityworks"), secure (defaults to true), expires (defaults to null - does not expire), default_domain
    */
-  settings: {
+  private settings: {
     path: string,
     secure: boolean,
     expires: any,
     default_domain?: any
   }
-  error?: Object
-  general?: Object
-  search?: Object
-  activity_link?: Object
-  message_queue?: Object
-  gis?: Object
-  request?: Object
-  inspection?: Object
-  workorder?: Object
+  public error?: Object
+  public general?: Object
+  public search?: Object
+  public activity_link?: Object
+  public message_queue?: Object
+  public gis?: Object
+  public request?: Object
+  public inspection?: Object
+  public workorder?: Object
 
-  case?: Object
+  public case?: Object
 
-  extensions: Object
-  features: Object
-  potential_loads: Array<string>
+  private extensions: Object
+  private features: Object
+  private potential_loads: Array<string>
 
   /**
      * Contructor for a new cityworks instance's object, allows one to optionally configure the domain and other settings right from the get-go
