@@ -73,17 +73,17 @@ export class Cityworks implements Citywork {
     expires: any,
     default_domain?: any
   }
-  public error?: Object
-  public general?: Object
-  public search?: Object
-  public activity_link?: Object
-  public message_queue?: Object
-  public gis?: Object
-  public request?: Object
-  public inspection?: Object
-  public workorder?: Object
+  public error?: any
+  public general?: any
+  public search?: any
+  public activity_link?: any
+  public message_queue?: any
+  public gis?: any
+  public request?: any
+  public inspection?: any
+  public workorder?: any
 
-  public case?: Object
+  public case?: any
 
   private extensions: Object
   private features: Object
