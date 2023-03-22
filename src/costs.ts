@@ -48,7 +48,7 @@ export class Costs {
         EmployeeSids: employeeSids,
         CommonCodesOnly: commonOnly
       }
-    this.cw.runRequest('Ams/LaborCost/CostCodes', data).then(r => {
+      this.cw.runRequest('Ams/LaborCost/CostCodes', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -82,12 +82,15 @@ export class Costs {
    * @param {boolean} estimated - Boolean, get estimated or real costs, defaults to false (get real by default)
    * @return {Object} Returns Promise that represents an object describing
    */
-  addInspectionLabor(inspectionId: number, hours: number, options: object, estimated: boolean = false) {
+  addInspectionLabor(inspectionId: number, hours: number, options?: object, estimated: boolean = false) {
     return new Promise((resolve, reject) => {
       var data = {
         Estimated: estimated,
         InspectionIds: inspectionId,
         Hours: hours
+      }
+      if(typeof(options)!='undefined') {
+        data = _.merge(data, options)
       }
       this.cw.runRequest('Ams/LaborCost/AddInspectionCosts', data).then((response: any) => {
         resolve(response.Value)
@@ -151,7 +154,7 @@ export class Costs {
   addRequestLabor(requestCosts: Array<Object>) {
     return new Promise((resolve, reject) => {
       var data = requestCosts
-      // ensure each object has Hours & InspectionId
+      // TODO: ensure each object has Hours & InspectionId
       this.cw.runRequest('Ams/LaborCost/AddRequestCosts', data).then((response: any) => {
         resolve(response.Value)
       }).catch(e => {
@@ -164,56 +167,138 @@ export class Costs {
    * Get Labor Costs for Request(s)
    *
    * @category Request Costs
-   * @param {Object} 
+   * @param {Array<number>} requestCosts - Array of request Ids to get costs for
    * @return {Object} Returns Promise that represents an object describing
    */
-  //  RequestCostsByRequestList<RequestLaborCost>
+  getRequestLabor(requestIds: Array<number>) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        RequestIds: requestIds
+      }
+      this.cw.runRequest('Ams/LaborCost/RequestCostsByRequest', data).then((response: any) => {
+        resolve(response.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
 
   /**
    * Delete Request Labor Costs
    *
-   * @category InspeRequestction Costs
-   * @param {Object} 
+   * @category Request Costs
+   * @param {Array<number>} laborCostIds - Array of request labor cost Ids to delete
    * @return {Object} Returns Promise that represents an object describing
    */
-  // DeleteRequestCostsDictionary<Int32, Boolean>
+  deleteRequestLabor(laborCostIds: Array<number>) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        LaborCostIds: laborCostIds
+      }
+      this.cw.runRequest('Ams/LaborCost/DeleteRequestCosts', data).then((response: any) => {
+        resolve(response.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
 
   /**
    * Add WorkOrder Labor Costs
    *
    * @category WorkOrder Costs
-   * @param {Object} 
+   * @param {number} workOrderSid - Array of inspection labor costings
+   * @param {number} hours - Number of hours to add
+   * @param {Object} options - options for the work order
    * @return {Object} Returns Promise that represents an object describing
    */
-  // AddWorkOrderCostsList<WorkOrderLaborCost>
+  addWorkOrderLabor(workOrderSid: number, hours: number, options: Object) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        WorkOrderSid: workOrderSid,
+        Hours: hours
+      }
+      if(typeof(options)!='undefined') {
+        data = _.merge(data, options)
+      }
+      // TODO: ensure each object has Hours & InspectionId
+      this.cw.runRequest('Ams/LaborCost/AddWorkOrderCosts', data).then((response: any) => {
+        resolve(response.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
 
    /**
    * Get Labor Costs for WorkOrder(s)
    *
    * @category WorkOrder Costs
-   * @param {Object} 
+   * @param {Array<number>} workOrderSids - Array of request Ids to get costs for
+   * @param {boolean} estimated - Whether to get estimates or actuals (defaults to false -- get actuals)
    * @return {Object} Returns Promise that represents an object describing
    */
-  //  WorkOrderCostsByWorkOrderList<WorkOrderLaborCost>
+   getWorkOrderLabor(workOrderSids: Array<number>, estimated: boolean = false) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        Estimated: estimated,
+        WorkOrderSids: workOrderSids
+      }
+      this.cw.runRequest('Ams/LaborCost/WorkOrderCostsByWorkOrder', data).then((response: any) => {
+        resolve(response.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
 
   /**
    * Delete WorkOrder Labor Costs
    *
    * @category WorkOrder Costs
-   * @param {Object} 
+   * @param {Array<number>} laborCostIds - List of labor cost IDs to delete
+   * @param {boolean} estimated - Whether to delete estimates or actuals (defaults to false -- delete actuals)
    * @return {Object} Returns Promise that represents an object describing
    */
-  // DeleteWorkOrderCostsDictionary<Int32, Boolean>
+    deleteWorkOrderLabor(laborCostIds: Array<number>, estimated: boolean = false) {
+      return new Promise((resolve, reject) => {
+        var data = {
+          LaborCostIds: laborCostIds,
+          Estimated: estimated
+        }
+        this.cw.runRequest('Ams/LaborCost/DeleteWorkOrderCosts', data).then((response: any) => {
+          resolve(response.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
 
-  /**
+    /**
    * Add Inspection Equipment Costs
    *
    * @category Inspection Costs
-   * @param {Object} 
+   * @param {Object} inspectionId - the inspection to add the equipment costs to
+   * @param {Object} options - additional options
    * @return {Object} Returns Promise that represents an object describing
    */
-  // AddInspectionCostsList<InspectionEquipmentCost>
-
+    addInspectionEquopment(inspectionId: number, options: Object) {
+      return new Promise((resolve, reject) => {
+        var data = {
+          InspectionId: inspectionId
+        }
+        if(typeof(options)!='undefined') {
+          data = _.merge(data, options)
+        }
+        // TODO: ensure each object has Hours & InspectionId
+        this.cw.runRequest('Ams/EquipmentCost/AddInspectionCosts', data).then((response: any) => {
+          resolve(response.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
+  
    /**
    * Get Equipment Costs for Inspection(s)
    *
@@ -236,10 +321,27 @@ export class Costs {
    * Add WorkOrder Equipment Costs
    *
    * @category WorkOrder Costs
-   * @param {Object} 
+   * @param {Object} workOrderSid - the work order to add the equipment costs to
+   * @param {Object} options - additional options
    * @return {Object} Returns Promise that represents an object describing
    */
-  // AddWorkOrderCostsList<EquipmentCost>
+  addWorkOrderquopment(workOrderSid: number, options: Object) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        WorkOrderSid: workOrderSid
+      }
+      if(typeof(options)!='undefined') {
+        data = _.merge(data, options)
+      }
+      // TODO: ensure each object has Hours & InspectionId
+      this.cw.runRequest('Ams/EquipmentCost/AddWorkOrderCosts', data).then((response: any) => {
+        resolve(response.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+// AddWorkOrderCostsList<EquipmentCost>
 
    /**
    * Get Equipment Costs for WorkOrder(s)

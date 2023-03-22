@@ -6,6 +6,8 @@ Require the class:
 
       const Cityworks = require('cityworks')
 
+      import { Cityworks } from 'cityworks'
+
 Instantiate the Class for the instance of Cityworks available given a domain:
 
       let cw = new Cityworks('cw.domain.tld', {path: 'cityworks'})
@@ -23,11 +25,11 @@ Authenticate with the Cityworks install:
 
 Get the currently valid token in order to store it in a session or cookie:
 
-      cityworks.getToken()
+      cw.getToken()
 
 Provide a saved token instead of the standard u/p auth:
 
-      cityworks.setToken('mytoken')
+      cw.setToken('mytoken')
 
 ## Main method calls
 
