@@ -8,6 +8,15 @@ import { Request } from './request'
 import { Inspection } from './inspection'
 import { WorkOrder } from './workorder'
 import { Briefcase } from './briefcase'
+import { CaseData } from './case_data'
+import { CaseFinancial } from './case_financial'
+import { CaseWorkflow} from './case_workflow'
+import { CaseAdmin } from './case_admin'
+import { Comments } from './comments'
+import { CaseAssets } from './case_assets'
+import { WorkOrderAdmin } from './workorder_admin'
+import { InspectionAdmin } from './inspection_admin'
+import { RequestAdmin } from './request_admin'
 
 const https = require('https')
 const querystring = require('querystring')
@@ -645,5 +654,20 @@ const request = new Request(cw)
 const inspection = new Inspection(cw)
 const workorder = new WorkOrder(cw)
 const briefcase = new Briefcase(cw)
+
+briefcase.data = new CaseData(cw)
+briefcase.financial = new CaseFinancial(cw)
+briefcase.workflow = new CaseWorkflow(cw)
+briefcase.admin = new CaseAdmin(cw)
+briefcase.comment = new Comments(cw, 'CaObject')
+briefcase.asset = new CaseAssets(cw)
+
+workorder.admin = new WorkOrderAdmin(cw)
+workorder.comment = new Comments(cw, 'WorkOrder')
+
+inspection.admin = new InspectionAdmin(cw)
+
+request.admin = new RequestAdmin(cw)
+request.comment = new Comments(cw, 'Request')
 
 export { cw as Cityworks, general, activity_link, message_queue, search, gis, request, inspection, workorder, briefcase }

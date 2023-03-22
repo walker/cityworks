@@ -6,11 +6,11 @@ export declare class WorkOrder {
     /**
      * WorkOrder Administration methods
      */
-    admin: Object;
+    admin: any;
     /**
      * WorkOrder Comments methods
      */
-    comment: Object;
+    comment: any;
     /**
      * @hidden
      */

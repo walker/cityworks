@@ -1,7 +1,5 @@
 import { CWError } from './error'
 const _ = require('lodash')
-import { RequestAdmin } from './request_admin'
-import { Comments } from './comments'
 
 export class Request {
   /**
@@ -12,20 +10,20 @@ export class Request {
   /**
    * Request Administration methods
    */
-  admin?: Object
+  admin?: any
 
   /**
    * WorkOrder Comments methods
    */
-  comment: Object
+  comment: any
 
   /**
    * @hidden
    */
   constructor(cw) {
     this.cw = cw
-    this.admin = new RequestAdmin(cw)
-    this.comment = new Comments(cw, 'Request')
+    this.admin
+    this.comment
   }
 
   /**

@@ -1,6 +1,5 @@
 import { CWError } from './error'
 const _ = require('lodash')
-import { InspectionAdmin } from './inspection_admin'
 
 export class Inspection {
   /**
@@ -18,7 +17,7 @@ export class Inspection {
    */
   constructor(cw) {
     this.cw = cw
-    this.admin = new InspectionAdmin(cw)
+    this.admin
   }
 
   /**
