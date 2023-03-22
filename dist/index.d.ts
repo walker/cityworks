@@ -1,1 +1,11 @@
 export { Cityworks } from './cityworks';
+export { CWError } from './error';
+export { General } from './general';
+export { ActivityLinks } from './activity_link';
+export { Gis } from './gis';
+export { MessageQueue } from './message_queue';
+export { Search } from './search';
+export { Request } from './request';
+export { Inspection } from './inspection';
+export { WorkOrder } from './workorder';
+export { Case } from './case';
