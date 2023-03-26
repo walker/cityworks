@@ -8,6 +8,10 @@ export declare class Inspection {
      */
     admin?: Object;
     /**
+     * Inspection Costing methods
+     */
+    costs: any;
+    /**
      * @hidden
      */
     constructor(cw: any);

@@ -13,6 +13,11 @@ export class Request {
   admin?: any
 
   /**
+   * Request Costing methods
+   */
+  costs: any
+
+  /**
    * WorkOrder Comments methods
    */
   comment: any

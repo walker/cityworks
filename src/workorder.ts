@@ -14,6 +14,11 @@ export class WorkOrder {
   admin: any
 
   /**
+   * WorkOrder Costing methods
+   */
+  costs: any
+
+  /**
    * WorkOrder Comments methods
    */
   comment: any

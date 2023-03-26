@@ -17,6 +17,9 @@ import { CaseAssets } from './case_assets'
 import { WorkOrderAdmin } from './workorder_admin'
 import { InspectionAdmin } from './inspection_admin'
 import { RequestAdmin } from './request_admin'
+import { WorkOrderCosts } from './workorder_costs'
+import { InspectionCosts } from './inspection_costs'
+import { RequestCosts } from './request_costs'
 
 const https = require('https')
 const querystring = require('querystring')
@@ -663,11 +666,14 @@ briefcase.comment = new Comments(cw, 'CaObject')
 briefcase.asset = new CaseAssets(cw)
 
 workorder.admin = new WorkOrderAdmin(cw)
+workorder.costs = new WorkOrderCosts(cw)
 workorder.comment = new Comments(cw, 'WorkOrder')
 
 inspection.admin = new InspectionAdmin(cw)
+inspection.costs = new InspectionCosts(cw)
 
 request.admin = new RequestAdmin(cw)
+request.costs = new RequestCosts(cw)
 request.comment = new Comments(cw, 'Request')
 
 export { cw as Cityworks, general, activity_link, message_queue, search, gis, request, inspection, workorder, briefcase }
