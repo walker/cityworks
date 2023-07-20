@@ -839,4 +839,89 @@ export class WorkOrder {
     })
   }
 
+  /**
+   * Get Map Layer Fields
+   *
+   * @category WorkOrders
+   * @param {string} workOrderSId - The workorder S/ID to get the map layer fields for.
+   * @return {Object} Returns Promise that represents a collection of Objects describing the workorders
+   */
+  getMLFs(workOrderSId: string) { // |number
+    return new Promise((resolve, reject) => {
+      var data = {
+        WorkOrderId: workOrderSId
+      }
+      var path = 'Ams/TemplateMapLayer/WorkOrderInstanceMapLayersByWorkOrderId';
+      this.cw.runRequest(path, data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Update Map Layer Fields
+   *
+   * @category WorkOrders
+   * @param {string} workOrderSId - The workorder S/ID to get the map layer fields for.
+   * @param {number} x
+   * @param {number} y
+   * @param {number} domainId - Should include WKT or WKID attribute. Can also include VcsWKID attribute.
+   * @param {number} [z] - Optional Z coordinate
+   * @return {Object} Returns Promise that represents a ...
+   */
+    updateMLFs(workOrderSId: string, x?: number, y?: number, domainId?: number, z?: number) { // |number
+      return new Promise((resolve, reject) => {
+        var data = {}
+        var path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayers';
+        if(_.isString(workOrderSId)) {
+          _.set(data, 'WorkOrderId', workOrderSId)
+        } else if(_.isNumber(workOrderSId)) {
+          _.set(data, 'WorkOrderSid', workOrderSId)
+        } else {
+          // throw error - was not number or string
+          reject(new CWError(9, 'No workorder S/ID was provided.', {'workorderSId': workOrderSId}))
+        }
+        if(_.isNumber(x)) {
+          _.set(data, 'X', x)
+        }
+        if(_.isNumber(y)) {
+          _.set(data, 'Y', y)
+        }
+        if(_.isNumber(z)) {
+          _.set(data, 'Z', z)
+        }
+        if(_.isNumber(domainId)) {
+          _.set(data, 'DomainId', domainId)
+        }
+        this.cw.runRequest(path, data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
+
+  /**
+   * Delete Map Layer Fields
+   *
+   * @category WorkOrders
+   * @param {string} workOrderSId - The workorder S/ID to delete the map layer fields for.
+   * @return {Object} Returns Promise that represents a collection of Objects describing the workorders
+   */
+  deleteMLFs(workOrderSId: string) { // |number
+    return new Promise((resolve, reject) => {
+      var data = {
+        WorkOrderId: workOrderSId
+      }
+      var path = 'Ams/TemplateMapLayer/DeleteWorkOrderInstancesByWorkOrderId';
+      this.cw.runRequest(path, data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
 }

@@ -852,4 +852,84 @@ export class Inspection {
        })
      })
    }
+
+
+  /**
+   * Get Map Layer Fields
+   *
+   * @category Inspections
+   * @param {number} requestId - The inspection ID to get the map layer fields for.
+   * @return {Object} Returns Promise that represents a collection of Objects describing the inspections
+   */
+  getMLFs(requestId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        ServiceRequestId: requestId
+      }
+      var path = 'Ams/TemplateMapLayer/ServiceRequestInstanceMapLayersByRequestId';
+      this.cw.runRequest(path, data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Update Map Layer Fields
+   *
+   * @category Inspections
+   * @param {number} requestId - The inspection ID to get the map layer fields for.
+   * @param {number} x
+   * @param {number} y
+   * @param {number} domainId - Domain ID
+   * @param {number} [z] - Optional Z coordinate
+   * @return {Object} Returns Promise that represents a ...
+   */
+    updateMLFs(requestId: number, x?: number, y?: number, domainId?: number, z?: number) { // |number
+      return new Promise((resolve, reject) => {
+        var data = {}
+        var path = 'Ams/TemplateMapLayer/UpdateServiceRequestInstanceMapLayers';
+        _.set(data, 'ServiceRequestId', requestId)
+        if(_.isNumber(x)) {
+          _.set(data, 'X', x)
+        }
+        if(_.isNumber(y)) {
+          _.set(data, 'Y', y)
+        }
+        if(_.isNumber(z)) {
+          _.set(data, 'Z', z)
+        }
+        if(_.isNumber(domainId)) {
+          _.set(data, 'DomainId', domainId)
+        }
+        this.cw.runRequest(path, data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
+
+  /**
+   * Delete Map Layer Fields
+   *
+   * @category Inspections
+   * @param {number} inspectionId - The inspection ID to delete the map layer fields for.
+   * @return {Object} Returns Promise that represents a collection of Objects describing the workorders
+   */
+  deleteMLFs(inspectionId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        InspectionId: inspectionId
+      }
+      var path = 'Ams/TemplateMapLayer/DeleteInspectionInstancesByInspectionId';
+      this.cw.runRequest(path, data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
 }

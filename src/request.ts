@@ -823,4 +823,82 @@ export class Request {
       })
     }
 
+  /**
+   * Get Map Layer Fields
+   *
+   * @category Requests
+   * @param {number} requestId - The request ID to get the map layer fields for.
+   * @return {Object} Returns Promise that represents a collection of Objects describing the request map layer fields
+   */
+  getMLFs(requestId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        ServiceRequestId: requestId
+      }
+      var path = 'Ams/TemplateMapLayer/ServiceRequestInstanceMapLayersByRequestId';
+      this.cw.runRequest(path, data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Update Map Layer Fields
+   *
+   * @category Requests
+   * @param {number} requestId - The service request ID to get the map layer fields for.
+   * @param {number} x
+   * @param {number} y
+   * @param {number} domainId - Domain ID
+   * @param {number} [z] - Optional Z coordinate
+   * @return {Object} Returns Promise that represents a ...
+   */
+    updateMLFs(requestId: number, x?: number, y?: number, domainId?: number, z?: number) { // |number
+      return new Promise((resolve, reject) => {
+        var data = {}
+        var path = 'Ams/TemplateMapLayer/UpdateServiceRequestInstanceMapLayers';
+        _.set(data, 'ServiceRequestId', requestId)
+        if(_.isNumber(x)) {
+          _.set(data, 'X', x)
+        }
+        if(_.isNumber(y)) {
+          _.set(data, 'Y', y)
+        }
+        if(_.isNumber(z)) {
+          _.set(data, 'Z', z)
+        }
+        if(_.isNumber(domainId)) {
+          _.set(data, 'DomainId', domainId)
+        }
+        this.cw.runRequest(path, data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
+
+  /**
+   * Delete Map Layer Fields
+   *
+   * @category Requests
+   * @param {number} requestId - The request ID to delete the map layer fields for.
+   * @return {Object} Returns Promise that represents a collection of Objects describing the deleted map layer fields
+   */
+  deleteMLFs(requestId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        ServiceRequestId: requestId
+      }
+      var path = 'Ams/TemplateMapLayer/DeleteServiceRequestInstancesByRequestId';
+      this.cw.runRequest(path, data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
 }
