@@ -346,4 +346,32 @@ export declare class Inspection {
      * @return {Object} Returns object that represents a collection of attachments from the matched inspections
      */
     getAttachments(inspectionIds: Array<number>): Promise<unknown>;
+    /**
+     * Get Map Layer Fields
+     *
+     * @category Inspections
+     * @param {number} requestId - The inspection ID to get the map layer fields for.
+     * @return {Object} Returns Promise that represents a collection of Objects describing the inspections
+     */
+    getMLFs(requestId: number): Promise<unknown>;
+    /**
+     * Update Map Layer Fields
+     *
+     * @category Inspections
+     * @param {number} requestId - The inspection ID to get the map layer fields for.
+     * @param {number} x
+     * @param {number} y
+     * @param {number} domainId - Domain ID
+     * @param {number} [z] - Optional Z coordinate
+     * @return {Object} Returns Promise that represents a ...
+     */
+    updateMLFs(requestId: number, x?: number, y?: number, domainId?: number, z?: number): Promise<unknown>;
+    /**
+     * Delete Map Layer Fields
+     *
+     * @category Inspections
+     * @param {number} inspectionId - The inspection ID to delete the map layer fields for.
+     * @return {Object} Returns Promise that represents a collection of Objects describing the workorders
+     */
+    deleteMLFs(inspectionId: number): Promise<unknown>;
 }

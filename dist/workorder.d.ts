@@ -293,4 +293,32 @@ export declare class WorkOrder {
      * @return {Object} Returns Promise that represents an array of string/string Expense Type options for workorders
      */
     getExpenseTypes(): Promise<unknown>;
+    /**
+     * Get Map Layer Fields
+     *
+     * @category WorkOrders
+     * @param {string} workOrderSId - The workorder S/ID to get the map layer fields for.
+     * @return {Object} Returns Promise that represents a collection of Objects describing the workorders
+     */
+    getMLFs(workOrderSId: string): Promise<unknown>;
+    /**
+     * Update Map Layer Fields
+     *
+     * @category WorkOrders
+     * @param {string} workOrderSId - The workorder S/ID to get the map layer fields for.
+     * @param {number} x
+     * @param {number} y
+     * @param {number} domainId - Should include WKT or WKID attribute. Can also include VcsWKID attribute.
+     * @param {number} [z] - Optional Z coordinate
+     * @return {Object} Returns Promise that represents a ...
+     */
+    updateMLFs(workOrderSId: string, x?: number, y?: number, domainId?: number, z?: number): Promise<unknown>;
+    /**
+     * Delete Map Layer Fields
+     *
+     * @category WorkOrders
+     * @param {string} workOrderSId - The workorder S/ID to delete the map layer fields for.
+     * @return {Object} Returns Promise that represents a collection of Objects describing the workorders
+     */
+    deleteMLFs(workOrderSId: string): Promise<unknown>;
 }

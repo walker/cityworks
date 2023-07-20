@@ -337,4 +337,32 @@ export declare class Request {
      * @return {Object} Returns Promise that represents a collection of Problem WO Templates. See /{subdirectory}/apidocs/#/data-type-info;dataType=ProblemWOTemplate
      */
     getWOTemplates(problemSids: Array<number>, includeInactive?: boolean): Promise<unknown>;
+    /**
+     * Get Map Layer Fields
+     *
+     * @category Requests
+     * @param {number} requestId - The request ID to get the map layer fields for.
+     * @return {Object} Returns Promise that represents a collection of Objects describing the request map layer fields
+     */
+    getMLFs(requestId: number): Promise<unknown>;
+    /**
+     * Update Map Layer Fields
+     *
+     * @category Requests
+     * @param {number} requestId - The service request ID to get the map layer fields for.
+     * @param {number} x
+     * @param {number} y
+     * @param {number} domainId - Domain ID
+     * @param {number} [z] - Optional Z coordinate
+     * @return {Object} Returns Promise that represents a ...
+     */
+    updateMLFs(requestId: number, x?: number, y?: number, domainId?: number, z?: number): Promise<unknown>;
+    /**
+     * Delete Map Layer Fields
+     *
+     * @category Requests
+     * @param {number} requestId - The request ID to delete the map layer fields for.
+     * @return {Object} Returns Promise that represents a collection of Objects describing the deleted map layer fields
+     */
+    deleteMLFs(requestId: number): Promise<unknown>;
 }
