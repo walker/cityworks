@@ -164,25 +164,6 @@ export class EventLayer {
    }
 
   /**
-   * ??
-   *
-   * @param {Array<string>} preferenceNames - ["VisibleQeIds"]
-   * @param {Array<string>} categories - ["qe-map"]
-   * @return {Object} Returns Promise object which represents a xxxxx indicating xxxxxxx
-   */
-   xxxxxx(preferenceNames: Array<string>, categories: Array<string>) {
-     return new Promise((resolve, reject) => {
-       let data = {"PreferenceNames": preferenceNames, "Categories": categories}
-       this.cw.runRequest('Ams/Preferences/User', data).then(r => {
-         // console.log(r, 'response')
-         resolve(r.Value)
-       }).catch(e => {
-         reject(e);
-       })
-     })
-   }
-
-  /**
    * Get all event layers
    *
    * @param {boolean} includeDisabled - Defaults to false
