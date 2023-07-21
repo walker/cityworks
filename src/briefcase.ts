@@ -235,6 +235,87 @@ export class Briefcase {
     })
   }
 
+  /**
+   * Get Map Layer Fields
+   *
+   * @category Cases
+   * @param {number} caObjectId - The case object ID to get the map layer fields for.
+   * @return {Object} Returns Promise that represents a collection of Objects describing the case object map layer fields
+   */
+  getMLFs(caObjectId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaObjectId: caObjectId
+      }
+      var path = 'Ams/TemplateMapLayer/CaseInstanceMapLayersByCaObjectId';
+      this.cw.runRequest(path, data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Update Map Layer Fields
+   *
+   * @category Cases
+   * @param {number} caObjectId - The case object ID to get the map layer fields for.
+   * @param {number} x
+   * @param {number} y
+   * @param {number} domainId - The domain ID for the case in question
+   * @param {number} [z] - Optional Z coordinate
+   * @return {Object} Returns Promise that represents a collection of Objects describing the case object map layer fields
+   */
+    updateMLFs(caObjectId: number, x?: number, y?: number, domainId?: number, z?: number) {
+      return new Promise((resolve, reject) => {
+        var data = {
+          CaObjectId: caObjectId
+        }
+        var path = 'Ams/TemplateMapLayer/UpdateCaseInstanceMapLayers';
+        
+        if(_.isNumber(x)) {
+          _.set(data, 'X', x)
+        }
+        if(_.isNumber(y)) {
+          _.set(data, 'Y', y)
+        }
+        if(_.isNumber(z)) {
+          _.set(data, 'Z', z)
+        }
+        if(_.isNumber(domainId)) {
+          _.set(data, 'DomainId', domainId)
+        }
+        this.cw.runRequest(path, data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
+
+  /**
+   * Delete Map Layer Fields
+   *
+   * @category Cases
+   * @param {string} workOrderSId - The case object ID to delete the map layer fields for.
+   * @return {Object} Returns Promise that represents a collection of Objects describing the case object map layer fields deleted
+   */
+  deleteMLFs(caObjectId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaObjectId: caObjectId
+      }
+      var path = 'Ams/TemplateMapLayer/DeleteCaseInstanceMapLayersByCaObjectId';
+      this.cw.runRequest(path, data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+  
+
   // importCase(caseTypeId: number, subTypeId: number, caseName: string, location: string, x: number, y:number, appData: object, comment: string, expiration: string, assetIds: object) {
   //   return new Promise(resolve => {
   //     const _this = this;
