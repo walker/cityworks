@@ -2,12 +2,12 @@
 require('dotenv').config();
 var expect = require('chai').expect;
 var assert = require('chai').assert;
-var Cityworks = require('../dist/index.js');
-var cw2 = new Cityworks(process.env.domain, {path: process.env.path});
+const cw2 = require('../dist/index.js');
+cw2.Cityworks.configure(process.env.domain, {path: process.env.path});
 
 before(function(done) {
   this.timeout(20000000);
-  cw2.authenticate(process.env.login, process.env.password).then(resp => {
+  cw2.Cityworks.authenticate(process.env.login, process.env.password).then(resp => {
     done();
   }).catch(e => {
     console.log(e, 'unexpected error')

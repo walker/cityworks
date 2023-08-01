@@ -5,12 +5,12 @@ var expect = require('chai').expect;
 var assert = require('chai').assert;
 var chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
-var Cityworks = require('../dist/index.js');
-var cw7 = new Cityworks(process.env.domain, {path: process.env.path});
+const cw7 = require('../dist/index.js');
+cw7.Cityworks.configure(process.env.domain, {path: process.env.path});
 
 before(function(done) {
   this.timeout(20000000);
-  cw7.authenticate(process.env.login, process.env.password).then(resp => {
+  cw7.Cityworks.authenticate(process.env.login, process.env.password).then(resp => {
     done();
   }).catch(e => {
     console.log(e, 'unexpected error')

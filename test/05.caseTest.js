@@ -2,13 +2,13 @@
 require('dotenv').config();
 var expect = require('chai').expect;
 var assert = require('chai').assert;
-var Cityworks = require('../dist/index.js');
-var cw5 = new Cityworks(process.env.domain, {path: process.env.path});
+const cw5 = require('../dist/index.js');
+cw5.Cityworks.configure(process.env.domain, {path: process.env.path});
 const _ = require('lodash')
 
 before(function(done) {
   this.timeout(20000000);
-  cw5.authenticate(process.env.login, process.env.password).then(r => {
+  cw5.Cityworks.authenticate(process.env.login, process.env.password).then(r => {
     done();
   }).catch(e => {
     console.log(e, 'unexpected error')
@@ -18,40 +18,40 @@ before(function(done) {
 
 describe('[Case (construct)] function test', () => {
   it('should be a defined object', (done) => {
-    assert.isObject(cw5.case, 'Case is an object');
+    assert.isObject(cw5.briefcase, 'Case is an object');
     done();
   });
-  it('should have an financial property which is a defined object', (done) => {
-    assert.isObject(cw5.case.financial, 'Financial is an object');
+  it('should have a financial property which is a defined object', (done) => {
+    assert.isObject(cw5.briefcase.financial, 'Financial is an object');
     done();
   });
-  it('should have an data property which is a defined object', (done) => {
-    assert.isObject(cw5.case.data, 'Financial is an object');
+  it('should have a data property which is a defined object', (done) => {
+    assert.isObject(cw5.briefcase.data, 'Data is an object');
     done();
   });
-  it('should have an workflow property which is a defined object', (done) => {
-    assert.isObject(cw5.case.workflow, 'Financial is an object');
+  it('should have a workflow property which is a defined object', (done) => {
+    assert.isObject(cw5.briefcase.workflow, 'Workflow is an object');
     done();
   });
-  it('should have an comment property which is a defined object', (done) => {
-    assert.isObject(cw5.case.comment, 'Financial is an object');
+  it('should have a comment property which is a defined object', (done) => {
+    assert.isObject(cw5.briefcase.comment, 'Comment is an object');
     done();
   });
   it('should have an admin property which is a defined object', (done) => {
-    assert.isObject(cw5.case.admin, 'Financial is an object');
+    assert.isObject(cw5.briefcase.admin, 'Admin is an object');
     done();
   });
 });
 
 describe('[Case::create] function test', () => {
   it('should resolve an object describing the new case', (done) => {
-    cw5.case.create(51, 93).then(r => {
+    cw5.briefcase.create(51, 93).then(r => {
       assert.isObject(r);
       done();
     });
   });
   it('should resolve null if case type/subtype do not exist', (done) => {
-    cw5.case.create(999999, 99999999).then(r => {
+    cw5.briefcase.create(999999, 99999999).then(r => {
       assert.isNull(r);
       done();
     }).catch(e => {
@@ -93,7 +93,7 @@ describe('[Case::move] function test', () => {
 
 describe('[Case::delete] function test', () => {
   it('should resolve a 1 (success) or 0 (failure)', (done) => {
-    cw5.case.delete(44069).then(rez => {
+    cw5.briefcase.delete(44069).then(rez => {
       expect(rez).to.satisfy(function (deletionSwitch) {
           if (deletionSwitch===1 || deletionSwitch===0) {
               return true;
@@ -101,6 +101,18 @@ describe('[Case::delete] function test', () => {
               return false;
           }
       });
+      done();
+    }).catch(e => {
+      console.log(e, 'unexpected error')
+      done();
+    });
+  });
+});
+
+describe('[Case::addDetail] function test', () => {
+  it('should resolve an object describing the moved case', (done) => {
+    cw5.briefcase.data.addDetail(999999, 99999999).then(r => {
+      assert.isNull(r);
       done();
     }).catch(e => {
       console.log(e, 'unexpected error')

@@ -18,27 +18,27 @@ export class Briefcase {
   /**
    * Data Detail methods
    */
-  data?: Object
+  data?: any
   /**
    * Asset (Address) methods
    */
-  asset?: Object
+  asset?: any
   /**
    * Workflow & task methods
    */
-  workflow?: Object
+  workflow?: any
   /**
    * Payment, Receipt, & Fee methods
    */
-  financial?: Object
+  financial?: any
   /**
    * Commenting methods
    */
-  comment?: Object
+  comment?: any
   /**
    * PLL Administration methods
    */
-  admin?: Object
+  admin?: any
 
   /**
    * @hidden
