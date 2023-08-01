@@ -129,6 +129,14 @@ export declare class CaseData {
      */
     unlockDetail(caDataDetailId: number): Promise<unknown>;
     /**
+     * Search for Case Data Details. Include one or more of the search fields. A logical 'and' operation is applied to muliple search fields
+     *
+     * @category Data Details
+     * @param {Object} filters - The parameters to search by. (CaDataGroupId, CaseDataGroupId, GroupCode, GroupDesc, GroupSum, SumFlag)
+     * @return {Object} Returns Promise that represents a number that is the CaObjectId (?)
+     */
+    searchForDetails(filters?: Object): Promise<unknown>;
+    /**
      * Adds a list of possible values to the data detail entry specified by the CaDataDetailId.
      *
      * @category Data List Values

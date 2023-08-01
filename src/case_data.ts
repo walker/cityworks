@@ -309,6 +309,28 @@ export class CaseData {
   }
 
   /**
+   * Search for Case Data Details. Include one or more of the search fields. A logical 'and' operation is applied to muliple search fields
+   *
+   * @category Data Details
+   * @param {Object} filters - The parameters to search by. (CaDataGroupId, CaseDataGroupId, GroupCode, GroupDesc, GroupSum, SumFlag)
+   * @return {Object} Returns Promise that represents a number that is the CaObjectId (?)
+   */
+  searchForDetails(filters?: Object) {
+    return new Promise((resolve, reject) => {
+      if(_.intersectionBy(_.keysIn(filters), ['CaDataDetailId', 'CaDataGroupId', 'CalcRateFlag', 'CaseDataDetailId', 'CommentFlag', 'DateFlag', 'DetailCode', 'DetailDesc', 'ListValuesFlag', 'NumberFlag', 'TextFlag', 'ValueFlag', 'YesNoFlag']).length==0) {
+        reject(new CWError(2, 'At least one of the attributes (CaDataDetailId, CaDataGroupId, CalcRateFlag, CaseDataDetailId, CommentFlag, DateFlag, DetailCode, DetailDesc, ListValuesFlag, NumberFlag, TextFlag, ValueFlag, YesNoFlag) must be defined.'))
+      }
+      var data = filters
+      this.cw.runRequest('Pll/CaseDataDetail/SearchObject', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+
+  /**
    * Adds a list of possible values to the data detail entry specified by the CaDataDetailId.
    *
    * @category Data List Values
