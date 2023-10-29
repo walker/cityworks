@@ -52,4 +52,27 @@ export declare class General {
      * @return {Object} Returns Promise object that represents a
      */
     searchWOEntityCostSummary(search_id: number): Promise<unknown>;
+    /**
+     * Get Holidays
+     *
+     * @param {Date} startDate - Date to search for Holidays, including this date.
+     * @param {Date} [endDate] - If not specified, Holidays _on_ startDate are returned. If specified, Holidays on startDate up to, but not including endDate are returned.
+     * @return {Object} Returns Promise object that represents a list of the holiday(s) found
+     */
+    getHolidays(startDate: Date, endDate?: Date): Promise<unknown>;
+    /**
+     * Add Holidays
+     *
+     * @param {Date} holiday - The holiday's date
+     * @param {string} description - The holiday's name/description
+     * @return {Object} Returns Promise object that represents a
+     */
+    addHolidays(holiday: Date, description: string): Promise<unknown>;
+    /**
+     * Delete Holidays
+     *
+     * @param {Array<Date>} holidays - List of datetimes which should have holidays deleted
+     * @return {Object} Returns Promise object that represents a
+     */
+    deleteHolidays(holidays: Array<Date>): Promise<unknown>;
 }
