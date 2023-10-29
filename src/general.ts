@@ -140,4 +140,73 @@ export class General {
       })
     })
   }
+
+  /**
+   * Get Holidays
+   *
+   * @param {Date} startDate - Date to search for Holidays, including this date.
+   * @param {Date} [endDate] - If not specified, Holidays _on_ startDate are returned. If specified, Holidays on startDate up to, but not including endDate are returned.
+   * @return {Object} Returns Promise object that represents a list of the holiday(s) found
+   */
+  getHolidays(startDate: Date, endDate?: Date) {
+    return new Promise((resolve, reject) => {
+      let data = {}
+      var api_path = 'General/Holidays/All'
+      if(typeof(endDate)=='undefined') {
+        _.set(data, "Date", startDate)
+        var api_path = 'General/Holidays/ByDate'
+      } else {
+        _.set(data, "StartDate", startDate)
+        _.set(data, "EndDate", endDate)
+      }
+      this.cw.runRequest(api_path, data).then(r => {
+        console.log(r)
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Add Holidays
+   *
+   * @param {Date} holiday - The holiday's date
+   * @param {string} description - The holiday's name/description
+   * @return {Object} Returns Promise object that represents a
+   */
+  addHolidays(holiday: Date, description: string) {
+    return new Promise((resolve, reject) => {
+      let data = {
+        "Holiday": holiday,
+        "Description": description
+      }
+      this.cw.runRequest('General/Holidays/Add', data).then(r => {
+        console.log(r)
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Delete Holidays
+   *
+   * @param {Array<Date>} holidays - List of datetimes which should have holidays deleted
+   * @return {Object} Returns Promise object that represents a
+   */
+  deleteHolidays(holidays: Array<Date>) {
+    return new Promise((resolve, reject) => {
+      let data = {
+        "Holidays": holidays
+      }
+      this.cw.runRequest('General/Holidays/Delete', data).then(r => {
+        console.log(r)
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
 }

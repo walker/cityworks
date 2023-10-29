@@ -447,66 +447,6 @@ export class CaseAdmin {
   }
 
   /**
-   * Add Holiday
-   *
-   * @category Holidays
-   * @return {Object} Returns Promise that represents an object describing the newly-added DivisionItem. See: /{subdirectory}/apidocs/#/data-type-info;dataType=HolidaysItem
-   */
-  addHoliday(holidayDate: Date, holidayDesc: string, halfDayFlag?: string) {
-    return new Promise((resolve, reject) => {
-      var data = {
-        HolidayDate: holidayDate,
-        HolidayDesc: holidayDesc
-      }
-      if(typeof(halfDayFlag)!='undefined') {
-        _.set(data, 'HalfDayFlag', halfDayFlag)
-      }
-      this.cw.runRequest('Pll/Holiday/Add', data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
-  }
-
-  /**
-   * Delete Holiday
-   *
-   * @category Holidays
-   * @param {number} holidayId - ID of Holiday to delete
-   * @return {Object} Returns Promise that represents an object describing the newly-added HolidaysItem. See: /{subdirectory}/apidocs/#/data-type-info;dataType=HolidaysItem
-   */
-  deleteHoliday(holidayId: number) {
-    return new Promise((resolve, reject) => {
-      var data = {
-        HolidayId: holidayId
-      }
-      this.cw.runRequest('Pll/Holiday/Delete', data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
-  }
-
-  /**
-   * Get all Holidays
-   *
-   * @category Holidays
-   * @return {Object} Returns Promise that represents a collection of HolidaysItems. See: /{subdirectory}/apidocs/#/data-type-info;dataType=HolidaysItem
-   */
-  getHolidays() {
-    return new Promise((resolve, reject) => {
-      var data = {}
-      this.cw.runRequest('Pll/Holiday/GetList', data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
-  }
-
-  /**
    * Add Inspection Time Block
    *
    * @category Inspections
