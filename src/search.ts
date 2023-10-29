@@ -53,7 +53,7 @@ export class Search {
   }
 
   /**
-   * Do a "quick" search for any string (an ID is best)
+   * Do a "quick" search for an ID or Case Number
    *
    * @category Quick Search
    * @param {string} text - text to search the system for
