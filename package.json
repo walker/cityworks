@@ -6,7 +6,9 @@
   "umd:main": "dist/index.umd.js",
   "module": "dist/index.m.js",
   "source": "src/index.ts",
-  "files": ["dist/*"],
+  "files": [
+    "dist/*"
+  ],
   "directories": {
     "test": "test"
   },
