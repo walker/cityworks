@@ -1,6 +1,16 @@
 import { CWError } from './error'
 const _ = require('lodash')
 
+
+interface DynamicVariableMap {
+  [key: string]: any
+}
+
+interface DynamicResponseDefinition {
+  [key: string]: any
+}
+
+
 export class Query {
   /**
    * @hidden
@@ -23,7 +33,7 @@ export class Query {
    * @param {number} [domainId] - The domain ID of the domain to search, defaut is authenticated user's current domain
    * @return {Object} Returns Promise object that represents a list of Objects
    */
-  build(query: number|string, options: {Page?: number, PageSize?: number, SortDescending?: boolean, SortField?: string, Variables?: any} = {}, domainId?: number) {
+  build(query: number|string, options: {Page?: number, PageSize?: number, SortDescending?: boolean, SortField?: string, Variables?: DynamicVariableMap} = {}, domainId?: number) {
     return new Promise((resolve, reject) => {
       var data = {
       }
@@ -62,7 +72,7 @@ export class Query {
     })
   }
 
-    /**
+  /**
    * Get info about query types
    *
    * @category Query
@@ -87,7 +97,60 @@ export class Query {
         })
       })
     }
-  
+
+  /**
+   * Validate a query string
+   *
+   * @category Query
+   * @param {string} query - The query to validate
+   * @param {DynamicVariableMap} variables - Required if the query includes variables
+   * @param {number} [domainId] - The domain ID of the domain to search, defaut is authenticated user's current domain
+   * @return {Object} Returns Promise object that represents a list of Objects
+   */
+    validateQuery(query: string, variables: DynamicVariableMap, domainId?: number) {
+      return new Promise((resolve, reject) => {
+        var data = {
+          "Query": query,
+          "Variables": variables
+        }
+        if(typeof(domainId)!=='undefined') {
+          _.set(data, "DomainId", domainId)
+        }
+        this.cw.runRequest('General/Query/ValidateQuery', data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
+    
+  /**
+   * Validate a query response definition
+   *
+   * @category Query
+   * @param {string} queryType - The query to validate
+   * @param {DynamicResponseDefinition} responseDefinition - Required if the query includes variables
+   * @param {number} [domainId] - The domain ID of the domain to search, defaut is authenticated user's current domain
+   * @return {Object} Returns Promise object that represents a list of Objects
+   */
+  validateResponseDefinition(queryType: string, responseDefinition: DynamicResponseDefinition, domainId?: number) {
+    // TODO: Confirm that the queryType is present in the getTypes() request
+    return new Promise((resolve, reject) => {
+      var data = {
+        "QueryType": queryType,
+        "ResponseDefinition": responseDefinition
+      }
+      if(typeof(domainId)!=='undefined') {
+        _.set(data, "DomainId", domainId)
+      }
+      this.cw.runRequest('General/Query/ValidateResponseDefinition', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
   /**
    * Get schema for specified query type
    *
@@ -116,16 +179,19 @@ export class Query {
    * Run a query using query language syntax
    *
    * @category Query
-   * @param {number} query - Query syntax string or saved query ID to run
+   * @param {number} query - Query syntax string or saved query ID to run. If you want to append addt'l query items to a saved query, add QueryValue in the options
    * @param {Object} options - Other options. See: /{subdirectory}/apidocs/#/service-info/General/Query
    * @return {Object} Returns Promise object that represents a list of Objects
    */
-  run(query: string, options: {Page?: number, PageSize?: number, ResponseFields?: any, SortDescending?: boolean, SortField?: string, Variables?: any} = {}) {
+  run(query: string, options: {QueryValue?: string, Page?: number, PageSize?: number, ResponseFields?: any, SortDescending?: boolean, SortField?: string, Variables?: DynamicVariableMap} = {}) {
     return new Promise((resolve, reject) => {
       var data = {}
       var api_path: string = 'General/Query/Query';
       if(isNaN(+query)) {
         _.set(data, "QueryValue", query)
+        if(typeof(options.QueryValue)!=='undefined') {
+          _.unset(options, 'QueryValue')
+        }
       } else if(!isNaN(+query)) {
         _.set(data, "QueryId", query)
         var api_path = 'General/Query/RunById'
