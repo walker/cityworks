@@ -193,28 +193,6 @@ export declare class CaseAdmin {
      */
     getDivisions(): Promise<unknown>;
     /**
-     * Add Holiday
-     *
-     * @category Holidays
-     * @return {Object} Returns Promise that represents an object describing the newly-added DivisionItem. See: /{subdirectory}/apidocs/#/data-type-info;dataType=HolidaysItem
-     */
-    addHoliday(holidayDate: Date, holidayDesc: string, halfDayFlag?: string): Promise<unknown>;
-    /**
-     * Delete Holiday
-     *
-     * @category Holidays
-     * @param {number} holidayId - ID of Holiday to delete
-     * @return {Object} Returns Promise that represents an object describing the newly-added HolidaysItem. See: /{subdirectory}/apidocs/#/data-type-info;dataType=HolidaysItem
-     */
-    deleteHoliday(holidayId: number): Promise<unknown>;
-    /**
-     * Get all Holidays
-     *
-     * @category Holidays
-     * @return {Object} Returns Promise that represents a collection of HolidaysItems. See: /{subdirectory}/apidocs/#/data-type-info;dataType=HolidaysItem
-     */
-    getHolidays(): Promise<unknown>;
-    /**
      * Add Inspection Time Block
      *
      * @category Inspections
