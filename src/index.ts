@@ -4,6 +4,7 @@ import { ActivityLinks } from './activity_link'
 import { Gis } from './gis'
 import { MessageQueue } from './message_queue'
 import { Search } from './search'
+import { Query } from './query'
 import { Request } from './request'
 import { Inspection } from './inspection'
 import { WorkOrder } from './workorder'
@@ -652,6 +653,7 @@ const general = new General(cw)
 const activity_link = new ActivityLinks(cw)
 const message_queue = new MessageQueue(cw)
 const search = new Search(cw)
+const query = new Query(cw)
 const gis = new Gis(cw)
 const request = new Request(cw)
 const inspection = new Inspection(cw)
@@ -676,4 +678,4 @@ request.admin = new RequestAdmin(cw)
 request.costs = new RequestCosts(cw)
 request.comment = new Comments(cw, 'Request')
 
-export { cw as Cityworks, general, activity_link, message_queue, search, gis, request, inspection, workorder, briefcase }
+export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase }

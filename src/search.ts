@@ -336,4 +336,31 @@ export class Search {
     })
   }
 
+  /**
+   * Convert a search definition to a query
+   *
+   * @category Search Definitions
+   * @param {Array<number>} searchIds - searchIds to convert
+   * @param {boolean} saveQuery - Automatically save a query which converts with no errors, default is false
+   * @param {boolean} allowMultipleBooleanValues - Use all values for boolean fields even though a boolean should only have one value, default is false and will only use the first boolean value
+   * @param {boolean} allowEmptyQuery - Create default filter when no filter is found, default is false
+   * @return {Object} Returns Promise object that represents a SearchDefinitionName object
+   */
+  convertToQuery(searchIds: Array<number>, saveQuery: boolean = false, addEurl: boolean = false, allowMultipleBooleanValues: boolean = false, allowEmptyQuery: boolean = false) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        "SearchIds": searchIds,
+        "SaveQuery": saveQuery,
+        "AddEurl": addEurl,
+        "AllowMultipleBooleanValues": allowMultipleBooleanValues,
+        "AllowEmptyQuery": allowEmptyQuery
+      }
+      this.cw.runRequest('General/Query/SearchToQuery', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
 }
