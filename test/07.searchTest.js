@@ -189,3 +189,11 @@ describe('[Search::deleteDefinitions] function test', () => {
     });
   });
 });
+
+describe('[Search::convertToQuery] function test', () => {
+  it('should resolve a list of the search to query results', (done) => {
+    cw7.search.convertToQuery([63]).then(r => {
+      done();      
+    });
+  });
+});
