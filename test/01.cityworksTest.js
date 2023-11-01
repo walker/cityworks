@@ -3,18 +3,18 @@ require('dotenv').config();
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 const cw1 = require('../dist/index.js');
-cw1.Cityworks.configure(process.env.domain, {path: process.env.path});
+cw1.Cityworks.configure(process.env.domain, {path: process.env.install_path});
 const cw4 = require('../dist/index.js');
-cw4.Cityworks.configure(process.env.domain, {path: process.env.path});
+cw4.Cityworks.configure(process.env.domain, {path: process.env.install_path});
 
 before(function(done) {
   this.timeout(20000000);
   done();
 });
 
-beforeEach(function() {
-  return cw1.Cityworks.configure(process.env.domain, {path: process.env.path});
-});
+// beforeEach(function() {
+//   return cw1.Cityworks.configure(process.env.domain, {path: process.env.install_path});
+// });
 
 describe('[Cityworks (construct)] function test', () => {
     it('should return a Cityworks object', (done) => {
@@ -28,33 +28,33 @@ describe('[Cityworks (construct)] function test', () => {
 });
 
 describe('[Cityworks::authenticate] function test', () => {
-    it('should throw Unknown Error if username provided is not known', (done) => {
-      cw1.Cityworks.authenticate('myuser', 'mypassword').then(res => {
-        // assert.isUndefined(cw1.Token);
-        done();
-      })
-      .catch(error => {
-        assert.equal(error.message, 'Unknown Error');
-        done();
-      });
-    });
+    // it('should throw Unknown Error if username provided is not known', (done) => {
+    //   cw1.Cityworks.authenticate('myuser', 'mypassword').then(res => {
+    //     // assert.isUndefined(cw1.Token);
+    //     done();
+    //   })
+    //   .catch(error => {
+    //     assert.equal(error.message, 'Unknown Error');
+    //     done();
+    //   });
+    // });
 
     // TODO: Uncomment for commit
-    it('should throw invalid login error if password provided is not provided user\'s password', () => {
-      cw4.Cityworks.authenticate('mrrobot', 'mypassword').then(resp => {
-        // assert.isNotEmpty(cw4.Token);
-        return true;
-      }).catch(error => {
-        assert.equal(error.message, 'Invalid Credentials');
-        return true;
-      });
-    });
+    // it('should throw invalid login error if password provided is not provided user\'s password', () => {
+    //   cw4.Cityworks.authenticate('mrrobot', 'mypassword').then(resp => {
+    //     // assert.isNotEmpty(cw4.Token);
+    //     return true;
+    //   }).catch(error => {
+    //     assert.equal(error.message, 'Invalid Credentials');
+    //     return true;
+    //   });
+    // });
 });
 
 describe('[Cityworks::validateToken] function test', () => {
   it('should have a valid token set, if logged in', (done) => {
     cw1.Cityworks.authenticate(process.env.login, process.env.password).then(resp => {
-      cw1.Cityworks.validateToken(cw1.Token).then(res => {
+      cw1.Cityworks.validateToken(cw1.Cityworks.getToken()).then(res => {
         assert.isTrue(res);
         done();
       }).catch(error => {

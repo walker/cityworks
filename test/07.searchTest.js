@@ -6,7 +6,7 @@ var assert = require('chai').assert;
 var chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
 const cw7 = require('../dist/index.js');
-cw7.Cityworks.configure(process.env.domain, {path: process.env.path});
+cw7.Cityworks.configure(process.env.domain, {path: process.env.install_path});
 
 before(function(done) {
   this.timeout(20000000);

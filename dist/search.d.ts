@@ -12,7 +12,7 @@ export declare class Search {
      */
     constructor(cw: any);
     /**
-     * Do a "quick" search for any string (an ID is best)
+     * Do a "quick" search for an ID or Case Number
      *
      * @category Quick Search
      * @param {string} text - text to search the system for
@@ -124,4 +124,15 @@ export declare class Search {
      * @return {Object} Returns Promise object that represents a SearchDefinitionName object
      */
     saveDefinition(searchFor: string, options?: Object, searchId?: number): Promise<unknown>;
+    /**
+     * Convert a search definition to a query
+     *
+     * @category Search Definitions
+     * @param {Array<number>} searchIds - searchIds to convert
+     * @param {boolean} saveQuery - Automatically save a query which converts with no errors, default is false
+     * @param {boolean} allowMultipleBooleanValues - Use all values for boolean fields even though a boolean should only have one value, default is false and will only use the first boolean value
+     * @param {boolean} allowEmptyQuery - Create default filter when no filter is found, default is false
+     * @return {Object} Returns Promise object that represents a SearchDefinitionName object
+     */
+    convertToQuery(searchIds: Array<number>, saveQuery?: boolean, addEurl?: boolean, allowMultipleBooleanValues?: boolean, allowEmptyQuery?: boolean): Promise<unknown>;
 }
