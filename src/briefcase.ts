@@ -1,5 +1,8 @@
 import { CWError } from './error'
 const _ = require('lodash')
+const querystring = require('querystring')
+const fs = require('fs')
+import * as https from 'https'
 
 import { CaseData } from './case_data'
 import { CaseFinancial } from './case_financial'
@@ -298,7 +301,7 @@ export class Briefcase {
    * Delete Map Layer Fields
    *
    * @category Cases
-   * @param {string} workOrderSId - The case object ID to delete the map layer fields for.
+   * @param {number} caObjectId - The case object ID to delete the map layer fields for.
    * @return {Object} Returns Promise that represents a collection of Objects describing the case object map layer fields deleted
    */
   deleteMLFs(caObjectId: number) {
@@ -314,7 +317,66 @@ export class Briefcase {
       })
     })
   }
+
+  /**
+   * Reports available for Case
+   *
+   * @category Cases
+   * @param {number} caObjectId - The case object ID to get the report (print template) list for
+   * @return {Object} Returns Promise that represents a collection of Objects describing the reports (print templates) available for this case
+   */
+  getPrintTemplates(caObjectId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaObjectId: caObjectId
+      }
+      var path = 'Pll/BusinessCaseReports/ByCaObjectId';
+      this.cw.runRequest(path, data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Print Case
+   *
+   * @category Cases
+   * @param {number} caObjectId - The case object ID to delete the map layer fields for.
+   * @param {string} fileName - the filename of the report from the getPrintTemplates method, but w/out the extension
+   * @return {Object} Returns Promise that represents a collection of Objects describing the case object map layer fields deleted
+   */
+  print(caObjectId: number, fileName: string, callback: any) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaObjectId: caObjectId,
+        FileName: fileName
+      }
+      var path = 'Pll/BusinessCaseReports/Download'
+      var options = this.cw.getRequestOptions(path, 'GET')
+      console.log(options)
+
+      var file_extension = `pdf`
+      console.log(__dirname + fileName + '.' + file_extension)
+      const file = fs.createWriteStream(__dirname.replace('/dist', '/downloads') + '/' + fileName + '.' + file_extension)
+
+      var request_url = 'https://'+options.hostname + options.path + '?data=' + JSON.stringify(data) + '&Token=' + this.cw.getToken()
+      // TODO: test the Filename to make sure it's in the File list from getPrintTemplates (or let the API just error?)
+      https.get(request_url, {timeout: 10000000}, (res) => {
+        res.on('data', (d) => {
+          file.write(d);
+        });
   
+        res.on('end', () => {
+          file.close(callback('Success'))
+        })
+      }).on('error', (e) => {
+        file.close(callback('Failure'));
+        console.error(e);
+      });
+    })
+  }
 
   // importCase(caseTypeId: number, subTypeId: number, caseName: string, location: string, x: number, y:number, appData: object, comment: string, expiration: string, assetIds: object) {
   //   return new Promise(resolve => {
