@@ -81,8 +81,8 @@ class Cityworks implements Citywork {
 
   /**
      * Contructor for a new cityworks instance's object, allows one to optionally configure the domain and other settings right from the get-go
-     * @param {string} [base_url] - The first color, in hexadecimal format.
-     * @param {object} [settings] - The second color, in hexadecimal format.
+     * @param {string} [base_url] - The base url of your Cityworks instance
+     * @param {object} [settings] - The settings for your Cityworks site. Full list: {path: (defaults to "cityworks"), secure: defaults to true, expires: defaults to NULL, does not expire, default_domain: defaults to NULL, uses default user domain, version: defaults to 23, for 15.x set to 15}
      * @param {array} [load] - allows user to choose which modules to load and make available. Full availability array: ['general', 'activity_link', 'message_queue', 'gis', 'workorder', 'inspection', 'request', 'case']
      */
   constructor(base_url?: string, settings?: Object, load?: Array<string>) {
