@@ -70,7 +70,8 @@ class Cityworks implements Citywork {
     path: string,
     secure: boolean,
     expires: any,
-    default_domain?: any
+    default_domain?: any,
+    version: number
   }
   error?: any
 
@@ -92,7 +93,8 @@ class Cityworks implements Citywork {
       path: 'cityworks',
       secure: true,
       expires: null,
-      default_domain: null
+      default_domain: null,
+      version: 23
     }
     this.potential_loads = ['general', 'activity_link', 'message_queue', 'gis', 'search', 'request', 'case', 'case_financial']
     if(typeof(base_url)!='undefined') {
@@ -114,7 +116,8 @@ class Cityworks implements Citywork {
       path: 'cityworks',
       secure: true,
       expires: null,
-      default_domain: null
+      default_domain: null,
+      version: 23
     }
 
     if(typeof(settings)!='undefined') {
@@ -144,11 +147,11 @@ class Cityworks implements Citywork {
         pd.data = JSON.stringify(data)
       }
       
-      if(typeof(file) !== 'undefined' && (path=='Pll/CaseRelDocs/AddTaskRelDoc' || path=='Pll/CaseRelDocs/Add')) {
-        pd.file = file
-      }
+      // if(typeof(file) !== 'undefined' && (path=='Pll/CaseRelDocs/AddTaskRelDoc' || path=='Pll/CaseRelDocs/Add')) {
+      //   pd.file = file
+      // }
 
-      if(typeof(this.Token) !== 'undefined' && this.Token != '' && path!='General/Authentication/CityworksOnlineAuthenticate' && path!='General/Authentication/Authenticate') {
+      if(this.settings.version<=23 && typeof(this.Token) !== 'undefined' && this.Token != '' && path!='General/Authentication/CityworksOnlineAuthenticate' && path!='General/Authentication/Authenticate') {
         pd.token = this.Token
       }
 
@@ -168,6 +171,11 @@ class Cityworks implements Citywork {
         },
         timeout: 10000000
       }
+      if(this.settings.version>=23 && typeof(this.Token) !== 'undefined' && this.Token != '' && path!='General/Authentication/CityworksOnlineAuthenticate' && path!='General/Authentication/Authenticate') {
+        _.set(options, 'header.Authorization', 'cityworks ' + this.Token)
+        // console.log(options)
+      }
+      
       let request = https.request(options, (response) => {
           let str=''
           response.on('error',function(e){
@@ -185,7 +193,7 @@ class Cityworks implements Citywork {
               if(test_str.match(/\<h2\>Object\ moved\ to/)==null) {
                 var obj=JSON.parse(str)
                 // if(path=='General/ActivityNotification/UserWatching') {
-                //   console.log(str, options, pd, obj)
+                  // console.log(str, options, pd, obj)
                 // }
                 if(typeof(obj)=='undefined') {
                   // failed
@@ -236,24 +244,24 @@ class Cityworks implements Citywork {
      */
   authenticate(login: string, password: string) {
     return new Promise((resolve, reject) => {
-      let data = { LoginName:login, Password:password }
+      let data = {LoginName:login, Password:password}
       let path = 'General/Authentication/Authenticate'
       if(this.base_url == 'cityworksonline') {
         path = 'General/Authentication/CityworksOnlineAuthenticate'
       }
       this.runRequest(path, data).then((response: any) => {
-        // if(response.Status>0) {
-        //   // failed
-        //   reject(new CWError(100, response.Message))
-        // } else if(typeof(response.Value)!='undefined' && typeof(response.Value.Token)!='undefined') {
+        if(response.Status>0) {
+          // failed
+          reject(new CWError(100, response.Message))
+        } else if(typeof(response.Value)!='undefined' && typeof(response.Value.Token)!='undefined') {
           this.login = login
           this.password = password
           this.Token = response.Value.Token
           resolve(true)
-        // } else {
-        //   // failed
-        //   reject(new CWError(11, 'Unknown Error'))
-        // }
+        } else {
+          // failed
+          reject(new CWError(11, 'Unknown Error'))
+        }
       }).catch(error => {
         reject(error);
       })
