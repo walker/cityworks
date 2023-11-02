@@ -759,19 +759,32 @@ export class Inspection {
 
   // Attachments
 
-  // AddInspectionAttachment InspAttachment
-  // Add an inspection attachment
-  // Request Parameters
-  // Int32 AttachmentType V15_4
-  // String Comments
-  // String Filename
-  // Int32 req InspectionId
-  // Ams/Attachments/AddInspectionAttachment?data={
-  //   "Comments": null,
-  //   "Filename": null,
-  //   "InspectionId": null,
-  //   "AttachmentType": null
-  // }
+  /**
+   * Add inspection attachments
+   *
+   * @category Inspection Attachments
+   * @param {number} id - The ID of the inspection to add the attachment to
+   * @param {any} the_file - The file to upload
+   * @param {string} [filename] - The filename for the attachment
+   * @param {string} [attachment_type] - The filename for the attachment
+   * @param {string} [comments] - The filename for the attachment
+   * @return {Object} Returns object that represents a boolean for action resolution
+   */
+  addAttachment(id: number, the_file: string, filename?: string, attachment_type?: number, comments?: string) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        "InspectionId": id,
+        "Comments": comments,
+        "Filename": filename,
+        "AttachmentType": attachment_type
+      }
+      this.cw.runRequest('Ams/Attachments/AddInspectionAttachment', data, the_file).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
 
   /**
    * Delete inspection attachments
