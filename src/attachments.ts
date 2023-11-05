@@ -182,14 +182,34 @@ export class Attachments {
   getById(attachmentId: number) {
     return new Promise((resolve, reject) => {
       resolve(true)
-      // var data = {
-      //   AttachmentId: attachmentId
-      // }
-      // this.cw.runRequest('Ams/Attachments/InspectionAttachmentById', data).then(r => {
-      //   resolve(r.Value)
-      // }).catch(e => {
-      //   reject(e)
-      // })
+      var data = {}
+      var endpoint = ''
+
+      switch(this.currentActivityType) {
+        case 'Case':
+          // _.set(data, 'CaRelDocId', attachmentId)
+          // endpoint = 'Pll/CaseRelDocs/Delete'
+          break;
+        case 'Inspection':
+          _.set(data, 'AttachmentId', attachmentId)
+          endpoint = 'Ams/Attachments/InspectionAttachmentById'
+          break;
+        case 'Request':
+          _.set(data, 'AttachmentId', attachmentId)
+          endpoint = 'Ams/Attachments/RequestAttachmentById'
+          break;
+        case 'WorkOrder':
+          _.set(data, 'AttachmentId', attachmentId)
+          endpoint = 'Ams/Attachments/WorkOrderAttachmentById'
+          break;
+        default:
+          reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+      }
+      this.cw.runRequest(endpoint, data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
     })
   }
 
