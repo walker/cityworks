@@ -107,3 +107,6 @@ typings/
 
 # TernJS port file
 .tern-port
+
+# Apple Trash
+.DS_Store
