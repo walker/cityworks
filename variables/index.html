@@ -1,0 +1,131 @@
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>cityworks</title><meta name="description" content="Documentation for cityworks"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container">
+<div class="table-cell" id="tsd-search" data-base=".">
+<div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
+<div class="field">
+<div id="tsd-toolbar-links"></div></div>
+<ul class="results">
+<li class="state loading">Preparing search index...</li>
+<li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">cityworks</a></div>
+<div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
+<div class="container container-main">
+<div class="col-8 col-content">
+<div class="tsd-page-title">
+<h2>cityworks</h2></div>
+<div class="tsd-panel tsd-typography">
+<a href="#cityworks-nodejs-api-wrapper" id="cityworks-nodejs-api-wrapper" style="color: inherit; text-decoration: none;">
+  <h1>Cityworks node.js API wrapper</h1>
+</a>
+<p>This API wrapper for Cityworks follows the Cityworks release schedule as closely as possible. Functionality may be missing depending on necessity or use.</p>
+<p>Require the class:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-1">const</span><span class="hl-0"> </span><span class="hl-2">Cityworks</span><span class="hl-0"> = </span><span class="hl-3">require</span><span class="hl-0">(</span><span class="hl-4">&#39;cityworks&#39;</span><span class="hl-0">)</span><br/><br/><span class="hl-0">  </span><span class="hl-5">import</span><span class="hl-0"> </span><span class="hl-1">*</span><span class="hl-0"> </span><span class="hl-5">as</span><span class="hl-0"> </span><span class="hl-6">cw</span><span class="hl-0"> </span><span class="hl-5">from</span><span class="hl-0"> </span><span class="hl-4">&#39;cityworks&#39;</span>
+</code></pre>
+<p>Instantiate the Class for the instance of Cityworks available given a domain:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">Cityworks</span><span class="hl-0">.</span><span class="hl-3">configure</span><span class="hl-0">(</span><span class="hl-4">&#39;cw.domain.tld&#39;</span><span class="hl-0">, {</span><span class="hl-6">path:</span><span class="hl-0"> </span><span class="hl-4">&#39;cityworks&#39;</span><span class="hl-0">})</span>
+</code></pre>
+
+<a href="#authentication" id="authentication" style="color: inherit; text-decoration: none;">
+  <h2>Authentication</h2>
+</a>
+<p>Authenticate with the Cityworks install:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">Cityworks</span><span class="hl-0">.</span><span class="hl-3">authenticate</span><span class="hl-0">(</span><span class="hl-4">&#39;myuser&#39;</span><span class="hl-0">, </span><span class="hl-4">&#39;mypassword&#39;</span><span class="hl-0">).</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {}).</span><span class="hl-3">catch</span><span class="hl-0">(</span><span class="hl-6">error</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-6">console</span><span class="hl-0">.</span><span class="hl-3">log</span><span class="hl-0">(</span><span class="hl-6">error</span><span class="hl-0">.</span><span class="hl-6">message</span><span class="hl-0">)</span><br/><span class="hl-0">  })</span>
+</code></pre>
+<p>Get the currently valid token in order to store it in a session or cookie:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">Cityworks</span><span class="hl-0">.</span><span class="hl-3">getToken</span><span class="hl-0">()</span>
+</code></pre>
+<p>Provide a saved token instead of the standard u/p auth:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">Cityworks</span><span class="hl-0">.</span><span class="hl-3">setToken</span><span class="hl-0">(</span><span class="hl-4">&#39;mytoken&#39;</span><span class="hl-0">)</span>
+</code></pre>
+
+<a href="#main-method-calls" id="main-method-calls" style="color: inherit; text-decoration: none;">
+  <h2>Main method calls</h2>
+</a>
+<p>Access the primary AMS (<a href="https://walker.github.io/cityworks/classes/inspection.Inspection.html">Inspection</a>, <a href="https://walker.github.io/cityworks/classes/workorder.WorkOrder.html">WorkOrder</a>, &amp; <a href="https://walker.github.io/cityworks/classes/request.Request.html">Service Request</a>) &amp; <a href="https://walker.github.io/cityworks/classes/case.Briefcase.html">PLL</a> object libraries like so:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">inspection</span><span class="hl-0">.</span><span class="hl-3">methodHere</span><span class="hl-0">().</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span><br/><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">workorder</span><span class="hl-0">.</span><span class="hl-3">methodHere</span><span class="hl-0">().</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span><br/><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">request</span><span class="hl-0">.</span><span class="hl-3">methodHere</span><span class="hl-0">().</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span><br/><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">briefcase</span><span class="hl-0">.</span><span class="hl-3">methodHere</span><span class="hl-0">().</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span>
+</code></pre>
+<p>Some of the methods are general or top-level, and so, are accessed separately are at the same level of reference from the cityworks object:</p>
+<p><a href="https://walker.github.io/cityworks/classes/general.General.html">General methods</a> including authentication:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">general</span><span class="hl-0">.</span><span class="hl-3">methodHere</span><span class="hl-0">().</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span>
+</code></pre>
+<p><a href="https://walker.github.io/cityworks/classes/message_queue.MessageQueue.html">Message queue</a> methods for examining, processing, and troubleshooting webhooks and activity events:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">message_queue</span><span class="hl-0">.</span><span class="hl-3">methodHere</span><span class="hl-0">().</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span>
+</code></pre>
+<p><a href="https://walker.github.io/cityworks/classes/activity_link.ActivityLinks.html">Activity link</a> for linking one node/object to another:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">activity_link</span><span class="hl-0">.</span><span class="hl-3">methodHere</span><span class="hl-0">().</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span>
+</code></pre>
+<p><a href="https://walker.github.io/cityworks/classes/gis.Gis.html">Mapping and GIS methods</a> not specific to a single object type:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">gis</span><span class="hl-0">.</span><span class="hl-3">methodHere</span><span class="hl-0">().</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span>
+</code></pre>
+<p><a href="https://walker.github.io/cityworks/classes/search.Search.html">General search methods</a>:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">search</span><span class="hl-0">.</span><span class="hl-3">methodHere</span><span class="hl-0">().</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span>
+</code></pre>
+
+<a href="#case-financials-data-details-and-admin" id="case-financials-data-details-and-admin" style="color: inherit; text-decoration: none;">
+  <h2>Case financials, data details, and admin</h2>
+</a>
+<p>For the sake of organizing some of the other methods needed by the primary and secondary libraries, there are also objects and methods accessed within those main libraries:</p>
+<p>For <a href="https://walker.github.io/cityworks/classes/case_financial.CaseFinancial.html">PLL case financial actions</a>:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">briefcase</span><span class="hl-0">.</span><span class="hl-6">financial</span><span class="hl-0">.</span><span class="hl-3">methodHere</span><span class="hl-0">().</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span>
+</code></pre>
+<p>For <a href="https://walker.github.io/cityworks/classes/case_data.CaseData.html">PLL case data details &amp; data groups</a>:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">briefcase</span><span class="hl-0">.</span><span class="hl-6">data</span><span class="hl-0">.</span><span class="hl-3">methodHere</span><span class="hl-0">().</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span>
+</code></pre>
+<p>For PLL case <a href="https://walker.github.io/cityworks/classes/case_workflow.CaseWorkflow.html">workflow and task actions</a>:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">briefcase</span><span class="hl-0">.</span><span class="hl-6">workflow</span><span class="hl-0">.</span><span class="hl-3">methodHere</span><span class="hl-0">().</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span>
+</code></pre>
+<p>For <a href="https://walker.github.io/cityworks/classes/case_admin.CaseAdmin.html">PLL administration actions</a>:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">briefcase</span><span class="hl-0">.</span><span class="hl-6">admin</span><span class="hl-0">.</span><span class="hl-3">methodHere</span><span class="hl-0">().</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span>
+</code></pre>
+
+<a href="#commenting" id="commenting" style="color: inherit; text-decoration: none;">
+  <h2>Commenting</h2>
+</a>
+<p>For any object in Cityworks which can be commented on, use the <a href="https://walker.github.io/cityworks/classes/comments.Comments.html">Comments class</a> via the class the comment is to be made on:</p>
+<pre><code><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">briefcase</span><span class="hl-0">.</span><span class="hl-6">comment</span><span class="hl-0">.</span><span class="hl-3">add</span><span class="hl-0">(</span><span class="hl-6">CaObjectIdGoesHere</span><span class="hl-0">, </span><span class="hl-4">&quot;Comment goes here&quot;</span><span class="hl-0">).</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span><br/><br/><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">workorder</span><span class="hl-0">.</span><span class="hl-6">comment</span><span class="hl-0">.</span><span class="hl-3">add</span><span class="hl-0">(</span><span class="hl-6">WorkOrderSIDGoesHere</span><span class="hl-0">, </span><span class="hl-4">&quot;Comment goes here&quot;</span><span class="hl-0">).</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span><br/><br/><span class="hl-0">  </span><span class="hl-6">cw</span><span class="hl-0">.</span><span class="hl-6">request</span><span class="hl-0">.</span><span class="hl-6">comment</span><span class="hl-0">.</span><span class="hl-3">add</span><span class="hl-0">(</span><span class="hl-6">RequestIDGoesHere</span><span class="hl-0">, </span><span class="hl-4">&quot;Comment goes here&quot;</span><span class="hl-0">).</span><span class="hl-3">then</span><span class="hl-0">(</span><span class="hl-6">resp</span><span class="hl-0"> </span><span class="hl-1">=&gt;</span><span class="hl-0"> {})</span>
+</code></pre>
+</div></div>
+<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+<div class="tsd-navigation settings">
+<details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility">
+<h4 class="uppercase">Member Visibility</h4><form>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-private" name="private"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Private</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></form></div>
+<div class="tsd-theme-toggle">
+<h4 class="uppercase">Theme</h4><select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<nav class="tsd-navigation primary">
+<details class="tsd-index-accordion" open><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Modules</h3></summary>
+<div class="tsd-accordion-details">
+<ul>
+<li class="current selected"><a href="modules.html">cityworks</a>
+<ul>
+<li class="tsd-kind-module"><a href="modules/activity_link.html">activity_<wbr/>link</a></li>
+<li class="tsd-kind-module"><a href="modules/briefcase.html">briefcase</a></li>
+<li class="tsd-kind-module"><a href="modules/case_admin.html">case_<wbr/>admin</a></li>
+<li class="tsd-kind-module"><a href="modules/case_assets.html">case_<wbr/>assets</a></li>
+<li class="tsd-kind-module"><a href="modules/case_data.html">case_<wbr/>data</a></li>
+<li class="tsd-kind-module"><a href="modules/case_financial.html">case_<wbr/>financial</a></li>
+<li class="tsd-kind-module"><a href="modules/case_workflow.html">case_<wbr/>workflow</a></li>
+<li class="tsd-kind-module"><a href="modules/comments.html">comments</a></li>
+<li class="tsd-kind-module"><a href="modules/error.html">error</a></li>
+<li class="tsd-kind-module"><a href="modules/event_layer.html">event_<wbr/>layer</a></li>
+<li class="tsd-kind-module"><a href="modules/general.html">general</a></li>
+<li class="tsd-kind-module"><a href="modules/gis.html">gis</a></li>
+<li class="tsd-kind-module"><a href="modules/index.html">index</a></li>
+<li class="tsd-kind-module"><a href="modules/inspection.html">inspection</a></li>
+<li class="tsd-kind-module"><a href="modules/inspection_admin.html">inspection_<wbr/>admin</a></li>
+<li class="tsd-kind-module"><a href="modules/inspection_costs.html">inspection_<wbr/>costs</a></li>
+<li class="tsd-kind-module"><a href="modules/message_queue.html">message_<wbr/>queue</a></li>
+<li class="tsd-kind-module"><a href="modules/request.html">request</a></li>
+<li class="tsd-kind-module"><a href="modules/request_admin.html">request_<wbr/>admin</a></li>
+<li class="tsd-kind-module"><a href="modules/request_costs.html">request_<wbr/>costs</a></li>
+<li class="tsd-kind-module"><a href="modules/search.html">search</a></li>
+<li class="tsd-kind-module"><a href="modules/workorder.html">workorder</a></li>
+<li class="tsd-kind-module"><a href="modules/workorder_admin.html">workorder_<wbr/>admin</a></li>
+<li class="tsd-kind-module"><a href="modules/workorder_costs.html">workorder_<wbr/>costs</a></li></ul></li></ul></div></details></nav></div></div>
+<div class="overlay"></div><script src="assets/main.js"></script></body></html>
