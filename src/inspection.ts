@@ -10,7 +10,12 @@ export class Inspection {
   /**
    * Inspection Administration methods
    */
-  admin?: Object
+  admin?: any
+
+  /**
+   * Inspection Administration methods
+   */
+  attachments?: any
 
   /**
    * Inspection Costing methods
@@ -23,6 +28,8 @@ export class Inspection {
   constructor(cw) {
     this.cw = cw
     this.admin
+    this.attachments
+    this.costs
   }
 
   /**

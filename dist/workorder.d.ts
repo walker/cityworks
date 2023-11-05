@@ -16,6 +16,10 @@ export declare class WorkOrder {
      */
     comment: any;
     /**
+     * WorkOrder Comments methods
+     */
+    attachments: any;
+    /**
      * @hidden
      */
     constructor(cw: any);

@@ -1,6 +1,7 @@
 'use strict';
 require('dotenv').config();
 var chai = require('chai');
+const path = require('path');
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 var chaiAsPromised = require("chai-as-promised");
@@ -20,15 +21,19 @@ before(function(done) {
 
 describe('[WorkOrder (construct)] function test', () => {
   it('should be a defined object', (done) => {
-    assert.isObject(cw8.request, 'Request is an object');
+    assert.isObject(cw8.workorder, 'Workorder is an object');
     done();
   });
   it('should have an admin property which is a defined object', (done) => {
-    assert.isObject(cw8.case.admin, 'Admin is an object');
+    assert.isObject(cw8.workorder.admin, 'Admin is an object');
     done();
   });
   it('should have an comment property which is a defined object', (done) => {
-    assert.isObject(cw8.case.comment, 'Comment is an object');
+    assert.isObject(cw8.workorder.comment, 'Comment is an object');
+    done();
+  });
+  it('should have an costs property which is a defined object', (done) => {
+    assert.isObject(cw8.workorder.costs, 'Costs is an object');
     done();
   });
 });
@@ -43,6 +48,35 @@ describe('[WorkOrder::create] function test', () => {
       done();
     });
   });
+  it('should have attached workorders when specified');
   it('should have attached inspections when specified');
   it('should have attached service requests when specified');
+});
+
+describe('[WorkOrder::addAttachment] function test', () => {
+  it('should know it is an workorder attachment instance', (done) => {
+    assert.equal(cw8.workorder.attachments.currentActivityType, 'WorkOrder');
+    done()
+  });
+
+  it('should return an attachment if attached by workorderid string', (done) => {
+    cw8.workorder.attachments.add('100196', path.join(path.dirname(__dirname), 'uploads', 'test.pdf'), 'test.pdf').then((r) => {
+      assert.equal(r.WorkOrderId, '100196')
+      done()
+    }).catch(error => {
+      console.log(error, 'unexpected error adding attachment');
+      done(new Error("Unexpected error on add attachment", error));
+    });
+  });
+
+  it('should return an attachment if attached by workordersid number', (done) => {
+    cw8.workorder.attachments.add(100196, path.join(path.dirname(__dirname), 'uploads', 'test.pdf'), 'test.pdf').then((r) => {
+      assert.equal(r.WorkOrderId, '100297')
+      done()
+    }).catch(error => {
+      console.log(error, 'unexpected error adding attachment');
+      done(new Error("Unexpected error on add attachment", error));
+    });
+  });
+
 });

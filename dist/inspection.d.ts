@@ -6,7 +6,11 @@ export declare class Inspection {
     /**
      * Inspection Administration methods
      */
-    admin?: Object;
+    admin?: any;
+    /**
+     * Inspection Administration methods
+     */
+    attachments?: any;
     /**
      * Inspection Costing methods
      */
@@ -314,6 +318,18 @@ export declare class Inspection {
      * @return {Object} Returns object that represents an array which contains a dictionary of InspQuestion IDs to configs
      */
     getQConditions(inspTemplateIds: Array<number>): Promise<unknown>;
+    /**
+     * Add inspection attachments
+     *
+     * @category Inspection Attachments
+     * @param {number} id - The ID of the inspection to add the attachment to
+     * @param {any} the_file - The file to upload
+     * @param {string} [filename] - The filename for the attachment
+     * @param {string} [attachment_type] - The filename for the attachment
+     * @param {string} [comments] - The filename for the attachment
+     * @return {Object} Returns object that represents a boolean for action resolution
+     */
+    addAttachment(id: number, the_file: string, filename?: string, attachment_type?: number, comments?: string): Promise<unknown>;
     /**
      * Delete inspection attachments
      *

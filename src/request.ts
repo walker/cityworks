@@ -18,9 +18,14 @@ export class Request {
   costs: any
 
   /**
-   * WorkOrder Comments methods
+   * Request Comments methods
    */
   comment: any
+
+  /**
+   * Attachments methods
+   */
+  attachments: any
 
   /**
    * @hidden
@@ -29,6 +34,7 @@ export class Request {
     this.cw = cw
     this.admin
     this.comment
+    this.attachments
   }
 
   /**

@@ -24,12 +24,18 @@ export class WorkOrder {
   comment: any
 
   /**
+   * WorkOrder Comments methods
+   */
+  attachments: any
+
+  /**
    * @hidden
    */
   constructor(cw) {
     this.cw = cw
     this.admin
     this.comment
+    this.attachments
   }
 
   /**

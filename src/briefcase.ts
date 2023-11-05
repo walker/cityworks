@@ -27,6 +27,10 @@ export class Briefcase {
    */
   asset?: any
   /**
+   * Asset (Address) methods
+   */
+  attachments?: any
+  /**
    * Workflow & task methods
    */
   workflow?: any
