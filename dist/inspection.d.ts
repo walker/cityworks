@@ -319,50 +319,6 @@ export declare class Inspection {
      */
     getQConditions(inspTemplateIds: Array<number>): Promise<unknown>;
     /**
-     * Add inspection attachments
-     *
-     * @category Inspection Attachments
-     * @param {number} id - The ID of the inspection to add the attachment to
-     * @param {any} the_file - The file to upload
-     * @param {string} [filename] - The filename for the attachment
-     * @param {string} [attachment_type] - The filename for the attachment
-     * @param {string} [comments] - The filename for the attachment
-     * @return {Object} Returns object that represents a boolean for action resolution
-     */
-    addAttachment(id: number, the_file: string, filename?: string, attachment_type?: number, comments?: string): Promise<unknown>;
-    /**
-     * Delete inspection attachments
-     *
-     * @category Inspection Attachments
-     * @param {Array<number>} attachmentIds - An array of inspection attachment IDs to delete
-     * @return {Object} Returns object that represents a boolean for action resolution
-     */
-    deleteAttachments(attachmentIds: Array<number>): Promise<unknown>;
-    /**
-     * Download an inspection attachment
-     *
-     * @category Inspection Attachments
-     * @param {number} attachmentId - ID of an inspection attachment to download
-     * @return {Object} Returns object that represents a file stream
-     */
-    downloadAttachment(attachmentId: number): Promise<unknown>;
-    /**
-     * Get inspection attachment by ID
-     *
-     * @category Inspection Attachments
-     * @param {number} attachmentId - An attachment ID to get info for
-     * @return {Object} Returns object that represents an object that describes the matched inspection attachment
-     */
-    getAttachmentById(attachmentId: number): Promise<unknown>;
-    /**
-     * Get inspection attachment by ID
-     *
-     * @category Inspection Attachments
-     * @param {Array<number>} inspectionIds - An array of inspection IDs to get attachments for
-     * @return {Object} Returns object that represents a collection of attachments from the matched inspections
-     */
-    getAttachments(inspectionIds: Array<number>): Promise<unknown>;
-    /**
      * Get Map Layer Fields
      *
      * @category Inspections
