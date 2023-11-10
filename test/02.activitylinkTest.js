@@ -3,7 +3,7 @@ require('dotenv').config();
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 const cw2 = require('../dist/index.js');
-cw2.Cityworks.configure(process.env.domain, {path: process.env.install_path});
+cw2.Cityworks.configure(process.env.domain, {path: process.env.install_path, version: process.env.version});
 
 before(function(done) {
   this.timeout(20000000);
@@ -41,6 +41,18 @@ describe('[ActivityLink::get] function test', () => {
     });
   });
 });
+
+describe('[ActivityLink::add] function test', () => {
+  it('should return the new link', (done) => {
+    cw2.activity_link.add('workorder', 335903, 'workorder', 333014).then(resp => {
+      assert.isNumber(resp.ActivityLinkId);
+      done();
+    }).catch(error => {
+      console.log(error)
+      done();
+    });
+  });
+})
 
 describe('[ActivityLink::clone] function test', () => {
   it('should create a clone of an existing link, if it exists');

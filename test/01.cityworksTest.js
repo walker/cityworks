@@ -3,9 +3,9 @@ require('dotenv').config();
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 const cw1 = require('../dist/index.js');
-cw1.Cityworks.configure(process.env.domain, {path: process.env.install_path});
+cw1.Cityworks.configure(process.env.domain, {path: process.env.install_path, version: process.env.version});
 const cw4 = require('../dist/index.js');
-cw4.Cityworks.configure(process.env.domain, {path: process.env.install_path});
+cw4.Cityworks.configure(process.env.domain, {path: process.env.install_path, version: process.env.version});
 
 before(function(done) {
   this.timeout(20000000);

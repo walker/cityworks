@@ -101,3 +101,8 @@ For any object in Cityworks which has attachments, (including cases as CaRelDocs
       cw.request.attachment.add(RequestIDGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
 
       cw.inspection.attachment.add(InspectionIDGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
+
+
+## Activity Links
+
+      cw.activity_link.add(source_type, source_sid, destination_type, destination_sid, 'related')
