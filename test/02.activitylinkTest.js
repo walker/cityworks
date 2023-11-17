@@ -44,7 +44,7 @@ describe('[ActivityLink::get] function test', () => {
 
 describe('[ActivityLink::add] function test', () => {
   it('should return the new link', (done) => {
-    cw2.activity_link.add('workorder', 335903, 'workorder', 333014).then(resp => {
+    cw2.activity_link.add('workorder', 241437, 'workorder', 241525).then(resp => {
       assert.isNumber(resp.ActivityLinkId);
       done();
     }).catch(error => {
@@ -52,19 +52,60 @@ describe('[ActivityLink::add] function test', () => {
       done();
     });
   });
-})
+});
 
 describe('[ActivityLink::clone] function test', () => {
-  it('should create a clone of an existing link, if it exists');
-  it('should not create a clone of an existing link, if it does not exist');
+  it('should create a clone of the link on the source, to the links on the second', (done) => {
+    cw2.activity_link.clone('inspection', 53215, 'inspection', 53217).then(resp => {
+      assert.isArray(resp);
+      done();
+    }).catch(error => {
+      console.log(error)
+      done();
+    });
+  });
 });
 
 describe('[ActivityLink::delete] function test', () => {
-  it('should delete an activity link if the ID is found');
-  it('should fail to delete an activity link if the ID cannot be found');
+  it('should fail to delete an activity link if it is a parent/child relationship', (done) => {
+    cw2.activity_link.delete(477102).then(resp => {
+      console.log('resp', resp)
+      done();
+    }).catch(error => {
+      assert.equal(error.error_messages[0].Name, 'Cannot Delete Parent Links');
+      done();
+    });    
+  });
+  // it('should delete an activity link if the ID is found', (done) => {
+  //   cw2.activity_link.delete(477102).then(resp => {
+  //     console.log(resp);
+  //     // assert.isArray(resp);
+  //     done();
+  //   }).catch(error => {
+  //     console.log(error)
+  //     done();
+  //   });    
+  // });
+  // it('should fail to delete an activity link if the ID cannot be found', (done) => {
+  //   cw2.activity_link.delete(477102).then(resp => {
+  //     console.log(resp);
+  //     assert.isArray(resp);
+  //     done();
+  //   }).catch(error => {
+  //     console.log(error)
+  //     done();
+  //   });
+  // });
 });
 
 describe('[ActivityLink::remove] function test', () => {
-  it('should remove a link when all items provided');
-  it('should fail when any 1 item is not provided');
+  it('should remove a link when found', (done) => {
+    cw2.activity_link.remove().then(resp => {
+      assert.isArray(resp);
+      done();
+    }).catch(error => {
+      console.log(error)
+      done();
+    });
+  });
 });

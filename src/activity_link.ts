@@ -131,10 +131,10 @@ export class ActivityLinks implements ActivityLink {
   clone(source_type: string, source_sid: number, destination_type: string, destination_sid: number) {
     return new Promise((resolve, reject) => {
       if(!this.activityTypes.has(source_type)) {
-        reject(new CWError(1, 'Source type not found.', {'provided': source_type, 'options':this.activityTypes}))
+        reject(new CWError(5, 'Source type not found.', {'provided': source_type, 'options':this.activityTypes}))
       }
       if(!this.activityTypes.has(destination_type)) {
-        reject(new CWError(2, 'Destination type not found.', {'provided': destination_type, 'options':this.activityTypes}))
+        reject(new CWError(6, 'Destination type not found.', {'provided': destination_type, 'options':this.activityTypes}))
       }
       let data = {
         SourceActivityType: this.activityTypes.get(source_type),
@@ -164,8 +164,10 @@ export class ActivityLinks implements ActivityLink {
       }
       let path = 'General/ActivityLink/Delete'
       this.cw.runRequest(path, data).then((response: any) => {
-        resolve(response.Value)
+        // console.log('response_raw', response)
+        resolve(response)
       }).catch(e => {
+        // console.log('AL::Delete::e', e)
         reject(e)
       })
     })
@@ -184,13 +186,13 @@ export class ActivityLinks implements ActivityLink {
   remove(source_type: string, source_sid: number, destination_type: string, destination_sid: number, link_type: string = 'related') {
     return new Promise((resolve, reject) => {
       if(!this.activityTypes.has(source_type)) {
-        reject(new CWError(1, 'Source type not found.', {'provided': source_type, 'options':this.activityTypes}))
+        reject(new CWError(8, 'Source type not found.', {'provided': source_type, 'options':this.activityTypes}))
       }
       if(!this.activityTypes.has(destination_type)) {
-        reject(new CWError(1, 'Destination type not found.', {'provided': destination_type, 'options':this.activityTypes}))
+        reject(new CWError(9, 'Destination type not found.', {'provided': destination_type, 'options':this.activityTypes}))
       }
       if(!this.linkTypes.has(link_type)) {
-        reject(new CWError(1, 'Link type not found.', {'provided': link_type, 'options':this.linkTypes}))
+        reject(new CWError(10, 'Link type not found.', {'provided': link_type, 'options':this.linkTypes}))
       }
       let data = {
         SourceType: this.activityTypes.get(source_type),

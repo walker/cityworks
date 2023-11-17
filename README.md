@@ -105,4 +105,4 @@ For any object in Cityworks which has attachments, (including cases as CaRelDocs
 
 ## Activity Links
 
-      cw.activity_link.add(source_type, source_sid, destination_type, destination_sid, 'related')
+      cw.activity_link.add(source_type, source_sid, destination_type, destination_sid)

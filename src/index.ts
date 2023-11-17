@@ -209,7 +209,7 @@ class Cityworks implements Citywork {
         let request = https.request(options, (response) => {
           let str=''
           response.on('error',function(e){
-              console.log(e, 'Caught on error')
+              // console.log(e, 'Caught on error')
               reject(new CWError(13, "Unknown error.", e))
           })
 
@@ -225,7 +225,7 @@ class Cityworks implements Citywork {
                 if(typeof(obj)=='undefined') {
                   // failed
                   reject(new CWError(10, 'No response received from Cityworks API.'))
-                } else if(typeof(obj)!='undefined' && typeof(obj.Value)!='undefined') {
+                } else if(typeof(obj)!='undefined') { //  && typeof(obj.Value)!='undefined'
                   switch(obj.Status) {
                     case 1:
                       reject(new CWError(1, 'Error', obj))
@@ -238,11 +238,13 @@ class Cityworks implements Citywork {
                       break;
                     case 0:
                     default:
-                      resolve(obj);
+                      if(typeof(obj)!='undefined' && typeof(obj.Value)=='undefined' && obj.Status==0) {
+                        resolve(true);
+                      } else {
+                        resolve(obj);
+                      }
                       break;
                   }
-                } else if(typeof(obj)!='undefined' && typeof(obj.Value)=='undefined' && obj.Status==0) {
-                  resolve(true);
                 } else {
                   reject(new CWError(4, "Unknown error.", {options: options, postedData: pd, api_returned_string: obj}))
                 }
@@ -252,10 +254,10 @@ class Cityworks implements Citywork {
             } catch (e) {
               if (e instanceof SyntaxError) {
                 console.log('try/catch error on JSON')
-                reject(new CWError(6, "Error parsing JSON.", {error: e}))
+                reject(new CWError(6, "Error parsing JSON.", e))
               } else {
                 console.log('try/catch error on JSON - but not an instance of SyntaxError')
-                reject(new CWError(7, "Error parsing JSON."))
+                reject(new CWError(7, "Error parsing JSON.", e))
               }
             }
           })
