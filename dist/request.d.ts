@@ -12,9 +12,13 @@ export declare class Request {
      */
     costs: any;
     /**
-     * WorkOrder Comments methods
+     * Request Comments methods
      */
     comment: any;
+    /**
+     * Attachments methods
+     */
+    attachments: any;
     /**
      * @hidden
      */

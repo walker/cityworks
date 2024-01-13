@@ -89,3 +89,20 @@ For any object in Cityworks which can be commented on, use the [Comments class](
       cw.workorder.comment.add(WorkOrderSIDGoesHere, "Comment goes here").then(resp => {})
 
       cw.request.comment.add(RequestIDGoesHere, "Comment goes here").then(resp => {})
+
+## Attachments
+
+For any object in Cityworks which has attachments, (including cases as CaRelDocs), use the [Attachments class](https://walker.github.io/cityworks/modules/attachments.html) via the class the attachment is to be made on:
+
+      cw.briefcase.attachment.add(CaObjectIdGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
+
+      cw.workorder.attachment.add(WorkOrderSIDGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
+
+      cw.request.attachment.add(RequestIDGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
+
+      cw.inspection.attachment.add(InspectionIDGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
+
+
+## Activity Links
+
+      cw.activity_link.add(source_type, source_sid, destination_type, destination_sid)

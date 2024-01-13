@@ -18,15 +18,11 @@ export interface ActivityLink {
  */
 export class ActivityLinks implements ActivityLink {
   /**
-   * Activity types to map string to number for internal use. Activity types available are:
-   *
-   *      "null", "case", "inspection", "request", "workorder", "wipcase"
+   * Activity types to map string to number for internal use. Activity types available are: "null", "case", "inspection", "request", "workorder", "wipcase"
    */
   activityTypes: ReversibleMap<string, number>
   /**
-   * Link types to map string to number for internal use. Link types available are:
-   *
-   *      "null", "parent", "related"
+   * Link types to map string to number for internal use. Link types available are: "null", "parent", "related"
    */
   linkTypes: ReversibleMap<string, number>
   /**
@@ -56,20 +52,11 @@ export class ActivityLinks implements ActivityLink {
   /**
    * Create a new activity link between two items.
    *
-   * @param {string} source_type - Source type as string. Options:
-   *
-   *      "null", "case", "inspection", "request", "workorder", "wipcase"
-   *
+   * @param {string} source_type - Source type as string. Options: "null", "case", "inspection", "request", "workorder", "wipcase"
    * @param {number} source_sid - Source SID (numeric ID) one wishes to remove a link between SID as source and a particular destination
-   * @param {string} destination_type - Destination type as string
-   *
-   *      "null", "case", "inspection", "request", "workorder", "wipcase"
-   *
+   * @param {string} destination_type - Destination type as string: "null", "case", "inspection", "request", "workorder", "wipcase"
    * @param {number} destination_sid - Destination SID (numeric ID) one wishes to remove a link between SID as destination and a particular source
-   * @param {string} link_type - The type of link which exists between provided source and destination. Defaults to `related`. Options:
-   *
-   *      "null", "parent", "related"
-   *
+   * @param {string} link_type - The type of link which exists between provided source and destination. Defaults to `related`. Options: "null", "parent", "related"
    * @return {Object} Returns Promise object that represents a
    */
   add(source_type: string, source_sid: number, destination_type: string, destination_sid: number, link_type: string = 'related') {
@@ -102,10 +89,7 @@ export class ActivityLinks implements ActivityLink {
   /**
    * Get the links for a particular node type by ID.
    *
-   * @param {string} type - Source type as string. Options:
-   *
-   *      "null", "case", "inspection", "request", "workorder", "wipcase"
-   *
+   * @param {string} type - Source type as string. Options: "null", "case", "inspection", "request", "workorder", "wipcase"
    * @param {Array<number>} sids - Array of numeric (S)IDs you wish to get of the specified type
    * @return {Object} Returns Promise object that represents a collection
    */
@@ -138,25 +122,19 @@ export class ActivityLinks implements ActivityLink {
   /**
    * Clone a current activity link.
    *
-   * @param {string} source_type - Source type as string. Options:
-   *
-   *      "null", "case", "inspection", "request", "workorder", "wipcase"
-   *
+   * @param {string} source_type - Source type as string. Options: "null", "case", "inspection", "request", "workorder", "wipcase"
    * @param {number} source_sid - Source SID (numeric ID) one wishes to clone a link between SID as source and a particular destination
-   * @param {string} destination_type - Destination type as string
-   *
-   *      "null", "case", "inspection", "request", "workorder", "wipcase"
-   *
+   * @param {string} destination_type - Destination type as string: "null", "case", "inspection", "request", "workorder", "wipcase"
    * @param {number} destination_sid - Destination SID (numeric ID) one wishes to clone a link between SID as destination and a particular source
    * @return {Object} Returns Promise object that represents a
    */
   clone(source_type: string, source_sid: number, destination_type: string, destination_sid: number) {
     return new Promise((resolve, reject) => {
       if(!this.activityTypes.has(source_type)) {
-        reject(new CWError(1, 'Source type not found.', {'provided': source_type, 'options':this.activityTypes}))
+        reject(new CWError(5, 'Source type not found.', {'provided': source_type, 'options':this.activityTypes}))
       }
       if(!this.activityTypes.has(destination_type)) {
-        reject(new CWError(2, 'Destination type not found.', {'provided': destination_type, 'options':this.activityTypes}))
+        reject(new CWError(6, 'Destination type not found.', {'provided': destination_type, 'options':this.activityTypes}))
       }
       let data = {
         SourceActivityType: this.activityTypes.get(source_type),
@@ -186,8 +164,10 @@ export class ActivityLinks implements ActivityLink {
       }
       let path = 'General/ActivityLink/Delete'
       this.cw.runRequest(path, data).then((response: any) => {
-        resolve(response.Value)
+        // console.log('response_raw', response)
+        resolve(response)
       }).catch(e => {
+        // console.log('AL::Delete::e', e)
         reject(e)
       })
     })
@@ -196,32 +176,23 @@ export class ActivityLinks implements ActivityLink {
   /**
    * Remove a link by specifying everything.
    *
-   * @param {string} source_type - Source type as string. Options:
-   *
-   *      "null", "case", "inspection", "request", "workorder", "wipcase"
-   *
+   * @param {string} source_type - Source type as string. Options: "null", "case", "inspection", "request", "workorder", "wipcase"
    * @param {number} source_sid - Source SID (numeric ID) one wishes to remove a link between SID as source and a particular destination
-   * @param {string} destination_type - Destination type as string
-   *
-   *      "null", "case", "inspection", "request", "workorder", "wipcase"
-   *
+   * @param {string} destination_type - Destination type as string: "null", "case", "inspection", "request", "workorder", "wipcase"
    * @param {number} destination_sid - Destination SID (numeric ID) one wishes to remove a link between SID as destination and a particular source
-   * @param {string} link_type - The type of link which exists between provided source and destination. Defaults to `related`. Options:
-   *
-   *      "null", "parent", "related"
-   *
+   * @param {string} link_type - The type of link which exists between provided source and destination. Defaults to `related`. Options: "null", "parent", "related"
    * @return {Object} Returns Promise object that represents a
    */
   remove(source_type: string, source_sid: number, destination_type: string, destination_sid: number, link_type: string = 'related') {
     return new Promise((resolve, reject) => {
       if(!this.activityTypes.has(source_type)) {
-        reject(new CWError(1, 'Source type not found.', {'provided': source_type, 'options':this.activityTypes}))
+        reject(new CWError(8, 'Source type not found.', {'provided': source_type, 'options':this.activityTypes}))
       }
       if(!this.activityTypes.has(destination_type)) {
-        reject(new CWError(1, 'Destination type not found.', {'provided': destination_type, 'options':this.activityTypes}))
+        reject(new CWError(9, 'Destination type not found.', {'provided': destination_type, 'options':this.activityTypes}))
       }
       if(!this.linkTypes.has(link_type)) {
-        reject(new CWError(1, 'Link type not found.', {'provided': link_type, 'options':this.linkTypes}))
+        reject(new CWError(10, 'Link type not found.', {'provided': link_type, 'options':this.linkTypes}))
       }
       let data = {
         SourceType: this.activityTypes.get(source_type),

@@ -1,3 +1,12 @@
+export interface CWErrorMsgs {
+    MessageType: number;
+    Code: number;
+    Service: string;
+    Name: string;
+    DebugDetails: string;
+    DisplayText: string;
+    InnerMessage: string | null;
+}
 /**
  * CWErrorInt interface definition for implementation by CWError
  *
@@ -8,6 +17,7 @@ export interface CWErrorInt {
     name: string;
     code: number;
     message: string;
+    error_messages?: Array<CWErrorMsgs>;
     info?: string;
 }
 /**
@@ -28,6 +38,10 @@ export declare class CWError implements CWErrorInt {
      */
     message: string;
     /**
+     * The error message
+     */
+    error_messages: Array<CWErrorMsgs>;
+    /**
      * Object stuffed with any other information one wishes to include in the thrown error
      */
     info?: string;
@@ -39,5 +53,5 @@ export declare class CWError implements CWErrorInt {
      * @param {Object} info - Object stuffed with any other information one wishes to include in the thrown error
      * @return {Object} Returns instance of CWError object
      */
-    constructor(code: number, message: string, info?: object);
+    constructor(code: number, message: string, info?: any);
 }

@@ -6,7 +6,11 @@ export declare class Inspection {
     /**
      * Inspection Administration methods
      */
-    admin?: Object;
+    admin?: any;
+    /**
+     * Inspection Administration methods
+     */
+    attachments?: any;
     /**
      * Inspection Costing methods
      */
@@ -314,38 +318,6 @@ export declare class Inspection {
      * @return {Object} Returns object that represents an array which contains a dictionary of InspQuestion IDs to configs
      */
     getQConditions(inspTemplateIds: Array<number>): Promise<unknown>;
-    /**
-     * Delete inspection attachments
-     *
-     * @category Inspection Attachments
-     * @param {Array<number>} attachmentIds - An array of inspection attachment IDs to delete
-     * @return {Object} Returns object that represents a boolean for action resolution
-     */
-    deleteAttachments(attachmentIds: Array<number>): Promise<unknown>;
-    /**
-     * Download an inspection attachment
-     *
-     * @category Inspection Attachments
-     * @param {number} attachmentId - ID of an inspection attachment to download
-     * @return {Object} Returns object that represents a file stream
-     */
-    downloadAttachment(attachmentId: number): Promise<unknown>;
-    /**
-     * Get inspection attachment by ID
-     *
-     * @category Inspection Attachments
-     * @param {number} attachmentId - An attachment ID to get info for
-     * @return {Object} Returns object that represents an object that describes the matched inspection attachment
-     */
-    getAttachmentById(attachmentId: number): Promise<unknown>;
-    /**
-     * Get inspection attachment by ID
-     *
-     * @category Inspection Attachments
-     * @param {Array<number>} inspectionIds - An array of inspection IDs to get attachments for
-     * @return {Object} Returns object that represents a collection of attachments from the matched inspections
-     */
-    getAttachments(inspectionIds: Array<number>): Promise<unknown>;
     /**
      * Get Map Layer Fields
      *

@@ -3,7 +3,7 @@ require('dotenv').config();
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 const cw6 = require('../dist/index.js');
-cw6.Cityworks.configure(process.env.domain, {path: process.env.install_path});
+cw6.Cityworks.configure(process.env.domain, {path: process.env.install_path, version: process.env.version});
 const _ = require('lodash')
 
 before(function(done) {

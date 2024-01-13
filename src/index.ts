@@ -1,5 +1,6 @@
 import { CWError } from './error'
 import { General } from './general'
+import { Attachments } from './attachments'
 import { ActivityLinks } from './activity_link'
 import { Gis } from './gis'
 import { MessageQueue } from './message_queue'
@@ -25,6 +26,11 @@ import { RequestCosts } from './request_costs'
 const https = require('https')
 const querystring = require('querystring')
 const _ = require('lodash')
+const FormData = require('form-data')
+const fs = require('fs')
+const path = require('path')
+// const mimetypes = require('mime-types')
+const axios = require('axios')
 
 interface postData {
   data?: string
@@ -132,26 +138,24 @@ class Cityworks implements Citywork {
      *
      * If one ever needs to access or call an unimplemented API endpoint of a Cityworks install, one can call this method directly with the path and data payload:
      *
-     * `cityworks.runRequest(path, data)`
+     * `cityworks.runRequest(service_path, post_data)`
      *
-     * @param {string} path - The path to the particular endpoint
-     * @param {Object} data - The data object to be sent to the Cityworks API
-     * @param {any} file - The file to send in binary to the Cityworks API
+     * @param {string} service_path - The path to the particular endpoint
+     * @param {any} post_data - The data object to be sent to the Cityworks API
+     * @param {string} post_file - The path of the file to send to the Cityworks API
      * @return {Object} Returns Promise object that represents the json object returned from the Cityworks API
      */
-  runRequest(path, data?, file?: any) {
+  runRequest(service_path: string, post_data?: any, post_file?: string) {
     return new Promise((resolve, reject) => {
       let pd = {} as postData
+      var file_name = ''
+      var file_type = ''
 
-      if(typeof(data) !== 'undefined') {
-        pd.data = JSON.stringify(data)
+      if(typeof(post_data) !== 'undefined') {
+        pd.data = JSON.stringify(post_data)
       }
-      
-      // if(typeof(file) !== 'undefined' && (path=='Pll/CaseRelDocs/AddTaskRelDoc' || path=='Pll/CaseRelDocs/Add')) {
-      //   pd.file = file
-      // }
 
-      if(this.settings.version<=23 && typeof(this.Token) !== 'undefined' && this.Token != '' && path!='General/Authentication/CityworksOnlineAuthenticate' && path!='General/Authentication/Authenticate') {
+      if(this.settings.version<23 && typeof(this.Token) !== 'undefined' && this.Token != '' && service_path!='General/Authentication/CityworksOnlineAuthenticate' && service_path!='General/Authentication/Authenticate') {
         pd.token = this.Token
       }
 
@@ -163,23 +167,49 @@ class Cityworks implements Citywork {
       let options = {
         hostname: this.base_url,
         port: 443,
-        path: '/' + this.settings.path + '/services/' + path,
+        path: '/' + this.settings.path + '/services/' + service_path,
         method: 'POST',
-        headers: {
-           'Content-Type': 'application/x-www-form-urlencoded',
-           'Content-Length': Buffer.byteLength(querystring.stringify(pd))
-        },
+        headers: {},
         timeout: 10000000
       }
-      if(this.settings.version>=23 && typeof(this.Token) !== 'undefined' && this.Token != '' && path!='General/Authentication/CityworksOnlineAuthenticate' && path!='General/Authentication/Authenticate') {
-        _.set(options, 'header.Authorization', 'cityworks ' + this.Token)
-        // console.log(options)
+      if(this.settings.secure==false) {
+        options.port = 80
       }
-      
-      let request = https.request(options, (response) => {
+      if(this.settings.version>=23 && typeof(this.Token) !== 'undefined' && this.Token != '' && service_path!='General/Authentication/CityworksOnlineAuthenticate' && service_path!='General/Authentication/Authenticate') {
+        _.set(options, 'headers.Authorization', 'cityworks ' + this.Token)
+      }
+
+      if(typeof(post_file)!=='undefined') {
+        // file_name = path.basename(post_file)
+        // file_type = mimetypes.lookup(path.extname(post_file))
+        var cw_url = 'https://'
+        if(options.port==80) {
+          cw_url = 'http://'
+        }
+        cw_url += options.hostname+options.path
+        if(this.settings.version<23 && typeof(this.Token) !== 'undefined' && this.Token != '' && service_path!='General/Authentication/CityworksOnlineAuthenticate' && service_path!='General/Authentication/Authenticate') {
+          cw_url += '?token='+this.Token
+        }
+        axios.postForm(cw_url, {
+          data: JSON.stringify(post_data),
+          file: fs.createReadStream(post_file)
+        }, {
+          headers: options.headers
+        }).then((r) => {
+          resolve(r.data)
+        })
+      } else {
+        _.set(options, 'headers.Content-Type', 'application/x-www-form-urlencoded')
+        _.set(options, 'headers.Content-Length', Buffer.byteLength(querystring.stringify(pd)))
+        // if(service_path=='') {
+        //   console.log(options)
+        //   console.log(pd)
+        //   process.exit(0)
+        // }
+        let request = https.request(options, (response) => {
           let str=''
           response.on('error',function(e){
-              console.log(e, 'Caught on error')
+              // console.log(e, 'Caught on error')
               reject(new CWError(13, "Unknown error.", e))
           })
 
@@ -192,13 +222,10 @@ class Cityworks implements Citywork {
               var test_str = JSON.stringify(str) + "[test string]"
               if(test_str.match(/\<h2\>Object\ moved\ to/)==null) {
                 var obj=JSON.parse(str)
-                // if(path=='General/ActivityNotification/UserWatching') {
-                  // console.log(str, options, pd, obj)
-                // }
                 if(typeof(obj)=='undefined') {
                   // failed
                   reject(new CWError(10, 'No response received from Cityworks API.'))
-                } else if(typeof(obj)!='undefined' && typeof(obj.Value)!='undefined') { // && typeof(response.Value.Token)!='undefined') {
+                } else if(typeof(obj)!='undefined') { //  && typeof(obj.Value)!='undefined'
                   switch(obj.Status) {
                     case 1:
                       reject(new CWError(1, 'Error', obj))
@@ -211,7 +238,11 @@ class Cityworks implements Citywork {
                       break;
                     case 0:
                     default:
-                      resolve(obj);
+                      if(typeof(obj)!='undefined' && typeof(obj.Value)=='undefined' && obj.Status==0) {
+                        resolve(true);
+                      } else {
+                        resolve(obj);
+                      }
                       break;
                   }
                 } else {
@@ -223,16 +254,17 @@ class Cityworks implements Citywork {
             } catch (e) {
               if (e instanceof SyntaxError) {
                 console.log('try/catch error on JSON')
-                reject(new CWError(6, "Error parsing JSON.", {error: e}))
+                reject(new CWError(6, "Error parsing JSON.", e))
               } else {
                 console.log('try/catch error on JSON - but not an instance of SyntaxError')
-                reject(new CWError(7, "Error parsing JSON."))
+                reject(new CWError(7, "Error parsing JSON.", e))
               }
             }
           })
-      })
-      request.write(querystring.stringify(pd))
-      request.end()
+        })
+        request.write(querystring.stringify(pd))
+        request.end()  
+      }
     })
   }
 
@@ -674,16 +706,20 @@ briefcase.workflow = new CaseWorkflow(cw)
 briefcase.admin = new CaseAdmin(cw)
 briefcase.comment = new Comments(cw, 'CaObject')
 briefcase.asset = new CaseAssets(cw)
+briefcase.attachments = new Attachments(cw, 'Case')
 
 workorder.admin = new WorkOrderAdmin(cw)
 workorder.costs = new WorkOrderCosts(cw)
 workorder.comment = new Comments(cw, 'WorkOrder')
+workorder.attachments = new Attachments(cw, 'WorkOrder')
 
 inspection.admin = new InspectionAdmin(cw)
 inspection.costs = new InspectionCosts(cw)
+inspection.attachments = new Attachments(cw, 'Inspection')
 
 request.admin = new RequestAdmin(cw)
 request.costs = new RequestCosts(cw)
 request.comment = new Comments(cw, 'Request')
+request.attachments = new Attachments(cw, 'Request')
 
 export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase }

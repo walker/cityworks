@@ -24,12 +24,18 @@ export class WorkOrder {
   comment: any
 
   /**
+   * WorkOrder Comments methods
+   */
+  attachments: any
+
+  /**
    * @hidden
    */
   constructor(cw) {
     this.cw = cw
     this.admin
     this.comment
+    this.attachments
   }
 
   /**
@@ -271,7 +277,7 @@ export class WorkOrder {
   /**
    * Get the audit log for a specific workorder
    *
-   * @category WorkOrder
+   * @category WorkOrders
    * @param {number} workOrderSId - A WorkOrder S/ID to get the audit log for. SID is default.
    * @return {Object} Returns Promise that represents a collection of Cityworks Metadata Objects
    */

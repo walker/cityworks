@@ -10,7 +10,12 @@ export class Inspection {
   /**
    * Inspection Administration methods
    */
-  admin?: Object
+  admin?: any
+
+  /**
+   * Inspection Administration methods
+   */
+  attachments?: any
 
   /**
    * Inspection Costing methods
@@ -23,6 +28,8 @@ export class Inspection {
   constructor(cw) {
     this.cw = cw
     this.admin
+    this.attachments
+    this.costs
   }
 
   /**
@@ -743,7 +750,7 @@ export class Inspection {
    * @param {Array<number>} inspTemplateIds - An array of template IDs to get the matched inspection template Question conditions for
    * @return {Object} Returns object that represents an array which contains a dictionary of InspQuestion IDs to configs
    */
-   getQConditions(inspTemplateIds: Array<number>) {
+  getQConditions(inspTemplateIds: Array<number>) {
      return new Promise((resolve, reject) => {
        var data = {
          InspTemplateIds: inspTemplateIds
@@ -754,118 +761,7 @@ export class Inspection {
          reject(e)
        })
      })
-   }
-
-
-  // Attachments
-
-  /**
-   * Add inspection attachments
-   *
-   * @category Inspection Attachments
-   * @param {number} id - The ID of the inspection to add the attachment to
-   * @param {any} the_file - The file to upload
-   * @param {string} [filename] - The filename for the attachment
-   * @param {string} [attachment_type] - The filename for the attachment
-   * @param {string} [comments] - The filename for the attachment
-   * @return {Object} Returns object that represents a boolean for action resolution
-   */
-  addAttachment(id: number, the_file: string, filename?: string, attachment_type?: number, comments?: string) {
-    return new Promise((resolve, reject) => {
-      var data = {
-        "InspectionId": id,
-        "Comments": comments,
-        "Filename": filename,
-        "AttachmentType": attachment_type
-      }
-      this.cw.runRequest('Ams/Attachments/AddInspectionAttachment', data, the_file).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
   }
-
-  /**
-   * Delete inspection attachments
-   *
-   * @category Inspection Attachments
-   * @param {Array<number>} attachmentIds - An array of inspection attachment IDs to delete
-   * @return {Object} Returns object that represents a boolean for action resolution
-   */
-   deleteAttachments(attachmentIds: Array<number>) {
-     return new Promise((resolve, reject) => {
-       var data = {
-         AttachmentIds: attachmentIds
-       }
-       this.cw.runRequest('Ams/Attachments/DeleteInspectionAttachments', data).then(r => {
-         resolve(r.Value)
-       }).catch(e => {
-         reject(e)
-       })
-     })
-   }
-
-  /**
-   * Download an inspection attachment
-   *
-   * @category Inspection Attachments
-   * @param {number} attachmentId - ID of an inspection attachment to download
-   * @return {Object} Returns object that represents a file stream
-   */
-   downloadAttachment(attachmentId: number) {
-     return new Promise((resolve, reject) => {
-       var data = {
-         AttachmentId: attachmentId
-       }
-       this.cw.runRequest('Ams/Attachments/DownloadInspectionAttachment', data).then(r => {
-         // TODO, pass file through // resolve(r.Value)
-       }).catch(e => {
-         reject(e)
-       })
-     })
-   }
-
-  /**
-   * Get inspection attachment by ID
-   *
-   * @category Inspection Attachments
-   * @param {number} attachmentId - An attachment ID to get info for
-   * @return {Object} Returns object that represents an object that describes the matched inspection attachment
-   */
-   getAttachmentById(attachmentId: number) {
-     return new Promise((resolve, reject) => {
-       var data = {
-         AttachmentId: attachmentId
-       }
-       this.cw.runRequest('Ams/Attachments/InspectionAttachmentById', data).then(r => {
-         resolve(r.Value)
-       }).catch(e => {
-         reject(e)
-       })
-     })
-   }
-
-  /**
-   * Get inspection attachment by ID
-   *
-   * @category Inspection Attachments
-   * @param {Array<number>} inspectionIds - An array of inspection IDs to get attachments for
-   * @return {Object} Returns object that represents a collection of attachments from the matched inspections
-   */
-   getAttachments(inspectionIds: Array<number>) {
-     return new Promise((resolve, reject) => {
-       var data = {
-         InspectionIds: inspectionIds
-       }
-       this.cw.runRequest('Ams/Attachments/InspectionAttachments', data).then(r => {
-         resolve(r.Value)
-       }).catch(e => {
-         reject(e)
-       })
-     })
-   }
-
 
   /**
    * Get Map Layer Fields

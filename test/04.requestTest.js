@@ -1,9 +1,13 @@
 'use strict';
 require('dotenv').config();
+var chai = require('chai');
+const path = require('path');
 var expect = require('chai').expect;
 var assert = require('chai').assert;
+var chaiAsPromised = require("chai-as-promised");
+chai.use(chaiAsPromised);
 const cw4 = require('../dist/index.js');
-cw4.Cityworks.configure(process.env.domain, {path: process.env.install_path});
+cw4.Cityworks.configure(process.env.domain, {path: process.env.install_path, version: process.env.version});
 const _ = require('lodash')
 
 before(function(done) {
@@ -289,5 +293,55 @@ describe('[Request::getCustomFields] function test', () => {
 });
 
 describe('[Request::createSearchDefinition] function test', () => {
+
+});
+
+describe('[Request::addAttachment] function test', () => {
+  it('should know it is an inspection attachment instance', (done) => {
+    assert.equal(cw4.request.attachments.currentActivityType, 'Request');
+    done()
+  });
+
+  it('should return an attachment if attached', (done) => {
+    cw4.request.attachments.add(1763986, path.join(path.dirname(__dirname), 'uploads', 'test.pdf'), 'test.pdf').then((r) => {
+      console.log(r.Id)
+      assert.isDefined(r.Attachment)
+      done()
+    }).catch(error => {
+      console.log(error, 'unexpected error adding attachment');
+      done(new Error("Unexpected error on add attachment", error));
+    });
+  });
+
+});
+
+describe('[Request::getAttachments] function test', () => {
+  it('should return a collection of attachments (if none exist on provided SR, will be empty)', (done) => {
+    cw4.request.attachments.getByNodesId(1763986).then((r) => {
+      assert.isArray(r)
+      done()
+    }).catch(error => {
+      console.log(error, 'unexpected error adding attachment');
+      done(new Error("Unexpected error on add attachment", error));
+    });
+  });
+
+});
+
+describe('[Request::deleteAttachment] function test', () => {
+  it('should know it is an inspection attachment instance', (done) => {
+    assert.equal(cw4.request.attachments.currentActivityType, 'Request');
+    done()
+  });
+
+  it('should return an true if attachment deleted', (done) => {
+    cw4.request.attachments.delete(458625, path.join(path.dirname(__dirname), 'uploads', 'test.pdf'), 'test.pdf').then((r) => {
+      assert.isTrue(r)
+      done()
+    }).catch(error => {
+      console.log(error, 'unexpected error deleting attachment');
+      done(new Error("Unexpected error on delete attachment", error));
+    });
+  });
 
 });

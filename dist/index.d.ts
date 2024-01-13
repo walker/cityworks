@@ -48,8 +48,8 @@ declare class Cityworks implements Citywork {
     private potential_loads;
     /**
        * Contructor for a new cityworks instance's object, allows one to optionally configure the domain and other settings right from the get-go
-       * @param {string} [base_url] - The first color, in hexadecimal format.
-       * @param {object} [settings] - The second color, in hexadecimal format.
+       * @param {string} [base_url] - The base url of your Cityworks instance
+       * @param {object} [settings] - The settings for your Cityworks site. Full list: {path: (defaults to "cityworks"), secure: defaults to true, expires: defaults to NULL, does not expire, default_domain: defaults to NULL, uses default user domain, version: defaults to 23, for 15.x set to 15}
        * @param {array} [load] - allows user to choose which modules to load and make available. Full availability array: ['general', 'activity_link', 'message_queue', 'gis', 'workorder', 'inspection', 'request', 'case']
        */
     constructor(base_url?: string, settings?: Object, load?: Array<string>);
@@ -67,14 +67,14 @@ declare class Cityworks implements Citywork {
        *
        * If one ever needs to access or call an unimplemented API endpoint of a Cityworks install, one can call this method directly with the path and data payload:
        *
-       * `cityworks.runRequest(path, data)`
+       * `cityworks.runRequest(service_path, post_data)`
        *
-       * @param {string} path - The path to the particular endpoint
-       * @param {Object} data - The data object to be sent to the Cityworks API
-       * @param {any} file - The file to send in binary to the Cityworks API
+       * @param {string} service_path - The path to the particular endpoint
+       * @param {any} post_data - The data object to be sent to the Cityworks API
+       * @param {string} post_file - The path of the file to send to the Cityworks API
        * @return {Object} Returns Promise object that represents the json object returned from the Cityworks API
        */
-    runRequest(path: any, data?: any, file?: any): Promise<unknown>;
+    runRequest(service_path: string, post_data?: any, post_file?: string): Promise<unknown>;
     /**
        * Authenticate with the Cityworks API and store an access token for use. Stores the token on cityworks.Token.
        * @param {string} login - User's login name
