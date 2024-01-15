@@ -134,39 +134,6 @@ export class Briefcase {
   }
 
   /**
-   * Set current case
-   *
-   * @category Cases
-   * @param {number} caseTypeId - The case Type ID
-   * @param {number} subTypeId - The case subType ID
-   * @param {Object} [options] - See /{subdirectory}/apidocs/#/data-type-info;dataType=CaObjectItemBase
-   * @return {Object} Returns Promise that represents an object describing the newly-created case
-   */
-  setCase(caseID: number|string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      if(typeof(caseID) == 'number') {
-        this.getByIds([caseID]).then(r => {
-          // If r[0] then set current_case and resolve true
-          this.current_case = r[0].CaObjectId
-          resolve(true)
-        }).catch(e => {
-          resolve(false)
-        })
-      } else if(typeof(caseID)=='string') {
-        this.search({CaseNumber: caseID}).then(r => {
-          // If r[0] then set current_case and resolve true
-          this.current_case = r[0]
-          resolve(true)
-        }).catch(e => {
-          resolve(false)
-        })
-      } else {
-        resolve(false)
-      }
-    })
-  }
-
-  /**
    * Create new case
    *
    * @category Cases
