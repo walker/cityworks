@@ -141,7 +141,7 @@ export class CaseData {
    * @param {Object} filters - The parameters to search by. (CaDataGroupId, CaseDataGroupId, GroupCode, GroupDesc, GroupSum, SumFlag)
    * @return {Object} Returns Promise that represents a number that is the CaObjectId (?)
    */
-   searchForGroups(filters?: Object) {
+   searchForGroups(filters?: Object): Promise<Array<any>> {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaDataGroupId', 'CaseDataGroupId', 'GroupCode', 'GroupDesc', 'GroupSum', 'SumFlag']).length==0) {
         reject(new CWError(2, 'At least one of the attributes (CaDataGroupId, CaseDataGroupId, GroupCode, GroupDesc, GroupSum, SumFlag) must be defined.'))
@@ -270,7 +270,7 @@ export class CaseData {
    * Lock Case Data Detail
    *
    * @category Data Details
-   * @param {number} caDataDetailId - The Case Data Group ID to lock
+   * @param {number} caDataDetailId - The Case Data Detail ID to lock
    * @return {Object} Returns Promise which represents an object describing the CaDataDetailItem.
    */
    lockDetail(caDataDetailId: number) {
@@ -313,9 +313,9 @@ export class CaseData {
    *
    * @category Data Details
    * @param {Object} filters - The parameters to search by. (CaDataGroupId, CaseDataGroupId, GroupCode, GroupDesc, GroupSum, SumFlag)
-   * @return {Object} Returns Promise that represents a number that is the CaObjectId (?)
+   * @return {Object} Returns Promise that represents an object describing CaDataDetailItemBase.
    */
-  searchForDetails(filters?: Object) {
+  searchForDetails(filters?: Object): Promise<Array<any>> {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaDataDetailId', 'CaDataGroupId', 'CalcRateFlag', 'CaseDataDetailId', 'CommentFlag', 'DateFlag', 'DetailCode', 'DetailDesc', 'ListValuesFlag', 'NumberFlag', 'TextFlag', 'ValueFlag', 'YesNoFlag']).length==0) {
         reject(new CWError(2, 'At least one of the attributes (CaDataDetailId, CaDataGroupId, CalcRateFlag, CaseDataDetailId, CommentFlag, DateFlag, DetailCode, DetailDesc, ListValuesFlag, NumberFlag, TextFlag, ValueFlag, YesNoFlag) must be defined.'))
@@ -328,7 +328,6 @@ export class CaseData {
       })
     })
   }
-
 
   /**
    * Adds a list of possible values to the data detail entry specified by the CaDataDetailId.
@@ -414,55 +413,133 @@ export class CaseData {
     })
   }
 
-  // caseDataGroupIterator(appData: object, groups: Array<number>, items: Array<object>) {
-  //   return new Promise(resolve => {
-  //     var detail_items = items
-  //     var dataDetailGroup = groups.pop()
-  //     this.searchForListValueObjects({CaDataGroupId: dataDetailGroup!.CaDataGroupId}).then(r => {
-  //       r.forEach(function (item) {
-  //         detail_items.push(item)
-  //       })
-  //       if(groups.length>0) {
-  //         this.caseDataGroupIterator(appData, groups, detail_items).then(di => {
-  //           resolve(di)
-  //         })
-  //       } else {
-  //         resolve(detail_items)
-  //       }
-  //     })
-  //   })
-  // }
+  /**
+   * Set a data detail item's value without needing to find the type
+   * 
+   * @category Data Details
+   * @param dataDetailId 
+   * @param value 
+   */
+  updateDetailItemValue(dataDetailId: number, value: any) {
+    return new Promise((resolve, reject) => {
+      this.searchForDetails({CaDataDetailId: dataDetailId}).then(r => {
+        if(r.length==0) {
+          reject(new CWError(1, 'No data detail found with CaDataDetailId '+dataDetailId))
+        }
+        var detail = r[0]
+        var data = {
+          CaDataDetailId: dataDetailId
+        }
+        if(detail.NumberFlag) {
+          _.set(data, 'NumberValue', value)
+        } else if(detail.TextFlag) {
+          _.set(data, 'TextValue', value)
+        } else if(detail.DateFlag) {
+          _.set(data, 'DateValue', value)
+        } else if(detail.YesNoFlag) {
+          _.set(data, 'YesNoValue', value)
+        } else if(detail.CalcRateFlag) {
+          _.set(data, 'CalcRateValue', value)
+        } else if(detail.CommentFlag) {
+          _.set(data, 'CommentValue', value)
+        } else if(detail.CurrencyFlag) {
+          _.set(data, 'CurrencyValue', value)
+        } else if(detail.ListValuesFlag) {
+          _.set(data, 'ListValue', value)
+        } else if(detail.Q1Q2Q3Flag) {
+          _.set(data, 'Q2Value', value[1])
+          _.set(data, 'Q3Value', value[2])
+        } else if(detail.ValueFlag) {
+          _.set(data, 'Value', value)
+        }
+        this.updateDetail(dataDetailId, data).then(r => {
+          resolve(r)
+        }).catch(e => {
+          reject(e)
+        })
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }  
 
-  // caseDataDetailIterator(appData: object, detail_items: Array<object>) {
-  //   return new Promise(resolve => {
-  //     const this_data_detail = detail_items.pop()
-  //     const detailCode = this_data_detail.DetailCode
-  //     const detailId = this_data_detail.CaDataDetailId
-  //     if(typeof(this_data_detail)!='undefined' && typeof(appData[detailCode])!='undefined') {
-  //       this.searchForListValueObjects(detailId).then(r => {
-  //         var CaseDataDetailUpdate = r.Value
-  //         var rType = r.Value
-  //         CaseDataDetailUpdate[rType] = appData[CaseDataDetailUpdate.DetailCode]
-  //         this.updateDetail(CaseDataDetailUpdate).then(response => {
-  //           if(detail_items.length > 0) {
-  //             this.caseDataDetailIterator(appData, detail_items).then(resp => {
-  //               resolve(resp)
-  //             })
-  //           } else {
-  //             resolve(true)
-  //           }
-  //         })
-  //       })
-  //     } else {
-  //       if(detail_items.length > 0) {
-  //         this.caseDataDetailIterator(appData, detail_items).then(resp => {
-  //           resolve(resp)
-  //         })
-  //       } else {
-  //         resolve(true)
-  //       }
-  //     }
-  //   });
-  // }
+  /**
+   * Get the Case Data Details for a Case by Case ID
+   *
+   * @category Data Details
+   * @param {number} caseId - The case ID to get the details for
+   * @return {Object} Returns Promise that represents a collection of Case Data Detail Items
+   */
+  getAllDataDetails(caseId: number): Promise<Array<any>> {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaObjectId: caseId
+      }
+      this.cw.runRequest('Pll/CaseDataGroup/GetItemsForXml', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+  
+  /**
+   * Set Case Data Detail Items for a Case by GroupCode.ItemCode syntax reference
+   *
+   * @category Data Details
+   * @param {number} caseId - The case ID to get the details for
+   * @param {Object} items - The parameters to search by. (DataGroup/Item string, Value) (e.g. {code: 'GroupCode.ItemCode', value: 'Value goes here'})
+   * @return {Object} Returns Promise that represents a collection
+   */
+  setCaseData(caseId: number, items: Array<{code: string, value: any}>) {
+    return new Promise((resolve, reject) => {
+      let _this = this
+      let detail_items_to_set = items
+      _this.getAllDataDetails(caseId).then(r => {
+        let case_detail_items = r
+        _.forEach(detail_items_to_set, function (item) {
+          let item_parts = item.code.split('.')
+          let item_value = item.value
+          let caDataDetailId = 0
+          _.forEach(case_detail_items, function (detail) {
+            if(item_parts.length>1 && detail.GroupCode==item_parts[0] && detail.DetailCode==item_parts[1]) {
+              caDataDetailId = detail.CaDataDetailId
+            } else if(item_parts.length==1 && detail.DetailCode==item_parts[0]) {
+              caDataDetailId = detail.CaDataDetailId
+            }
+            if(caDataDetailId>0) {
+              _this.updateDetailItemValue(caDataDetailId, item_value).then(r => {
+                resolve(r)
+              }).catch(e => {
+                reject(e)
+              })
+            } else {
+              reject(new CWError(2, 'The matching data detail item was not found for '+item))
+            }
+          })
+        })
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
 
+  /**
+   * Set Case Data Detail Item for a Case by GroupCode.ItemCode syntax reference
+   *
+   * @category Data Details
+   * @param {number} caseId - The Case ID to set the detail for
+   * @param {string} detailGroupAndItemCode - The parameters to search (e.g. 'GroupCode.ItemCode')
+   * @param {any} value - The value to set the specified detail to
+   * @return {Object} Returns Promise
+   */
+  setCaseDataDetailItem(caseId: number, detailGroupAndItemCode: string, value: any) {
+    return new Promise((resolve, reject) => {
+      this.setCaseData(caseId, [{code: detailGroupAndItemCode, value: value}]).then(r => {
+        resolve(r)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
 }
