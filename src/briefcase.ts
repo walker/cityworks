@@ -11,12 +11,91 @@ import { CaseAdmin } from './case_admin'
 import { Comments } from './comments'
 import { CaseAssets } from './case_assets'
 
+export interface Briefcase {
+  TempTableName: string
+  AnonymousFlag: string
+  RegisteredFlag: string
+  CreatedByLoginId: string
+  TableName: string
+  ModifiedByLoginId: number
+  AcceptedByLoginId: number
+  EnteredByLoginid: number
+  WorkOrderId: string
+  WorkOrderDesc: string
+  WorkOrderStatus: string
+  ServiceRequestId: number
+  ServiceRequestDesc: string
+  ServiceRequestStatus: string
+  CloneCaseRelation: any|null
+  PendingFlag: any|null
+  CaseGroup: any|null
+  ParentCaObjectId: number|null
+  AmountDue: number|null
+  GetViewColumns: Array<string>
+  CaObjectId: number
+  OrgId: number
+  CaseTypeId: number
+  CaseType: string
+  CaseTypeDesc: string
+  BusCaseDesc: string|null
+  SubTypeId: number|null
+  SubType: string|null
+  SubTypeDesc: string|null
+  CreatedBy: number
+  DateAccepted: Date|null
+  DateCreated: Date
+  DateEntered: Date
+  DateExpiration: Date|null
+  DateIssued: Date|null
+  DateModified: Date|null
+  EnteredBy: number
+  ExpiredFlag: string|null
+  IssuedBy: number|null
+  IssuedFlag: string|null
+  ModifiedBy: number|null
+  SubTypeDefaultText: string|null
+  CaseNumber: string
+  CaseStatusId: number
+  CaseStatus: string
+  ProjectSid: number|null
+  ProjectId: string|null
+  ProjectCode: string|null
+  ProjectDesc: string|null
+  PriorityLevel: string|null
+  StatusCode: string
+  CaseName: string
+  AcceptedBy: number
+  BLicenseFlag: string|null
+  BusinessName: string|null
+  BusCaseId: number|null
+  BusinessOrgType: string|null
+  BusinessCategory: string|null
+  StateTaxId: string|null
+  FedTaxId: string|null
+  Location: string|null
+  PACaseFlag: string|null
+  ActiveFlag: string|null
+  CX: number|null
+  CY: number|null
+  CZ: number|null
+  AssignedTo: number|null
+  AssignedToLoginId: string|null
+  AssignedToFirstName: string|null
+  AssignedToLastName: string|null
+  Facility_Id: string|number|null
+  Level_Id: string|number|null
+}
+
 export class Briefcase {
   /**
    * @hidden
    */
   cw: any
 
+  /**
+   * @hidden
+   */
+  current_case: number = 0
 
   /**
    * Data Detail methods
@@ -55,6 +134,39 @@ export class Briefcase {
   }
 
   /**
+   * Set current case
+   *
+   * @category Cases
+   * @param {number} caseTypeId - The case Type ID
+   * @param {number} subTypeId - The case subType ID
+   * @param {Object} [options] - See /{subdirectory}/apidocs/#/data-type-info;dataType=CaObjectItemBase
+   * @return {Object} Returns Promise that represents an object describing the newly-created case
+   */
+  setCase(caseID: number|string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      if(typeof(caseID) == 'number') {
+        this.getByIds([caseID]).then(r => {
+          // If r[0] then set current_case and resolve true
+          this.current_case = r[0].CaObjectId
+          resolve(true)
+        }).catch(e => {
+          resolve(false)
+        })
+      } else if(typeof(caseID)=='string') {
+        this.search({CaseNumber: caseID}).then(r => {
+          // If r[0] then set current_case and resolve true
+          this.current_case = r[0]
+          resolve(true)
+        }).catch(e => {
+          resolve(false)
+        })
+      } else {
+        resolve(false)
+      }
+    })
+  }
+
+  /**
    * Create new case
    *
    * @category Cases
@@ -63,7 +175,7 @@ export class Briefcase {
    * @param {Object} [options] - See /{subdirectory}/apidocs/#/data-type-info;dataType=CaObjectItemBase
    * @return {Object} Returns Promise that represents an object describing the newly-created case
    */
-  create(caseTypeId: number, subTypeId: number, options?: Object) {
+  create(caseTypeId: number, subTypeId: number, options?: Object): Promise<Briefcase> {
     return new Promise((resolve, reject) => {
       var data_init = {
         CaseTypeId: caseTypeId,
@@ -71,6 +183,7 @@ export class Briefcase {
       }
       var data = _.merge(data_init, options)
       this.cw.runRequest('Pll/Case/Create', data).then(r => {
+        this.current_case = r.Value.CaObjectId
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -87,7 +200,7 @@ export class Briefcase {
    * @param {Object} [options] - See /{subdirectory}/apidocs/#/data-type-info;dataType=CaObjectItemBase
    * @return {Object} Returns Promise that represents an object describing the newly-created case
    */
-  createChild(busCaseId: number, parentCaObjectId: number, options?: Object) {
+  createChild(busCaseId: number, parentCaObjectId: number, options?: Object): Promise<Briefcase> {
     return new Promise((resolve, reject) => {
       var data_init = {
         BusCaseId: busCaseId,
@@ -95,6 +208,7 @@ export class Briefcase {
       }
       var data = _.merge(data_init, options)
       this.cw.runRequest('Pll/Case/CreateChild', data).then(r => {
+        this.current_case = r.Value.CaObjectId
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -121,6 +235,7 @@ export class Briefcase {
       }
       var data = _.merge(data_init, options)
       this.cw.runRequest('Pll/CaseObject/CreateCaseFromServiceRequest', data).then(r => {
+        this.current_case = r.Value.CaObjectId
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -136,13 +251,14 @@ export class Briefcase {
    * @param {Object} [options] - See /{subdirectory}/apidocs/#/data-type-info;dataType=CaObjectItemBase
    * @return {Object} Returns Promise that represents an object describing the updated case
    */
-  update(caObjectId: number, options?: Object) {
+  update(caObjectId: number, options?: Object): Promise<Briefcase> {
     return new Promise((resolve, reject) => {
       var data_init = {
         CaObjectId: caObjectId
       }
       var data = _.merge(data_init, options)
       this.cw.runRequest('Pll/CaseObject/Update', data).then(r => {
+        this.current_case = r.Value.CaObjectId
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -154,15 +270,18 @@ export class Briefcase {
    * Get cases by IDs
    *
    * @category Cases
-   * @param {Array<number>} caObjectIds - The case Object ID to update
+   * @param {Array<number>} caObjectIds - The case Object ID to get
    * @return {Object} Returns Promise that represents a collection of objects describing the cases
    */
-  getByIds(caObjectIds: Array<number>) {
+  getByIds(caObjectIds: Array<number>): Promise<Array<Briefcase>> {
     return new Promise((resolve, reject) => {
       var data = {
         CaObjectIds: caObjectIds
       }
       this.cw.runRequest('Pll/CaseObject/ByIds', data).then(r => {
+        if(r.Value.length == 1) {
+          this.current_case = r.Value[0]
+        }
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -177,10 +296,13 @@ export class Briefcase {
    * @param {Object} filters - The parameter(s) to search by
    * @return {Object} Returns Promise that represents an Array of case Object IDs
    */
-  search(filters: Object) {
+  search(filters: Object): Promise<Array<number>> {
     return new Promise((resolve, reject) => {
       var data = filters
       this.cw.runRequest('Pll/CaseObject/Search', data).then(r => {
+        if(r.Value.length == 1) {
+          this.current_case = r.Value[0].CaObjectId
+        }
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -385,7 +507,7 @@ export class Briefcase {
   // importCase(caseTypeId: number, subTypeId: number, caseName: string, location: string, x: number, y:number, appData: object, comment: string, expiration: string, assetIds: object) {
   //   return new Promise(resolve => {
   //     const _this = this;
-  //     let case_data = {"CaseName":caseName, "Location":location, "DateExpiration": expiration, "X":x,"Y":y}
+  //     let case_data = {CaseName:caseName, Location:location, DateExpiration: expiration, X:x,Y:y}
   //     this.create(caseTypeId, subTypeId, case_data).then((response: any) => {
   //       if(response) {
   //         if(typeof(response.CaObjectId)!='undefined') {
