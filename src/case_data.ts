@@ -1,5 +1,6 @@
 import { CWError } from './error'
 const _ = require('lodash')
+import ReversibleMap from 'reversible-map'
 
 export class CaseData {
   /**
@@ -98,13 +99,13 @@ export class CaseData {
    * Get groups by CaObjectId
    *
    * @category Data Groups
-   * @param {number} caObjectId - The Case Object to get the attached data groups.
+   * @param {number} caseId - The Case Object to get the attached data groups.
    * @return {Object} Returns Promise that represents a collection of the CaDataGroupItemBases.
    */
-   getGroupsByCaseId(caObjectId: number) {
+   getGroupsByCaseId(caseId: number) {
     return new Promise((resolve, reject) => {
       var data = {
-        CaObjectId: caObjectId
+        CaObjectId: caseId
       }
       this.cw.runRequest('Pll/CaseDataGroup/ByCaObjectId', data).then(r => {
         resolve(r.Value)
@@ -417,8 +418,9 @@ export class CaseData {
    * Set a data detail item's value without needing to find the type
    * 
    * @category Data Details
-   * @param dataDetailId 
-   * @param value 
+   * @param dataDetailId - The data detail item's ID
+   * @param value - the value to set the data detail item to
+   * @returns Promise that represents
    */
   updateDetailItemValue(dataDetailId: number, value: any) {
     return new Promise((resolve, reject) => {
@@ -427,9 +429,7 @@ export class CaseData {
           reject(new CWError(1, 'No data detail found with CaDataDetailId '+dataDetailId))
         }
         var detail = r[0]
-        var data = {
-          CaDataDetailId: dataDetailId
-        }
+        var data = {}
         if(detail.NumberFlag) {
           _.set(data, 'NumberValue', value)
         } else if(detail.TextFlag) {
@@ -501,22 +501,29 @@ export class CaseData {
           let item_parts = item.code.split('.')
           let item_value = item.value
           let caDataDetailId = 0
-          _.forEach(case_detail_items, function (detail) {
-            if(item_parts.length>1 && detail.GroupCode==item_parts[0] && detail.DetailCode==item_parts[1]) {
-              caDataDetailId = detail.CaDataDetailId
-            } else if(item_parts.length==1 && detail.DetailCode==item_parts[0]) {
-              caDataDetailId = detail.CaDataDetailId
-            }
+          let check_for_item = new Promise((resolve, reject) => {
+            _.forEach(case_detail_items, function (detail, index) {
+              if(item_parts.length>1 && detail.GroupCode==item_parts[0] && detail.DetailCode==item_parts[1]) {
+                caDataDetailId = detail.CaDataDetailId
+                resolve(caDataDetailId)
+              } else if(item_parts.length==1 && detail.DetailCode==item_parts[0]) {
+                caDataDetailId = detail.CaDataDetailId
+                resolve(caDataDetailId)
+              } else if(index === case_detail_items.length -1) resolve(0)
+            })
+          })
+          check_for_item.then(r_two => {
             if(caDataDetailId>0) {
-              _this.updateDetailItemValue(caDataDetailId, item_value).then(r => {
-                resolve(r)
+              _this.updateDetailItemValue(caDataDetailId, item_value).then(r_three => {
+                // console.log(r)
+                resolve(r_three)
               }).catch(e => {
                 reject(e)
               })
             } else {
-              reject(new CWError(2, 'The matching data detail item was not found for '+item))
+              reject(new CWError(2, 'The matching data detail item was not found for '+item.code))
             }
-          })
+          });
         })
       }).catch(e => {
         reject(e)
@@ -533,7 +540,7 @@ export class CaseData {
    * @param {any} value - The value to set the specified detail to
    * @return {Object} Returns Promise
    */
-  setCaseDataDetailItem(caseId: number, detailGroupAndItemCode: string, value: any) {
+  setCaseDataItem(caseId: number, detailGroupAndItemCode: string, value: any) {
     return new Promise((resolve, reject) => {
       this.setCaseData(caseId, [{code: detailGroupAndItemCode, value: value}]).then(r => {
         resolve(r)

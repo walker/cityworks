@@ -48,10 +48,10 @@ export declare class CaseData {
      * Get groups by CaObjectId
      *
      * @category Data Groups
-     * @param {number} caObjectId - The Case Object to get the attached data groups.
+     * @param {number} caseId - The Case Object to get the attached data groups.
      * @return {Object} Returns Promise that represents a collection of the CaDataGroupItemBases.
      */
-    getGroupsByCaseId(caObjectId: number): Promise<unknown>;
+    getGroupsByCaseId(caseId: number): Promise<unknown>;
     /**
      * Delete Case Data Groups by Case Object ID.
      *
@@ -67,7 +67,7 @@ export declare class CaseData {
      * @param {Object} filters - The parameters to search by. (CaDataGroupId, CaseDataGroupId, GroupCode, GroupDesc, GroupSum, SumFlag)
      * @return {Object} Returns Promise that represents a number that is the CaObjectId (?)
      */
-    searchForGroups(filters?: Object): Promise<unknown>;
+    searchForGroups(filters?: Object): Promise<Array<any>>;
     /**
      * Get Case Data Groups by Case ObjectId
      *
@@ -116,7 +116,7 @@ export declare class CaseData {
      * Lock Case Data Detail
      *
      * @category Data Details
-     * @param {number} caDataDetailId - The Case Data Group ID to lock
+     * @param {number} caDataDetailId - The Case Data Detail ID to lock
      * @return {Object} Returns Promise which represents an object describing the CaDataDetailItem.
      */
     lockDetail(caDataDetailId: number): Promise<unknown>;
@@ -133,9 +133,9 @@ export declare class CaseData {
      *
      * @category Data Details
      * @param {Object} filters - The parameters to search by. (CaDataGroupId, CaseDataGroupId, GroupCode, GroupDesc, GroupSum, SumFlag)
-     * @return {Object} Returns Promise that represents a number that is the CaObjectId (?)
+     * @return {Object} Returns Promise that represents an object describing CaDataDetailItemBase.
      */
-    searchForDetails(filters?: Object): Promise<unknown>;
+    searchForDetails(filters?: Object): Promise<Array<any>>;
     /**
      * Adds a list of possible values to the data detail entry specified by the CaDataDetailId.
      *
@@ -169,4 +169,43 @@ export declare class CaseData {
      * @return {Object} Returns Promise that represents a collection of resulting CaDataListValuesItemBase objects
      */
     searchForListValueObjects(filters?: Object): Promise<unknown>;
+    /**
+     * Set a data detail item's value without needing to find the type
+     *
+     * @category Data Details
+     * @param dataDetailId - The data detail item's ID
+     * @param value - the value to set the data detail item to
+     * @returns Promise that represents
+     */
+    updateDetailItemValue(dataDetailId: number, value: any): Promise<unknown>;
+    /**
+     * Get the Case Data Details for a Case by Case ID
+     *
+     * @category Data Details
+     * @param {number} caseId - The case ID to get the details for
+     * @return {Object} Returns Promise that represents a collection of Case Data Detail Items
+     */
+    getAllDataDetails(caseId: number): Promise<Array<any>>;
+    /**
+     * Set Case Data Detail Items for a Case by GroupCode.ItemCode syntax reference
+     *
+     * @category Data Details
+     * @param {number} caseId - The case ID to get the details for
+     * @param {Object} items - The parameters to search by. (DataGroup/Item string, Value) (e.g. {code: 'GroupCode.ItemCode', value: 'Value goes here'})
+     * @return {Object} Returns Promise that represents a collection
+     */
+    setCaseData(caseId: number, items: Array<{
+        code: string;
+        value: any;
+    }>): Promise<unknown>;
+    /**
+     * Set Case Data Detail Item for a Case by GroupCode.ItemCode syntax reference
+     *
+     * @category Data Details
+     * @param {number} caseId - The Case ID to set the detail for
+     * @param {string} detailGroupAndItemCode - The parameters to search (e.g. 'GroupCode.ItemCode')
+     * @param {any} value - The value to set the specified detail to
+     * @return {Object} Returns Promise
+     */
+    setCaseDataItem(caseId: number, detailGroupAndItemCode: string, value: any): Promise<unknown>;
 }

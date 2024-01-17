@@ -15,6 +15,7 @@ export declare class CaseAssets {
      * @param {boolean} updateXY - Whether or not to update the Case's X/Y values when attaching the asset. Defaults to true.
      * @param {Object} [options] - Options for CaseDataGroup including Address, AddressId, AssetId, AssetObjectId, AssetType, CityName, CrossStreet, DateExpired, ExpiredFlag, Facility_Id, FeatureAssetId, FeatureClass, FeatureObjectId, LegacyId, Level_Id, LndObjectId, Location, MasterFlag, ObjectId, StateCode, StreetDirection, StreetFraction, StreetName, StreetNumber, StreetPostDir, StreetType, Suite, TileNo, UpdateCaseData, XCoord, YCoord, ZCoord, and ZipCode
      * @return {Object} Returns Promise that represents an object describing CaAddress.
+     * // {"AddressId":OBJECTID,"AssetId":"GUID","AssetType":"ASSET_NAME","CaObjectId":CA_OBJECTID,"FeatureAssetId":"GUID","FeatureClass":"ASSET_NAME","FeatureObjectId":OBJECTID,"Location":"Address string","ObjectId":"OBJECTID","XCoord":,"YCoord":,"UpdateCaseData":false}
      */
     attach(caObjectId: number, updateXY?: boolean, options?: {
         Address?: string;
