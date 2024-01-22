@@ -59,26 +59,8 @@ export class ActivityLinks implements ActivityLink {
 
   private validateType(type: string, validTypes: ReversibleMap<string, number>, errorCode: number): void {
     if (!validTypes.has(type)) {
-      throw new CWError(errorCode, `${type} not found.`, { provided: type, options: validTypes });
+      throw new CWError(errorCode, `Activity type "${type}" not found.`, { provided: type, options: validTypes });
     }
-  }
-
-  private setLinkData(sourceType: string, sourceSid: number, destType: string, destSid: number, linkType?: string) {
-    if (typeof linkType !== 'undefined') {
-      return {
-        SourceType: this.activityTypes.get(sourceType),
-        SourceSid: sourceSid,
-        DestType: this.activityTypes.get(destType),
-        DestSid: destSid,
-        LinkType: this.linkTypes.get(linkType)
-      };
-    };
-    return {
-        SourceType: this.activityTypes.get(sourceType),
-        SourceSid: sourceSid,
-        DestType: this.activityTypes.get(destType),
-        DestSid: destSid,
-      };
   }
 
   private transformLinksData(response: any) {
@@ -110,7 +92,14 @@ export class ActivityLinks implements ActivityLink {
       this.validateType(destination_type, this.activityTypes, 2);
       this.validateType(link_type, this.linkTypes, 3);
 
-      let data = this.setLinkData(source_type, source_sid, destination_type, destination_sid, link_type);
+
+      let data = {
+        SourceType: this.activityTypes.get(source_type),
+        SourceSid: source_sid,
+        DestType: this.activityTypes.get(destination_type),
+        DestSid: destination_sid,
+        LinkType: this.linkTypes.get(link_type)
+      }
       let path = 'General/ActivityLink/Add';
 
       this.runRequest(path, data)
@@ -157,7 +146,12 @@ export class ActivityLinks implements ActivityLink {
       this.validateType(source_type, this.activityTypes, 5);
       this.validateType(destination_type, this.activityTypes, 6);
 
-      let data = this.setLinkData(source_type, source_sid, destination_type, destination_sid);
+      let data = {
+        SourceActivityType: this.activityTypes.get(source_type),
+        SourceActivitySid: source_sid,
+        DestinationActivityType: this.activityTypes.get(destination_type),
+        DestinationActivitySid: destination_sid
+      }
       let path = 'General/ActivityLink/CloneByActivitySid';
 
       this.runRequest(path, data)
@@ -181,7 +175,7 @@ export class ActivityLinks implements ActivityLink {
 
       this.runRequest(path, data)
         .then((response: any) => resolve(response))
-        .catch(reject)
+        .catch(reject(false))
     })
   }
 
@@ -201,12 +195,18 @@ export class ActivityLinks implements ActivityLink {
       this.validateType(destination_type, this.activityTypes, 9);
       this.validateType(link_type, this.linkTypes, 10);
 
-      let data = this.setLinkData(source_type, source_sid, destination_type, destination_sid, link_type);
+      let data = {
+        SourceType: this.activityTypes.get(source_type),
+        SourceSid: source_sid,
+        DestType: this.activityTypes.get(destination_type),
+        DestSid: destination_sid,
+        LinkType: this.linkTypes.get(link_type)
+      }
       let path = 'General/ActivityLink/Remove';
 
       this.runRequest(path, data)
-        .then((response: any) => resolve(response.Value))
-        .catach(reject)
+        .then((response: any) => resolve(response))
+        .catch(reject(false))
     })
   }
 }
