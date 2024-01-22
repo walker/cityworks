@@ -1,6 +1,5 @@
 import { CWError } from './error'
 import ReversibleMap from 'reversible-map'
-const _ = require('lodash')
 
 /**
  * ActivityLink interface for ActivityLinks
@@ -36,17 +35,45 @@ export class ActivityLinks implements ActivityLink {
   constructor(cw) {
     this.cw = cw
     this.activityTypes = new ReversibleMap<string, number>()
-    this.activityTypes.set("null", 0)
-    this.activityTypes.set("case", 1)
-    this.activityTypes.set("inspection", 2)
-    this.activityTypes.set("request", 3)
-    this.activityTypes.set("workorder", 4)
-    this.activityTypes.set("wipcase", 5)
-
     this.linkTypes = new ReversibleMap<string, number>()
-    this.linkTypes.set("null", 0)
-    this.linkTypes.set("parent", 1)
-    this.linkTypes.set("related", 2)
+
+    this.setActivityTypes();
+    this.setLinkTypes();
+  }
+
+  private setActivityTypes(): void {
+    const activityTypeMappings = ['null', 'case', 'inspection', 'request', 'workorder', 'wipcase'];
+
+    activityTypeMappings.forEach((type, index) => {
+      this.activityTypes.set(type, index);
+    })
+  }
+
+  private setLinkTypes(): void {
+    const linkTypeMappings = ['null', 'parent', 'related'];
+
+    linkTypeMappings.forEach((type, index) => {
+      this.linkTypes.set(type, index);
+    });
+  }
+
+  private validateType(type: string, validTypes: ReversibleMap<string, number>, errorCode: number): void {
+    if (!validTypes.has(type)) {
+      throw new CWError(errorCode, `Activity type "${type}" not found.`, { provided: type, options: validTypes });
+    }
+  }
+
+  private transformLinksData(response: any) {
+    return response.Value.map(link => ({
+      DestType: this.activityTypes.get(link.DestType),
+      SourceType: this.activityTypes.get(link.SourceType),
+      LinkType: this.linkTypes.get(link.LinkType),
+      ...link,
+    }));
+  }
+
+  private runRequest(path: string, data: any) {
+    return this.cw.runRequest(path, data);
   }
 
   /**
@@ -61,15 +88,11 @@ export class ActivityLinks implements ActivityLink {
    */
   add(source_type: string, source_sid: number, destination_type: string, destination_sid: number, link_type: string = 'related') {
     return new Promise((resolve, reject) => {
-      if(!this.activityTypes.has(source_type)) {
-        reject(new CWError(1, 'Source type not found.', {'provided': source_type, 'options':this.activityTypes}))
-      }
-      if(!this.activityTypes.has(destination_type)) {
-        reject(new CWError(2, 'Destination type not found.', {'provided': destination_type, 'options':this.activityTypes}))
-      }
-      if(!this.linkTypes.has(link_type)) {
-        reject(new CWError(3, 'Link type not found.', {'provided': link_type, 'options':this.linkTypes}))
-      }
+      this.validateType(source_type, this.activityTypes, 1);
+      this.validateType(destination_type, this.activityTypes, 2);
+      this.validateType(link_type, this.linkTypes, 3);
+
+
       let data = {
         SourceType: this.activityTypes.get(source_type),
         SourceSid: source_sid,
@@ -77,12 +100,11 @@ export class ActivityLinks implements ActivityLink {
         DestSid: destination_sid,
         LinkType: this.linkTypes.get(link_type)
       }
-      let path = 'General/ActivityLink/Add'
-      this.cw.runRequest(path, data).then((response: any) => {
-        resolve(response.Value)
-      }).catch(e => {
-        reject(e)
-      })
+      let path = 'General/ActivityLink/Add';
+
+      this.runRequest(path, data)
+        .then((response: any) => resolve(response.Value))
+        .catch(reject);
     })
   }
 
@@ -95,28 +117,19 @@ export class ActivityLinks implements ActivityLink {
    */
   get(type: string, sids: Array<number>) {
     return new Promise((resolve, reject) => {
-      if(!this.activityTypes.has(type)) {
-        reject(new CWError(4, 'Activity type not found.', {'provided': type, 'options':this.activityTypes}))
-      }
+      this.validateType(type, this.activityTypes, 4);
+
       let data = {
         ActivityType: this.activityTypes.get(type),
         ActivitySids: sids
-      }
-      let _this = this
-      let path = 'General/ActivityLink/ByActivitySids'
-      this.cw.runRequest(path, data).then((response: any) => {
-        let return_data = new Array()
-        _.forEach(response.Value, (link, key) => {
-          link.DestType = _this.activityTypes.get(link.DestType)
-          link.SourceType = _this.activityTypes.get(link.SourceType)
-          link.LinkType = _this.linkTypes.get(link.LinkType)
-          return_data.push(link)
-        })
-        resolve(return_data)
-      }).catch(e => {
-        reject(e)
-      })
-    })
+      };
+      // let _this = this
+      let path = 'General/ActivityLink/ByActivitySids';
+
+      this.runRequest(path, data)
+        .then((response: any) => resolve(this.transformLinksData(response)))
+        .catch(reject);
+    });
   }
 
   /**
@@ -130,24 +143,20 @@ export class ActivityLinks implements ActivityLink {
    */
   clone(source_type: string, source_sid: number, destination_type: string, destination_sid: number) {
     return new Promise((resolve, reject) => {
-      if(!this.activityTypes.has(source_type)) {
-        reject(new CWError(5, 'Source type not found.', {'provided': source_type, 'options':this.activityTypes}))
-      }
-      if(!this.activityTypes.has(destination_type)) {
-        reject(new CWError(6, 'Destination type not found.', {'provided': destination_type, 'options':this.activityTypes}))
-      }
+      this.validateType(source_type, this.activityTypes, 5);
+      this.validateType(destination_type, this.activityTypes, 6);
+
       let data = {
         SourceActivityType: this.activityTypes.get(source_type),
         SourceActivitySid: source_sid,
         DestinationActivityType: this.activityTypes.get(destination_type),
         DestinationActivitySid: destination_sid
       }
-      let path = 'General/ActivityLink/CloneByActivitySid'
-      this.cw.runRequest(path, data).then((response: any) => {
-        resolve(response.Value)
-      }).catch(e => {
-        reject(e)
-      })
+      let path = 'General/ActivityLink/CloneByActivitySid';
+
+      this.runRequest(path, data)
+        .then((response: any) => resolve(response.Value))
+        .catch(reject)
     })
   }
 
@@ -163,13 +172,10 @@ export class ActivityLinks implements ActivityLink {
         ActivityLinkId: activity_link_id
       }
       let path = 'General/ActivityLink/Delete'
-      this.cw.runRequest(path, data).then((response: any) => {
-        // console.log('response_raw', response)
-        resolve(response)
-      }).catch(e => {
-        // console.log('AL::Delete::e', e)
-        reject(e)
-      })
+
+      this.runRequest(path, data)
+        .then((response: any) => resolve(response))
+        .catch(reject(false))
     })
   }
 
@@ -185,15 +191,10 @@ export class ActivityLinks implements ActivityLink {
    */
   remove(source_type: string, source_sid: number, destination_type: string, destination_sid: number, link_type: string = 'related') {
     return new Promise((resolve, reject) => {
-      if(!this.activityTypes.has(source_type)) {
-        reject(new CWError(8, 'Source type not found.', {'provided': source_type, 'options':this.activityTypes}))
-      }
-      if(!this.activityTypes.has(destination_type)) {
-        reject(new CWError(9, 'Destination type not found.', {'provided': destination_type, 'options':this.activityTypes}))
-      }
-      if(!this.linkTypes.has(link_type)) {
-        reject(new CWError(10, 'Link type not found.', {'provided': link_type, 'options':this.linkTypes}))
-      }
+      this.validateType(source_type, this.activityTypes, 8);
+      this.validateType(destination_type, this.activityTypes, 9);
+      this.validateType(link_type, this.linkTypes, 10);
+
       let data = {
         SourceType: this.activityTypes.get(source_type),
         SourceSid: source_sid,
@@ -201,12 +202,11 @@ export class ActivityLinks implements ActivityLink {
         DestSid: destination_sid,
         LinkType: this.linkTypes.get(link_type)
       }
-      let path = 'General/ActivityLink/Remove'
-      this.cw.runRequest(path, data).then((response: any) => {
-        resolve(response.Value)
-      }).catch(e => {
-        reject(e)
-      })
+      let path = 'General/ActivityLink/Remove';
+
+      this.runRequest(path, data)
+        .then((response: any) => resolve(response))
+        .catch(reject(false))
     })
   }
 }
