@@ -430,26 +430,28 @@ export class CaseData {
         }
         var detail = r[0]
         var data = {}
-        if(detail.NumberFlag) {
+        if(detail.NumberFlag=='Y') {
           _.set(data, 'NumberValue', value)
-        } else if(detail.TextFlag) {
+        } else if(detail.TextFlag=='Y') {
           _.set(data, 'TextValue', value)
-        } else if(detail.DateFlag) {
+        } else if(detail.DateFlag=='Y') {
           _.set(data, 'DateValue', value)
-        } else if(detail.YesNoFlag) {
+        } else if(detail.YesNoFlag=='Y') {
+          if(value=='Y' || value=='Yes') value = 'Y'
+          if(value=='N' || value=='No') value = 'N'
           _.set(data, 'YesNoValue', value)
-        } else if(detail.CalcRateFlag) {
+        } else if(detail.CalcRateFlag=='Y') {
           _.set(data, 'CalcRateValue', value)
-        } else if(detail.CommentFlag) {
+        } else if(detail.CommentFlag=='Y') {
           _.set(data, 'CommentValue', value)
-        } else if(detail.CurrencyFlag) {
+        } else if(detail.CurrencyFlag=='Y') {
           _.set(data, 'CurrencyValue', value)
-        } else if(detail.ListValuesFlag) {
+        } else if(detail.ListValuesFlag=='Y') {
           _.set(data, 'ListValue', value)
-        } else if(detail.Q1Q2Q3Flag) {
+        } else if(detail.Q1Q2Q3Flag=='Y') {
           _.set(data, 'Q2Value', value[1])
           _.set(data, 'Q3Value', value[2])
-        } else if(detail.ValueFlag) {
+        } else if(detail.ValueFlag=='Y') {
           _.set(data, 'Value', value)
         }
         this.updateDetail(dataDetailId, data).then(r => {
