@@ -168,7 +168,7 @@ class Cityworks implements Citywork {
         hostname: this.base_url,
         port: 443,
         path: '/' + this.settings.path + '/services/' + service_path,
-        method: 'POST',
+        method: 'GET',
         headers: {},
         timeout: 10000000
       }
@@ -177,6 +177,9 @@ class Cityworks implements Citywork {
       }
       if(this.settings.version>=23 && typeof(this.Token) !== 'undefined' && this.Token != '' && service_path!='General/Authentication/CityworksOnlineAuthenticate' && service_path!='General/Authentication/Authenticate') {
         _.set(options, 'headers.Authorization', 'cityworks ' + this.Token)
+        if(!_.isEmpty(pd)) {
+          _.set(options, 'method', 'POST')
+        }
       }
 
       if(typeof(post_file)!=='undefined') {
@@ -199,12 +202,19 @@ class Cityworks implements Citywork {
           resolve(r.data)
         })
       } else {
-        _.set(options, 'headers.Content-Type', 'application/x-www-form-urlencoded')
-        _.set(options, 'headers.Content-Length', Buffer.byteLength(querystring.stringify(pd)))
-        // if(service_path=='') {
-        //   console.log(options)
-        //   console.log(pd)
-        //   process.exit(0)
+        if(service_path=='Pll/CaseRelDocs/ByCaObjectId' && !_.isEmpty(pd)){
+          _.set(options, 'path', options.path + '?' + querystring.stringify(pd))
+        } else {
+          // _.set(options, 'headers.Content-Type', 'application/json')
+          _.set(options, 'headers.Content-Type', 'application/x-www-form-urlencoded')
+          if(!_.isEmpty(pd)){
+            _.set(options, 'headers.Content-Length', Buffer.byteLength(querystring.stringify(pd)))
+          }
+        }
+        // if(service_path=='Pll/CaseRelDocs/ByCaObjectId') {
+          // console.log(options)
+          // console.log(pd)
+          // process.exit(0)
         // }
         let request = https.request(options, (response) => {
           let str=''
@@ -253,7 +263,7 @@ class Cityworks implements Citywork {
               }
             } catch (e) {
               if (e instanceof SyntaxError) {
-                console.log('try/catch error on JSON')
+                console.log('try/catch error on JSON', e)
                 reject(new CWError(6, "Error parsing JSON.", e))
               } else {
                 console.log('try/catch error on JSON - but not an instance of SyntaxError')

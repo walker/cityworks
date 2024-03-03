@@ -419,10 +419,12 @@ export class CaseData {
    * 
    * @category Data Details
    * @param dataDetailId - The data detail item's ID
-   * @param value - the value to set the data detail item to
+   * @param {any} value - the value to set the data detail item to
+   * @param {number} rate - the rate to set the data detail item to
+   * @param {number} quantity - the quantitye to set the data detail item to
    * @returns Promise that represents
    */
-  updateDetailItemValue(dataDetailId: number, value: any) {
+  updateDetailItemValue(dataDetailId: number, value: any, rate?: number, quantity?: number) {
     return new Promise((resolve, reject) => {
       this.searchForDetails({CaDataDetailId: dataDetailId}).then(r => {
         if(r.length==0) {
@@ -430,6 +432,12 @@ export class CaseData {
         }
         var detail = r[0]
         var data = {}
+        if(!_.isUndefined(rate)) {
+          _.set(data, 'Rate', rate)
+        }
+        if(!_.isUndefined(quantity)) {
+          _.set(data, 'Quantity', quantity)
+        }
         if(detail.NumberFlag=='Y') {
           _.set(data, 'NumberValue', value)
         } else if(detail.TextFlag=='Y') {

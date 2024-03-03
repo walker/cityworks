@@ -120,3 +120,34 @@ describe('[Case::addDetail] function test', () => {
     });
   });
 });
+
+describe('[Case::getRelatedDocs] function test', () => {
+  it('should resolve a collection of related documents for the case provided when the case has documents attached', (done) => {
+    cw5.briefcase.attachments.getByNodesId(79986).then(r => {
+      assert.isArray(r)
+      done();
+    }).catch(e => {
+      console.log(e, 'unexpected error')
+      done();
+    });
+  });
+
+  it('should resolve an empty collection for the case provided when the case has no documents attached', (done) => {
+    cw5.briefcase.attachments.getByNodesId(11611).then(r => {
+      expect(r).to.be.empty
+      done();
+    }).catch(e => {
+      console.log(e, 'unexpected error')
+      done();
+    });
+  });
+
+  it('should resolve if the case does not exist', (done) => {
+    cw5.briefcase.attachments.getByNodesId(321768493624).then(r => {
+      done();
+    }).catch(e => {
+      expect(e).to.have.property('code', 2)
+      done();
+    });
+  });
+});

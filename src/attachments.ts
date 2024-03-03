@@ -214,17 +214,39 @@ export class Attachments {
   }
 
   /**
+   * Get attachments related to Inspection, WorkOrder, or Request
+   *
+   * @category Attachments
+   * @param {Array<number>|number} ids - An array of IDs or a single ID (inspectionIds, WorkOrderSids, WorkOrderIds, or RequestIds) for which to get attachments. Only one node (Inspection, WorkOrder, Request, or Case) type at a time. Don't mix-and-match WorkOrderIds with WorkOrderSids.
+   * @return {Object} Returns Promise that represents a collection of attachments from the matched inspections, service requests, or work orders
+   */
+  getAttachments(ids: Array<number>|number) {
+    return this.getByNodesId(ids)
+  }
+
+  /**
+   * Get Related Documents from Case
+   *
+   * @category Attachments
+   * @param {number} id - An array of CaseIDs or a single CaseID for which to get related documents.
+   * @return {Object} Returns Promise that represents a collection of related documents from the matched cases
+   */
+  getRelatedDocs(id: number) {
+    return this.getByNodesId(id)
+  }
+  
+  /**
    * Get attachment by node (Inspection, WorkOrder, Request, or Case) IDs
    *
    * @category Attachments
    * @param {Array<number>|number} ids - An array of IDs or a single ID (inspectionIds, WorkOrderSids, WorkOrderIds, RequestIds, or CaseIds) to get attachments for. Only one node (Inspection, WorkOrder, Request, or Case) type at a time. Don't mix-and-match WorkOrderIds with WorkOrderSids.
-   * @return {Object} Returns object that represents a collection of attachments from the matched inspections
+   * @return {Object} Returns Promise that represents a collection of attachments from the matched inspections
    */
   getByNodesId(ids: Array<number>|number) {
     return new Promise((resolve, reject) => {
       var data = {}
       var endpoint = ''
-      if(typeof(ids)=='number') {
+      if(typeof(ids)=='number' && this.currentActivityType!='Case') {
         ids = [ids]
       }
 
