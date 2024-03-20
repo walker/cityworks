@@ -33,9 +33,9 @@ export class WorkOrder {
    */
   constructor(cw) {
     this.cw = cw
-    this.admin
-    this.comment
-    this.attachments
+    this.admin=admin
+    this.comment=comment
+    this.attachments=attachments
   }
 
   /**
@@ -52,7 +52,7 @@ export class WorkOrder {
       if(!_.has(wo_data, 'WOTemplateId') || !_.has(wo_data, 'EntityType')) {
         reject(new CWError(2, 'WOTemplateId & EntityType must be provided.', {'provided': wo_data}))
       } else {
-        var data = wo_data;
+        let data = wo_data;
         if(typeof inspectionIds != 'undefined' && inspectionIds != null && !_.has(data, 'InspectionIds')) {
           _.set(data, 'InspectionIds', inspectionIds);
         }
@@ -81,7 +81,7 @@ export class WorkOrder {
       if(!_.has(wo_data, 'WOTemplateId') || !_.has(wo_data, 'EntityType')) {
         reject(new CWError(2, 'WOTemplateId & EntityType must be provided.', {'provided': wo_data}))
       } else {
-        var data = wo_data;
+        let data = wo_data;
         if(_.isString(workOrderSId)) {
           _.set(data, 'WorkOrderId', workOrderSId)
         } else {
@@ -128,7 +128,7 @@ export class WorkOrder {
    */
    combine(fromWorkOrderIds: Array<string>, toWorkOrderId: string, cancelCombinedWorkOrders: boolean = true) {
      return new Promise((resolve, reject) => {
-       var data = {
+       const data = {
          CancelCombinedWorkOrders: cancelCombinedWorkOrders,
          ToWorkOrderId: toWorkOrderId,
          FromWorkOrderIds: fromWorkOrderIds
@@ -163,7 +163,7 @@ export class WorkOrder {
         // Throw error
         reject(new CWError(6, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
       }
-      var base_data = {
+      let base_data = {
         WorkOrderId: workOrderId,
         X: x,
         Y: y
@@ -171,7 +171,7 @@ export class WorkOrder {
       if(typeof(z)!='undefined') {
         _.set(base_data, 'z', z)
       }
-      var data = _.merge(base_data, projection);
+      const data = _.merge(base_data, projection);
       this.cw.runRequest('Ams/WorkOrder/Move', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
@@ -190,13 +190,13 @@ export class WorkOrder {
    */
   getById(workOrderSId: string|number, s: boolean = true) {
     return new Promise((resolve, reject) => {
-      var data = {}
+      const path = 'Ams/WorkOrder/ById';
+      let data = {}
       if(_.isString(workOrderSId)) {
         _.set(data, 'WorkOrderId', workOrderSId)
-        var path = 'Ams/WorkOrder/ById';
       } else {
         _.set(data, 'WorkOrderSid', workOrderSId)
-        var path = 'Ams/WorkOrder/BySid';
+       
       }
       this.cw.runRequest(path, data).then(r => {
         resolve(r.Value)
@@ -215,18 +215,19 @@ export class WorkOrder {
    */
   getByIds(workOrderSIds: Array<string|number>) {
     return new Promise((resolve, reject) => {
-      var data = {}
+      const path = 'Ams/WorkOrder/ByIds';
+      let data = {}
       if(workOrderSIds.length==0) {
         // throw error
         reject(new CWError(101, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
       } else {
-        var path = 'Ams/WorkOrder/ByIds';
+       
         if(_.isString(workOrderSIds[0])) {
           _.set(data, 'WorkOrderIds', workOrderSIds)
-          path = 'Ams/WorkOrder/ByIds';
+      
         } else if(_.isNumber(workOrderSIds[0])) {
           _.set(data, 'WorkOrderSids', workOrderSIds)
-          path = 'Ams/WorkOrder/BySids';
+         
         } else {
           // throw error - was not number or string
           reject(new CWError(9, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
@@ -249,18 +250,19 @@ export class WorkOrder {
    */
   getInstructions(workOrderSIds: Array<string|number>) {
     return new Promise((resolve, reject) => {
-      var data = {}
+      let path = 'Ams/WorkOrder/ByIds';
+      let data = {}
       if(workOrderSIds.length==0) {
         // throw error
         reject(new CWError(102, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
       } else {
-        var path = 'Ams/WorkOrder/ByIds';
+     
         if(_.isString(workOrderSIds[0])) {
           _.set(data, 'WorkOrderIds', workOrderSIds)
           path = 'Ams/WorkOrder/InstructionsByWorkOrderIds';
         } else if(_.isNumber(workOrderSIds[0])) {
           _.set(data, 'WorkOrderSids', workOrderSIds)
-          path = 'Ams/WorkOrder/InstructionsByWorkOrderSids';
+           path = 'Ams/WorkOrder/InstructionsByWorkOrderIds';
         } else {
           // throw error - was not number or string
           reject(new CWError(9, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
@@ -283,7 +285,7 @@ export class WorkOrder {
    */
   getAuditLog(workOrderSId: number) {
     return new Promise((resolve, reject) => {
-      var data = {}
+      let data = {}
       if(_.isString(workOrderSId)) {
         _.set(data, 'WorkOrderId', workOrderSId)
       } else if(_.isNumber(workOrderSId)) {
@@ -309,14 +311,14 @@ export class WorkOrder {
    */
   getCustomFieldValues(workOrderSIds: Array<string|number>) {
     return new Promise((resolve, reject) => {
-      var data = {}
-      var path = 'Ams/WorkOrder/CustomFields';
+      let data = {}
+      let path = 'Ams/WorkOrder/CustomFields';
       if(_.isString(workOrderSIds[0])) {
         _.set(data, 'WorkOrderIds', workOrderSIds)
-        var path = 'Ams/WorkOrder/CustomFields';
+        path = 'Ams/WorkOrder/CustomFields';
       } else if(_.isNumber(workOrderSIds[0])) {
         _.set(data, 'WorkOrderSids', workOrderSIds)
-        var path = 'Ams/WorkOrder/CustomFieldsByWorkOrderSids';
+         path = 'Ams/WorkOrder/CustomFieldsByWorkOrderSids';
       } else {
         // throw error - was not number or string
         reject(new CWError(9, 'No workorder S/IDs were provided.', {'workorderSIds': workOrderSIds}))
@@ -339,21 +341,23 @@ export class WorkOrder {
    */
   getEntities(workOrderSIds: Array<string|number>, getGisData: boolean = true) {
     return new Promise((resolve, reject) => {
-      var data = {
+      let data = {
         GetGisData: getGisData
       }
       if(workOrderSIds.length==0) {
         // throw error
         reject(new CWError(11, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
-      } else {
-        if(_.isString(workOrderSIds[0])) {
-          _.set(data, 'WorkOrderIds', workOrderSIds)
-        } else if(_.isNumber(workOrderSIds[0])) {
-          _.set(data, 'WorkOrderSids', workOrderSIds)
-        } else {
-          reject(new CWError(12, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
-        }
       }
+      else if(_.isString(workOrderSIds[0])) {
+          _.set(data, 'WorkOrderIds', workOrderSIds)
+        }
+      else if(_.isNumber(workOrderSIds[0])) {
+          _.set(data, 'WorkOrderSids', workOrderSIds)
+      } 
+      else {
+          reject(new CWError(12, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+       }
+      
       this.cw.runRequest('Ams/WorkOrder/Entities', data).then(r => {
         if(r.Status>0) {
           reject(new CWError(4, r.Message, {'response': r}))
@@ -377,7 +381,7 @@ export class WorkOrder {
    */
    addEntities(workOrderSId: string|number, entityInfo: Object, updateXY: boolean = true) {
      return new Promise((resolve, reject) => {
-       var data = {
+       let data = {
          UpdateXY: updateXY
        }
        if(_.isString(workOrderSId)) {
@@ -419,7 +423,7 @@ export class WorkOrder {
     */
     updateEntity(workOrderSId: string|number, entityInfo: Object, workComplete: boolean = false) {
       return new Promise((resolve, reject) => {
-        var data = {
+        let data = {
           WorkComplete: workComplete
         }
         if(_.isString(workOrderSId)) {
@@ -461,7 +465,7 @@ export class WorkOrder {
    */
    removeEntities(workOrderSId: string|number, entityInfo: Object, updateXY: boolean = true) {
      return new Promise((resolve, reject) => {
-       var data = {
+       let data = {
          UpdateXY: updateXY
        }
        if(_.isString(workOrderSId)) {
@@ -471,7 +475,8 @@ export class WorkOrder {
        }
        if(_.has(entityInfo, 'ObjectIds')) {
          _.set(data, 'ObjectIds', _.get(entityInfo, 'ObjectIds'))
-       } else if(_.has(entityInfo, 'EntityUids') && _.has(entityInfo, 'EntityType')) {
+       } 
+       else if(_.has(entityInfo, 'EntityUids') && _.has(entityInfo, 'EntityType')) {
          _.set(data, 'EntityUids', _.get(entityInfo, 'EntityUids'))
          _.set(data, 'EntityType', _.get(entityInfo, 'EntityType'))
        } else {
@@ -501,8 +506,7 @@ export class WorkOrder {
    */
   cancel(workOrderIds: Array<number>, cancelReason?: string, dateCancelled?: Date) {
     return new Promise((resolve, reject) => {
-      var m = new Date()
-      var data: {WorkOrderIds: Array<number>, CancelReason?: string, DateCancelled?: Date} = { WorkOrderIds: workOrderIds }
+      let data: {WorkOrderIds: Array<number>, CancelReason?: string, DateCancelled?: Date} = { WorkOrderIds: workOrderIds }
       if(typeof(cancelReason)!=='undefined')
         _.set(data, 'CancelReason', cancelReason);
       if(typeof(dateCancelled)!=='undefined')
@@ -524,7 +528,7 @@ export class WorkOrder {
    */
    uncancel(workOrderIds: Array<number>) {
      return new Promise((resolve, reject) => {
-       var data = {
+       const data = {
          WorkOrderIds: workOrderIds
        }
        this.cw.runRequest('Ams/WorkOrder/Uncancel', data).then(r => {
@@ -544,7 +548,7 @@ export class WorkOrder {
     */
     close(workOrderIds: Array<number>) {
       return new Promise((resolve, reject) => {
-        var data = {
+        const data = {
           WorkOrderIds: workOrderIds
         }
         this.cw.runRequest('Ams/WorkOrder/Close', data).then(r => {
@@ -568,7 +572,7 @@ export class WorkOrder {
      */
      reopen(workOrderIds: Array<number>) {
        return new Promise((resolve, reject) => {
-         var data = {
+         const data = {
            WorkOrderIds: workOrderIds
          }
          this.cw.runRequest('Ams/WorkOrder/ReOpen', data).then(r => {
@@ -588,7 +592,7 @@ export class WorkOrder {
    */
    delete(workOrderIds: Array<number>) {
      return new Promise((resolve, reject) => {
-       var data = {
+       const data = {
          WorkOrderIds: workOrderIds
        }
        this.cw.runRequest('Ams/WorkOrder/Delete', data).then(r => {
@@ -615,7 +619,7 @@ export class WorkOrder {
     */
    getWOsByEntities(entityType: string, entityUids: Array<string>, search?: Array<string|number>, s: boolean = true) {
      return new Promise((resolve, reject) => {
-       var data = {}
+       let data = {}
        if(typeof(search)!='undefined') {
          _.merge(data, search)
        }
@@ -625,7 +629,7 @@ export class WorkOrder {
        if(!_.has(data, 'EntityUids')) {
          _.set(data, 'EntityUids', entityUids)
        }
-       var path = 'Ams/WorkOrder/SearchForSids'
+       let path = 'Ams/WorkOrder/SearchForSids'
        if(!s) {
          path = 'Ams/WorkOrder/Search'
        }
@@ -650,7 +654,7 @@ export class WorkOrder {
     */
    getSearchList(workOrderId: string) {
      return new Promise((resolve, reject) => {
-       var data = {}
+       const data = {}
        _.set(data, 'WorkOrderId', workOrderId)
        this.cw.runRequest('Ams/WorkOrder/SearchObject', data).then(r => {
          if(r.Status>0) {
@@ -675,7 +679,7 @@ export class WorkOrder {
     */
    getEmployeeLists(listType: string, includeInactiveEmployees: boolean = false, domainIds?: Array<number>) {
      return new Promise((resolve, reject) => {
-       var data = {
+       let data = {
          IncludeInactiveEmployees: includeInactiveEmployees
        }
        if(typeof(domainIds)!='undefined' && domainIds!=null) {
@@ -854,10 +858,10 @@ export class WorkOrder {
    */
   getMLFs(workOrderSId: string) { // |number
     return new Promise((resolve, reject) => {
-      var data = {
+      const data = {
         WorkOrderId: workOrderSId
       }
-      var path = 'Ams/TemplateMapLayer/WorkOrderInstanceMapLayersByWorkOrderId';
+      const path = 'Ams/TemplateMapLayer/WorkOrderInstanceMapLayersByWorkOrderId';
       this.cw.runRequest(path, data).then(r => {
         resolve(r.Value)
       }).catch(e => {
@@ -879,8 +883,8 @@ export class WorkOrder {
    */
     updateMLFs(workOrderSId: string, x?: number, y?: number, domainId?: number, z?: number) { // |number
       return new Promise((resolve, reject) => {
-        var data = {}
-        var path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayers';
+        let data = {}
+        const path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayers';
         if(_.isString(workOrderSId)) {
           _.set(data, 'WorkOrderId', workOrderSId)
         } else if(_.isNumber(workOrderSId)) {
@@ -918,10 +922,10 @@ export class WorkOrder {
    */
   deleteMLFs(workOrderSId: string) { // |number
     return new Promise((resolve, reject) => {
-      var data = {
+      const data = {
         WorkOrderId: workOrderSId
       }
-      var path = 'Ams/TemplateMapLayer/DeleteWorkOrderInstancesByWorkOrderId';
+      const path = 'Ams/TemplateMapLayer/DeleteWorkOrderInstancesByWorkOrderId';
       this.cw.runRequest(path, data).then(r => {
         resolve(r.Value)
       }).catch(e => {
