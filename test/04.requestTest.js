@@ -277,7 +277,7 @@ describe('[Request::changeCustomFieldCategory] function test', () => {
 });
 
 describe('[Request::getAuditLog] function test', () => {
-
+  
 });
 
 describe('[Request::getById] function test', () => {

@@ -4,7 +4,9 @@ This API wrapper for Cityworks follows the Cityworks release schedule as closely
 
 Require the class:
 
-      const Cityworks = require('cityworks')
+      const cw = require('cityworks')
+
+or
 
       import * as cw from 'cityworks'
 
