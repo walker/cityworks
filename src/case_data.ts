@@ -226,7 +226,7 @@ export class CaseData {
    * @param {Object} [options] - Options
    * @return {Object} Returns Promise that represents an object describing CaDataGroupItemBase.
    */
-   addDetail(caDataGroupId: number, caseDataDetailId: number, options?: Object) {
+   addItem(caDataGroupId: number, caseDataDetailId: number, options?: Object) {
     return new Promise((resolve, reject) => {
       var data = {
         CaDataGroupId: caDataGroupId,
@@ -251,7 +251,7 @@ export class CaseData {
    * @param {Object} [options] - Options
    * @return {Object} Returns Promise that represents an object describing CaDataGroupItemBase.
    */
-   updateDetail(caDataDetailId: number, options?: Object) {
+   updateItem(caDataDetailId: number, options?: Object) {
     return new Promise((resolve, reject) => {
       var data = {
         CaDataDetailId: caDataDetailId
@@ -274,7 +274,7 @@ export class CaseData {
    * @param {number} caDataDetailId - The Case Data Detail ID to lock
    * @return {Object} Returns Promise which represents an object describing the CaDataDetailItem.
    */
-   lockDetail(caDataDetailId: number) {
+   lockItem(caDataDetailId: number) {
     return new Promise((resolve, reject) => {
       var data = {
         CaDataDetailId: caDataDetailId,
@@ -295,7 +295,7 @@ export class CaseData {
    * @param {number} caDataDetailId - The Case Data Group ID to unlock
    * @return {Object} Returns Promise which represents an object describing the CaDataDetailItem.
    */
-   unlockDetail(caDataDetailId: number) {
+   unlockItem(caDataDetailId: number) {
     return new Promise((resolve, reject) => {
       var data = {
         CaDataDetailId: caDataDetailId,
@@ -316,7 +316,7 @@ export class CaseData {
    * @param {Object} filters - The parameters to search by. (CaDataGroupId, CaseDataGroupId, GroupCode, GroupDesc, GroupSum, SumFlag)
    * @return {Object} Returns Promise that represents an object describing CaDataDetailItemBase.
    */
-  searchForDetails(filters?: Object): Promise<Array<any>> {
+  searchForItems(filters?: Object): Promise<Array<any>> {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaDataDetailId', 'CaDataGroupId', 'CalcRateFlag', 'CaseDataDetailId', 'CommentFlag', 'DateFlag', 'DetailCode', 'DetailDesc', 'ListValuesFlag', 'NumberFlag', 'TextFlag', 'ValueFlag', 'YesNoFlag']).length==0) {
         reject(new CWError(2, 'At least one of the attributes (CaDataDetailId, CaDataGroupId, CalcRateFlag, CaseDataDetailId, CommentFlag, DateFlag, DetailCode, DetailDesc, ListValuesFlag, NumberFlag, TextFlag, ValueFlag, YesNoFlag) must be defined.'))
@@ -424,9 +424,9 @@ export class CaseData {
    * @param {number} quantity - the quantitye to set the data detail item to
    * @returns Promise that represents
    */
-  updateDetailItemValue(dataDetailId: number, value: any, rate?: number, quantity?: number) {
+  updateItemValue(dataDetailId: number, value: any, rate?: number, quantity?: number) {
     return new Promise((resolve, reject) => {
-      this.searchForDetails({CaDataDetailId: dataDetailId}).then(r => {
+      this.searchForItems({CaDataDetailId: dataDetailId}).then(r => {
         if(r.length==0) {
           reject(new CWError(1, 'No data detail found with CaDataDetailId '+dataDetailId))
         }
@@ -462,7 +462,7 @@ export class CaseData {
         } else if(detail.ValueFlag=='Y') {
           _.set(data, 'Value', value)
         }
-        this.updateDetail(dataDetailId, data).then(r => {
+        this.updateItem(dataDetailId, data).then(r => {
           resolve(r)
         }).catch(e => {
           reject(e)
@@ -480,7 +480,7 @@ export class CaseData {
    * @param {number} caseId - The case ID to get the details for
    * @return {Object} Returns Promise that represents a collection of Case Data Detail Items
    */
-  getAllDataDetails(caseId: number): Promise<Array<any>> {
+  getAll(caseId: number): Promise<Array<any>> {
     return new Promise((resolve, reject) => {
       var data = {
         CaObjectId: caseId
@@ -501,11 +501,11 @@ export class CaseData {
    * @param {Object} items - The parameters to search by. (DataGroup/Item string, Value) (e.g. {code: 'GroupCode.ItemCode', value: 'Value goes here'})
    * @return {Object} Returns Promise that represents a collection
    */
-  setCaseData(caseId: number, items: Array<{code: string, value: any}>) {
+  setItems(caseId: number, items: Array<{code: string, value: any}>) {
     return new Promise((resolve, reject) => {
       let _this = this
       let detail_items_to_set = items
-      _this.getAllDataDetails(caseId).then(r => {
+      _this.getAll(caseId).then(r => {
         let case_detail_items = r
         _.forEach(detail_items_to_set, function (item) {
           let item_parts = item.code.split('.')
@@ -524,7 +524,7 @@ export class CaseData {
           })
           check_for_item.then(r_two => {
             if(caDataDetailId>0) {
-              _this.updateDetailItemValue(caDataDetailId, item_value).then(r_three => {
+              _this.updateItem(caDataDetailId, item_value).then(r_three => {
                 // console.log(r)
                 resolve(r_three)
               }).catch(e => {
@@ -550,13 +550,35 @@ export class CaseData {
    * @param {any} value - The value to set the specified detail to
    * @return {Object} Returns Promise
    */
-  setCaseDataItem(caseId: number, detailGroupAndItemCode: string, value: any) {
+  setItem(caseId: number, detailGroupAndItemCode: string, value: any) {
     return new Promise((resolve, reject) => {
-      this.setCaseData(caseId, [{code: detailGroupAndItemCode, value: value}]).then(r => {
+      this.setItems(caseId, [{code: detailGroupAndItemCode, value: value}]).then(r => {
         resolve(r)
       }).catch(e => {
         reject(e)
       })
     })
   }
+
+  /**
+   * Get Case Data Fields for a Case Template
+   *
+   * @category Case Templates
+   * @param {number} caseTemplateId - The case template ID (BusCaseId)
+   * @return {Object} Returns Promise that represents an object describing the newly-created case
+   */
+  getForTemplate(caseTemplateId: number) {
+      return new Promise((resolve, reject) => {
+        var data = {
+          BusCaseId: caseTemplateId
+        }
+        var path = 'Pll/CaseDataGroup/GetDefaultItemsForXml';
+        this.cw.runRequest(path, data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
+  
 }
