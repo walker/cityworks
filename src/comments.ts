@@ -118,12 +118,10 @@ export class Comments {
    * @param {string} [category] - Only applies to WorkOrder and ServiceRequest category comments.
    * @return {Object} Returns Promise object that represents a collection of available comment templates.
    */
-  getPredefined(problemSid?: number, category?: string) {
+  getPredefined(problemSid: number = 0, category?: string) {
     return new Promise((resolve, reject) => {
       var data = {}
-      if(this.currentActivityType=='Request') {
-        _.set(data, 'ProblemSid', problemSid)
-      }
+      _.set(data, 'ProblemSid', problemSid)
       if(typeof(category)!='undefined' && (this.currentActivityType=='Request' || this.currentActivityType=='WorkOrder')) {
         _.set(data, 'Category', category)
       }
