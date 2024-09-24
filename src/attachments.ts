@@ -25,18 +25,19 @@ export class Attachments {
   // Attachments
 
   /**
-   * Add inspection attachments (doesn't handle URL or Signature type properly, currently)
+   * Add attachments (doesn't handle URL or Signature type attachments properly, currently)
    *
-   * @category Inspection Attachments
+   * @category Attachments
    * @param {number} id - The ID of the node to add the attachment to (CA_OBJECT_ID, REQUESTID, WORKORDERSID, WORKORDERID, INSPECTIONID). If WORKORDERID, you _must_ feed in as a string.
    * @param {string} the_file - The loca path of the file to upload to the Cityworks instance
    * @param {number} [task_id] - ID of WorkOrder task, if current activity is a work order and the attachment should be on the task
    * @param {string} [filename] - The filename for the attachment
    * @param {string} [attachment_type] - The filename for the attachment, values: attachment, signature, url
    * @param {string} [comments] - The filename for the attachment
+   * @param {string} [label] - The label to apply to the  (PLL only)
    * @return {Object} Returns object that represents a boolean for action resolution
    */
-  add(node_id: number|string, the_file: string, filename?: string, attachment_type: string = 'attachment', task_id?: number, comments?: string) {
+  add(node_id: number|string, the_file: string, filename?: string, attachment_type: string = 'attachment', task_id?: number, comments?: string, label?: string) {
     // attachment_type map
     var attachment_type_map = {'attachment': 0, 'signature': 1, 'url': 2}
     return new Promise((resolve, reject) => {
@@ -47,6 +48,10 @@ export class Attachments {
       if(typeof(comments)!=='undefined') {
         _.set(data, 'Comments', comments)
       }
+      if(typeof(label)!=='undefined' && this.currentActivityType=='Case') {
+        _.set(data, 'LabelText', label)
+      }
+
       var endpoint = ''
       switch(this.currentActivityType) {
         case 'Case':
@@ -82,6 +87,59 @@ export class Attachments {
           reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
       }
       this.cw.runRequest(endpoint, data, the_file).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Update attachment
+   *
+   * @category Attachments
+   * @param {number} id - The ID of the node to add the attachment to (CA_OBJECT_ID, REQUESTID, WORKORDERSID, WORKORDERID, INSPECTIONID). If WORKORDERID, you _must_ feed in as a string.
+   * @param {string} [title] - The filename for the attachment
+   * @param {string} [description] - The filename for the attachment
+   * @param {string} [label] - The label to apply to the  (PLL only)
+   * @return {Object} Returns object that represents a boolean for action resolution
+   */
+  update(attachment_id: number, title?: string, description?: string, label?: string) {
+    // attachment_type map
+    return new Promise((resolve, reject) => {
+      var data = {}
+      if(typeof(title)!=='undefined') {
+        _.set(data, 'Title', title)
+      }
+      if(typeof(description)!=='undefined') {
+        _.set(data, 'Description', description)
+      }
+      if(typeof(label)!=='undefined' && this.currentActivityType=='Case') {
+        _.set(data, 'LabelText', label)
+      }
+      
+      var endpoint = ''
+      switch(this.currentActivityType) {
+        case 'Case':
+          endpoint = 'Pll/CaseRelDocs/Update'
+          _.set(data, 'CaRelDocId', attachment_id)
+          break;
+        case 'Inspection':
+          endpoint = 'Ams/Attachments/UpdateInspectionAttachment'
+          _.set(data, 'AttachmentId', attachment_id)
+          break;
+        case 'Request':
+          endpoint = 'Ams/Attachments/UpdateRequestAttachment'
+          _.set(data, 'AttachmentId', attachment_id)
+          break;
+        case 'WorkOrder':
+          endpoint = 'Ams/Attachments/UpdateWorkOrderAttachment'
+          _.set(data, 'AttachmentId', attachment_id)
+          break;
+        default:
+          reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+      }
+      this.cw.runRequest(endpoint, data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -133,6 +191,16 @@ export class Attachments {
   }
 
   /**
+   * Get attachment URLs in array
+   *
+   * @category Attachments
+   * @return {Object} Returns array of attachment URLs
+   */
+  static downloadUrls() {
+    return ['Pll/CaseRelDocs/DownloadCaRelDocs', 'Ams/Attachments/DownloadInspectionAttachment', 'Ams/Attachments/DownloadRequestAttachment', 'Ams/Attachments/DownloadWorkOrderAttachment']
+  }
+
+  /**
    * Download an attachment
    *
    * @category Attachments
@@ -146,8 +214,8 @@ export class Attachments {
 
       switch(this.currentActivityType) {
         case 'Case':
-          // _.set(data, 'CaRelDocId', attachmentId)
-          // endpoint = 'Pll/CaseRelDocs/Delete'
+          _.set(data, 'CaRelDocsId', attachmentId)
+          endpoint = 'Pll/CaseRelDocs/DownloadCaRelDocs'
           break;
         case 'Inspection':
           _.set(data, 'AttachmentId', attachmentId)
@@ -181,14 +249,14 @@ export class Attachments {
    */
   getById(attachmentId: number) {
     return new Promise((resolve, reject) => {
-      resolve(true)
       var data = {}
       var endpoint = ''
 
       switch(this.currentActivityType) {
         case 'Case':
           // _.set(data, 'CaRelDocId', attachmentId)
-          // endpoint = 'Pll/CaseRelDocs/Delete'
+          // endpoint = 'Pll/CaseRelDocs/ById'
+          reject(new CWError(133, 'Get CaRelDoc by RelDocId not documented or found'))
           break;
         case 'Inspection':
           _.set(data, 'AttachmentId', attachmentId)
@@ -281,4 +349,103 @@ export class Attachments {
       })
     })
   }
+
+  /**
+   * Get Tags available with which to tag attachments
+   *
+   * @category Attachments
+   * @return {Object} Returns Promise that represents a collection of tags that can be added to attachments
+   */
+  getTags() {
+    return new Promise((resolve, reject) => {
+      var data = {}
+      this.cw.runRequest('Pll/AttachmentTags/GetAll', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  private syncTags(attachmentId: number, tags: {tagid: number, tagtext: string}[]) {
+    return new Promise((resolve, reject) => {
+      var data = {}
+      switch(this.currentActivityType) {
+        case 'Case':
+          this.cw.runRequest('Pll/AttachmentActivityTags/SyncTags', data).then(r => {
+            resolve(r.Value)
+          }).catch(e => {
+            reject(e)
+          })
+        }
+    })
+  }
+
+  private async loopSyncTags(attachmentId: number, tags: {tagid: number, tagtext: string}[], callback: Function) {
+    this.syncTags(attachmentId, tags).then(r => {
+      callback(r)
+    })
+  }
+
+  /**
+   * Set Tags on an attachment
+   *
+   * @category Attachments
+   * @return {Object} Returns Promise that represents a collection of tags that can be added to attachments
+   */
+  setTags(attachmentId: number, tags: {tagid: number, tagtext: string}[], activityType: string) {
+    return new Promise((resolve, reject) => {
+      this.syncTags(attachmentId, tags).then(r => {
+        resolve(r)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Set Tags on an many attachments
+   *
+   * @category Attachments
+   * @param {Array<number>|number} attachmentIds - An array of attachment IDs to add tags to.
+   * @param {Array<{tagid: number, tagtext: string}>} tags - An array of tag objects to add to the attachments
+   * @param {string} activityType - The type of activity to which the attachments belong
+   * @return {Object} Returns Promise that represents a collection of documents which have had their tags set
+   */
+  setTagsOnMany(attachmentIds: number[], tags: {tagid: number, tagtext: string}[]) {
+    return new Promise((resolve, reject) => {
+      var returnData:Array<any> = []
+      attachmentIds.forEach((attachmentId) => {
+        this.loopSyncTags(attachmentId, tags, (r:any) => {
+          returnData.push(r)
+        })
+      })
+      resolve(returnData)
+    })
+  }
+
+  /**
+   * Get Doc labels for a case template
+   *
+   * @category Attachments
+   * @param {number} busCaseId - The ID of the Business Case to get Document Labels for
+   * @return {Object} Returns Promise that represents a collection of tags that can be added to attachments
+   */
+  getDocLabels(busCaseId: number) {
+    return new Promise((resolve, reject) => {
+    // check that parent is Case?
+      var data = {"BusCaseId": busCaseId}
+      switch(this.currentActivityType) {
+        case 'Case':
+          this.cw.runRequest('Pll/BusCaseDocLabel/GetByBusCaseId', data).then(r => {
+            resolve(r.Value)
+          }).catch(e => {
+            reject(e)
+          })
+          break;
+        default:
+          resolve([])
+      }
+    })
+  }  
 }
