@@ -202,20 +202,20 @@ class Cityworks implements Citywork {
           resolve(r.data)
         })
       } else {
-        if(service_path=='Pll/CaseRelDocs/ByCaObjectId' && !_.isEmpty(pd)){
-          _.set(options, 'path', options.path + '?' + querystring.stringify(pd))
-        } else {
-          // _.set(options, 'headers.Content-Type', 'application/json')
-          _.set(options, 'headers.Content-Type', 'application/x-www-form-urlencoded')
-          if(!_.isEmpty(pd)){
-            _.set(options, 'headers.Content-Length', Buffer.byteLength(querystring.stringify(pd)))
-          }
-        }
         // if(service_path=='Pll/CaseRelDocs/ByCaObjectId') {
           // console.log(options)
           // console.log(pd)
           // process.exit(0)
         // }
+        // TODO: check if still necessary
+        if(service_path=='Pll/CaseRelDocs/ByCaObjectId' && !_.isEmpty(pd)){
+          _.set(options, 'path', options.path + '?' + querystring.stringify(pd))
+        } else {
+          _.set(options, 'headers.Content-Type', 'application/x-www-form-urlencoded')
+          if(!_.isEmpty(pd)){
+            _.set(options, 'headers.Content-Length', Buffer.byteLength(querystring.stringify(pd)))
+          }
+        }
         let request = https.request(options, (response) => {
           let str=''
           response.on('error',function(e){
@@ -228,46 +228,50 @@ class Cityworks implements Citywork {
           })
 
           response.on('end',function(){
-            try {
-              var test_str = JSON.stringify(str) + "[test string]"
-              if(test_str.match(/\<h2\>Object\ moved\ to/)==null) {
-                var obj=JSON.parse(str)
-                if(typeof(obj)=='undefined') {
-                  // failed
-                  reject(new CWError(10, 'No response received from Cityworks API.'))
-                } else if(typeof(obj)!='undefined') { //  && typeof(obj.Value)!='undefined'
-                  switch(obj.Status) {
-                    case 1:
-                      reject(new CWError(1, 'Error', obj))
-                      break;
-                    case 2:
-                      reject(new CWError(2, 'Unauthorized', obj))
-                      break;
-                    case 3:
-                      reject(new CWError(3, 'InvalidCredentials', obj))
-                      break;
-                    case 0:
-                    default:
-                      if(typeof(obj)!='undefined' && typeof(obj.Value)=='undefined' && obj.Status==0) {
-                        resolve(true);
-                      } else {
-                        resolve(obj);
-                      }
-                      break;
+            if(_.indexOf(Attachments.downloadUrls, service_path)!=-1) {
+                            
+            } else {
+              try {
+                var test_str = JSON.stringify(str) + "[test string]"
+                if(test_str.match(/\<h2\>Object\ moved\ to/)==null) {
+                  var obj=JSON.parse(str)
+                  if(typeof(obj)=='undefined') {
+                    // failed
+                    reject(new CWError(10, 'No response received from Cityworks API.'))
+                  } else if(typeof(obj)!='undefined') { //  && typeof(obj.Value)!='undefined'
+                    switch(obj.Status) {
+                      case 1:
+                        reject(new CWError(1, 'Error', obj))
+                        break;
+                      case 2:
+                        reject(new CWError(2, 'Unauthorized', obj))
+                        break;
+                      case 3:
+                        reject(new CWError(3, 'InvalidCredentials', obj))
+                        break;
+                      case 0:
+                      default:
+                        if(typeof(obj)!='undefined' && typeof(obj.Value)=='undefined' && obj.Status==0) {
+                          resolve(true);
+                        } else {
+                          resolve(obj);
+                        }
+                        break;
+                    }
+                  } else {
+                    reject(new CWError(4, "Unknown error.", {options: options, postedData: pd, api_returned_string: obj}))
                   }
                 } else {
-                  reject(new CWError(4, "Unknown error.", {options: options, postedData: pd, api_returned_string: obj}))
+                  reject(new CWError(5, "Error parsing JSON. Cityworks returned HTML.", {response: str}))
                 }
-              } else {
-                reject(new CWError(5, "Error parsing JSON. Cityworks returned HTML.", {response: str}))
-              }
-            } catch (e) {
-              if (e instanceof SyntaxError) {
-                console.log('try/catch error on JSON', e)
-                reject(new CWError(6, "Error parsing JSON.", e))
-              } else {
-                console.log('try/catch error on JSON - but not an instance of SyntaxError')
-                reject(new CWError(7, "Error parsing JSON.", e))
+              } catch (e) {
+                if (e instanceof SyntaxError) {
+                  console.log('try/catch error on JSON', e)
+                  reject(new CWError(6, "Error parsing JSON.", e))
+                } else {
+                  console.log('try/catch error on JSON - but not an instance of SyntaxError')
+                  reject(new CWError(7, "Error parsing JSON.", e))
+                }
               }
             }
           })
