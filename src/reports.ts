@@ -55,20 +55,4 @@ export class Reports {
       })
     })
   }
-
-
-  // async function report(cwToken, callback: any)
-  // {
-  //     cworks.Cityworks.setToken(cwToken)
-
-  //     var NSONumbers: String[] = await getNSONumbers();
-
-  //     var asdf = true;
-  //         const downloadURL: String = URL_PREFIX + `{%22FileName%22:%22NSO_Activity_Wkly%22,%22PermitID%22:%22` + n + `%22}&token=${cwToken}`;
-  //         await emailReport(downloadURL, "NSO Weekly Report", "Attached is the weekly report of NSO activity for employee: NSO-" + n);
-  //     });
-  // }
-
-  // #!/usr/bin/env node
-
 }
