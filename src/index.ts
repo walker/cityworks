@@ -201,6 +201,28 @@ class Cityworks implements Citywork {
         }).then((r) => {
           resolve(r.data)
         })
+      } else if(_.startsWith(service_path, 'Pll/BusinessCaseReports/Download') || _.startsWith(service_path, 'Ams/Reports/Download')) {
+        /* ActiveReport downloading thanks to @ksfff5 */
+        https.get(options, resp => {
+          // Create an empty buffer for pdf data
+          // String would apply encoding to the raw data
+          var data: Buffer = Buffer.concat([])
+
+          // Grab the chunks of pdf and store in buffer
+          // The readable event may trigger multiple times before the full pdf is read, so chunk it
+          resp.on('readable', () => {
+            const chunk: Buffer = resp.read()
+            if(!(chunk == null)) {
+              data = Buffer.concat([data, chunk])
+            }
+          })
+
+          // Done, resolve PDF
+          resp.on('end', () => {
+            resolve(data)
+          })
+        })
+        /* End pf ActiveReport downloading thanks to @ksfff5 */
       } else {
         // if(service_path=='Pll/CaseRelDocs/ByCaObjectId') {
           // console.log(options)
