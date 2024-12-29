@@ -262,10 +262,53 @@ export class CaseFinancial {
   getFees(caObjectId: number) {
     return new Promise((resolve, reject) => {
       var data = {
-        CaObjectId: caObjectId
+        WhereClause: `"CA_FEES_VW.CA_OBJECT_ID=${caObjectId}"}`
       }
-      this.cw.runRequest('Pll/CaseFees/ByCaObjectId', data).then(r => {
-        resolve(r.Value)
+      this.cw.runRequest('Pll/CaseFees/GetList', data).then(r => {
+        var fees = new Array()
+        _.forEach(r.Value, (fee) => {
+          var limited_fee = {
+            CaFeeId: fee.CaFeeId,
+            CaObjectId: fee.CaObjectId,
+            Amount: fee.Amount,
+            AmountDue: fee.AmountDue,
+            Factor: fee.Factor,
+            Sum: fee.Sum,
+            Value: fee.Value,
+            FeeCode: fee.FeeCode,
+            FeeDesc: fee.FeeDesc,
+            Quantity: fee.Quantity,
+            Rate: fee.Rate,
+            WaiveFee: fee.WaiveFee,
+            CreatedByLoginId: fee.CreatedByLoginId,
+            ModifiedByLoginId: fee.ModifiedByLoginId,
+            GroupCode: fee.GroupCode,
+            DetailCode: fee.DetailCode,
+            TotalFeeAmount: fee.TotalFeeAmount,
+            TotalPaymentAmount: fee.TotalPaymentAmount,
+            TotalDueAmount: fee.TotalDueAmount,
+            TotalCreditAmount: fee.TotalCreditAmount,
+            CreditAmount: fee.CreditAmount,
+            GrandSumFlag: fee.GrandSumFlag,
+            FeeTypeCode: fee.FeeTypeCode,
+            Location: fee.Location,
+            AutoRecalculate: fee.AutoRecalculate,
+            CommentText: fee.CommentText,
+            CreatedBy: fee.CreatedBy,
+            CustFeeSeq: fee.CustFeeSeq,
+            DateCreated: fee.DateCreated,
+            DateModified: fee.DateModified,
+            FeeSetupId: fee.FeeSetupId,
+            RecalcCreateDate: fee.RecalcCreateDate,
+            LockOnPayment: fee.LockOnPayment,
+            FeeTypeId: fee.FeeTypeId,
+            Invoiced: fee.Invoiced,
+            ModifiedBy: fee.ModifiedBy,
+            PaymentAmount: fee.PaymentAmount
+          }
+          fees.push(limited_fee)
+        })
+        resolve(fees)
       }).catch(e => {
         reject(e)
       })
