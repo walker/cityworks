@@ -871,16 +871,19 @@ export class WorkOrder {
    *
    * @category WorkOrders
    * @param {string} workOrderSId - The workorder S/ID to get the map layer fields for.
+   * @param {number} woTemplateId - Optional work order's template ID
    * @param {number} x
    * @param {number} y
    * @param {number} domainId - Should include WKT or WKID attribute. Can also include VcsWKID attribute.
    * @param {number} [z] - Optional Z coordinate
    * @return {Object} Returns Promise that represents a ...
    */
-    updateMLFs(workOrderSId: string, x?: number, y?: number, domainId?: number, z?: number) { // |number
+    updateMLFs(workOrderSId: string, woTemplateId?: number, x?: number, y?: number, domainId?: number, z?: number) { // |number
+      // TODO: make an optional attrs array and accept the others
+      // TODO: make it toggle to not/use ByTemplate
       return new Promise((resolve, reject) => {
         var data = {}
-        var path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayers';
+        var path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayersByTemplate';
         if(_.isString(workOrderSId)) {
           _.set(data, 'WorkOrderId', workOrderSId)
         } else if(_.isNumber(workOrderSId)) {
