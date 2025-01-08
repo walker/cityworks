@@ -337,6 +337,14 @@ class Cityworks implements Citywork {
   }
 
   /**
+     * Current version
+     * @return {number} Returns a number that is the currently configured version of the Cityworks platform. Defaults to "23".
+     */
+  v() {
+    return this.settings.version
+  }
+
+  /**
      * Authenticate a username with a GIS Token
      * @param {login} - Gis user name, should match a Cityworks employee login name
      * @param {string} gisToken - Gis Oauth2 access token
