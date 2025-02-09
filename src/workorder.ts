@@ -870,20 +870,25 @@ export class WorkOrder {
    * Update Map Layer Fields
    *
    * @category WorkOrders
-   * @param {string} workOrderSId - The workorder S/ID to get the map layer fields for.
-   * @param {number} woTemplateId - Optional work order's template ID
+   * @param {string|number} workOrderSId - The workorder S/ID to get the map layer fields for.
+   * @param {number} woTemplateId - Work order's template ID
    * @param {number} x
    * @param {number} y
-   * @param {number} domainId - Should include WKT or WKID attribute. Can also include VcsWKID attribute.
-   * @param {number} [z] - Optional Z coordinate
-   * @return {Object} Returns Promise that represents a ...
+   * @param {number} domainId - Optional. Domain ID of org
+   * @param {number} [z] - Optional. Z coordinate
+   * @param {boolean} [updateTemplate] - Update the template when getting the map layer fields. Default is true. If set to false, will only update the map layer fields present upon creation.
+   * @return {Object} Returns Promise that represents an object with all the updated GIS info for the workorder, including a collection of the updated map layer fields
    */
-    updateMLFs(workOrderSId: string, woTemplateId?: number, x?: number, y?: number, domainId?: number, z?: number) { // |number
+    updateMLFs(workOrderSId: string|number, woTemplateId?: number, x?: number, y?: number, domainId?: number, z?: number, updateTemplate: boolean = true) {
       // TODO: make an optional attrs array and accept the others
       // TODO: make it toggle to not/use ByTemplate
       return new Promise((resolve, reject) => {
         var data = {}
-        var path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayersByTemplate';
+        if(updateTemplate)
+          var path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayersByTemplate'
+        else
+          var path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayersByWorkOrderId'
+
         if(_.isString(workOrderSId)) {
           _.set(data, 'WorkOrderId', workOrderSId)
         } else if(_.isNumber(workOrderSId)) {

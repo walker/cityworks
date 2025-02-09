@@ -855,16 +855,21 @@ export class Request {
    *
    * @category Requests
    * @param {number} requestId - The service request ID to get the map layer fields for.
+   * @param {number} problemsId - Problem Leaf (template) ID
    * @param {number} x
    * @param {number} y
-   * @param {number} domainId - Domain ID
-   * @param {number} [z] - Optional Z coordinate
-   * @return {Object} Returns Promise that represents a ...
+   * @param {number} domainId - Optional. Domain ID of org
+   * @param {number} [z] - Optional. Z coordinate
+   * @return {Object} Returns Promise that represents an object with all the updated GIS info for the request, including a collection of the updated map layer fields
    */
-    updateMLFs(requestId: number, x?: number, y?: number, domainId?: number, z?: number) { // |number
+    updateMLFs(requestId: number, x?: number, y?: number, domainId?: number, z?: number, updateTemplate: boolean = true) {
       return new Promise((resolve, reject) => {
         var data = {}
-        var path = 'Ams/TemplateMapLayer/UpdateServiceRequestInstanceMapLayers';
+        if(updateTemplate)
+          var path = 'Ams/TemplateMapLayer/UpdateServiceRequestInstanceMapLayers'
+        else
+          var path = 'Ams/TemplateMapLayer/UpdateServiceRequestInstanceMapLayersByTemplate'
+
         _.set(data, 'ServiceRequestId', requestId)
         if(_.isNumber(x)) {
           _.set(data, 'X', x)
