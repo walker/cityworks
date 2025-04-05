@@ -42,8 +42,8 @@ export class Reports {
             _.set(data, 'WorkOrderId', node_id)
           break
           case 'inspection':
-            // not sure this actually works...
-            // const dl_url = `ams/Reports/DownloadInspReport`
+            dl_url = `Ams/Reports/DownloadInspReport`
+            _.set(data, 'InspectionId', node_id)
           break
           case 'case':
             dl_url = `Pll/BusinessCaseReports/Download`
@@ -56,7 +56,7 @@ export class Reports {
           reject(e)
         })
       } else if(this.cw.v()<23) {
-
+        // Maybe I'll get to this for CR later. But you should really just update to 23.x and run ActiveReports
       } else {
         // Error, we don't know what version of CW we're connected to
 
