@@ -1,6 +1,12 @@
 import { CWError } from './error'
 const _ = require('lodash')
 
+interface Coordinates {
+  x: number;
+  y: number;
+  z?: number;
+}
+
 export class Request {
   /**
    * @hidden
@@ -111,26 +117,6 @@ export class Request {
         reject(e)
       })
     })
-  }
-
-  /**
-   * Update request's map layer fields
-   *
-   * @category Requests
-   * @param {number} requestId
-   * @return {Object} Returns Promise that represents an object describing the updated map layer fields
-   */
-  updateMLF = (requestId: number) => {
-    return new Promise((resolve, reject) => {
-      var data = {
-        ServiceRequestId: requestId
-      }
-      this.cw.runRequest('Ams/TemplateMapLayer/ServiceRequestInstanceMapLayersByRequestId', data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    });
   }
 
   /**
@@ -855,26 +841,21 @@ export class Request {
    *
    * @category Requests
    * @param {number} requestId - The service request ID to get the map layer fields for.
-   * @param {number} x
-   * @param {number} y
-   * @param {number} domainId - Domain ID
-   * @param {number} [z] - Optional Z coordinate
-   * @return {Object} Returns Promise that represents a ...
+   * @param {Coordinates} coordinates - Object with X, Y, and optional Z coordinate specified.
+   * @param {number} problemsId - Optional. Problem Leaf (template) ID. If provided, the map layer fields will be updated from the service request template (problem leaf) otherwise, only existing updated.
+   * @param {number} domainId - Optional. Domain ID of org
+   * @return {Object} Returns Promise that represents an object with all the updated GIS info for the request, including a collection of the updated map layer fields
    */
-    updateMLFs(requestId: number, x?: number, y?: number, domainId?: number, z?: number) { // |number
+    updateMLFs(requestId: number, coordinates: Coordinates, problemsId?: number, domainId?: number) {
       return new Promise((resolve, reject) => {
-        var data = {}
-        var path = 'Ams/TemplateMapLayer/UpdateServiceRequestInstanceMapLayers';
+        var data = _.merge({}, coordinates)
+        if(_.isNumber(problemsId)) {
+          _.set(data, 'ProblemsId', problemsId)
+          var path = 'Ams/TemplateMapLayer/UpdateServiceRequestInstanceMapLayers'
+        } else
+          var path = 'Ams/TemplateMapLayer/UpdateServiceRequestInstanceMapLayersByTemplate'
+
         _.set(data, 'ServiceRequestId', requestId)
-        if(_.isNumber(x)) {
-          _.set(data, 'X', x)
-        }
-        if(_.isNumber(y)) {
-          _.set(data, 'Y', y)
-        }
-        if(_.isNumber(z)) {
-          _.set(data, 'Z', z)
-        }
         if(_.isNumber(domainId)) {
           _.set(data, 'DomainId', domainId)
         }

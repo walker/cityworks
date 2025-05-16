@@ -5,9 +5,9 @@ const path = require('path');
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 var chaiAsPromised = require("chai-as-promised");
-chai.use(chaiAsPromised);
+// chai.use(chaiAsPromised);
 const cw4 = require('../dist/index.js');
-cw4.Cityworks.configure(process.env.domain, {path: process.env.install_path, version: process.env.version});
+cw4.Cityworks.configure(process.env.domain, {path: process.env.path, version: process.env.version});
 const _ = require('lodash')
 
 before(function(done) {

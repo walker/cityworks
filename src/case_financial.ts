@@ -61,6 +61,66 @@ export class CaseFinancial {
   }
 
   /**
+   * Make a Payment. Adds a payment to the case fee(s) specified.
+   *
+   * @category Case Payments
+   * @param {Array<Array<string>>} payments - The Case Object ID for the case to which to add the fee
+   * @param {Array<number>} caseFees - Fees this payment should be applied to. Array of CaFeeIds values.
+   * @param {stringName:string,AddressLine1?:string,AddressLine2?:string,AddressLine3?:string,CityName?:string,CommentText?:string,Email?:string,FaxNumber?:string,PhoneHome?:string,PhoneMobile?:string,PhoneWork?:string,PhoneWorkExt?:string,StateCode?:string,WebSiteUrl?:string,ZipCode?:string,CountryCode?:string} payerInfo - Payer info for the payment being made.
+   * @return {Object} Returns Promise that represents an object describing the newly-added payment.
+   */
+  makePayment(payments: Array<Array<string>>, caseFees: Array<number>, payerInfo?: {
+    stringName:string,
+    AddressLine1?:string,
+    AddressLine2?:string,
+    AddressLine3?:string,
+    CityName?:string,
+    CommentText?:string,
+    Email?:string,
+    FaxNumber?:string,
+    PhoneHome?:string,
+    PhoneMobile?:string,
+    PhoneWork?:string,
+    PhoneWorkExt?:string,
+    StateCode?:string,
+    WebSiteUrl?:string,
+    ZipCode?:string,
+    CountryCode?:string
+  }) {
+    return new Promise((resolve, reject) => {
+      var data: { CaFeeIds: number[], TenderTypes: Array<Array<string>> } = {
+        CaFeeIds: caseFees,
+        TenderTypes: []
+      }
+      if(payerInfo) {
+        _.set(data, 'CaPayer', payerInfo)
+      }
+      _.forEach(payments, payment => {
+        if(payment.length!=5) {
+          reject(new CWError(301, `Payment must contain 5 elements: Payment Tender Type, Amount, Comment, Date Received, Reference String - ${JSON.stringify(payment)}`))
+        }
+        // Check that item 2 is a number
+        else if(isNaN(parseFloat(payment[1]))) {
+          reject(new CWError(302, `Payment Tender amount, second item in array (${payment[1]}), must be a curreny number provided as a string.`))
+        }
+        //Check that item 3 is a datetime
+        else if(!_.isDate(Date.parse(payment[3]))) {
+          reject(new CWError(303, `Payment Tender date, fourth item in array (${payment[3]}), must be a datetime provided as a string.`))
+        } else {
+          data.TenderTypes.push(payment)
+        }
+      })
+
+      this.cw.runRequest('Pll/CasePayment/MakePayment', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+
+  /**
    * Add Case Payment Refund. Refunds a payment on the case payment specified by caPaymentId.
    *
    * @category Case Payment Refunds
@@ -262,10 +322,53 @@ export class CaseFinancial {
   getFees(caObjectId: number) {
     return new Promise((resolve, reject) => {
       var data = {
-        CaObjectId: caObjectId
+        WhereClause: `"CA_FEES_VW.CA_OBJECT_ID=${caObjectId}"}`
       }
-      this.cw.runRequest('Pll/CaseFees/ByCaObjectId', data).then(r => {
-        resolve(r.Value)
+      this.cw.runRequest('Pll/CaseFees/GetList', data).then(r => {
+        var fees = new Array()
+        _.forEach(r.Value, (fee) => {
+          var limited_fee = {
+            CaFeeId: fee.CaFeeId,
+            CaObjectId: fee.CaObjectId,
+            Amount: fee.Amount,
+            AmountDue: fee.AmountDue,
+            Factor: fee.Factor,
+            Sum: fee.Sum,
+            Value: fee.Value,
+            FeeCode: fee.FeeCode,
+            FeeDesc: fee.FeeDesc,
+            Quantity: fee.Quantity,
+            Rate: fee.Rate,
+            WaiveFee: fee.WaiveFee,
+            CreatedByLoginId: fee.CreatedByLoginId,
+            ModifiedByLoginId: fee.ModifiedByLoginId,
+            GroupCode: fee.GroupCode,
+            DetailCode: fee.DetailCode,
+            TotalFeeAmount: fee.TotalFeeAmount,
+            TotalPaymentAmount: fee.TotalPaymentAmount,
+            TotalDueAmount: fee.TotalDueAmount,
+            TotalCreditAmount: fee.TotalCreditAmount,
+            CreditAmount: fee.CreditAmount,
+            GrandSumFlag: fee.GrandSumFlag,
+            FeeTypeCode: fee.FeeTypeCode,
+            Location: fee.Location,
+            AutoRecalculate: fee.AutoRecalculate,
+            CommentText: fee.CommentText,
+            CreatedBy: fee.CreatedBy,
+            CustFeeSeq: fee.CustFeeSeq,
+            DateCreated: fee.DateCreated,
+            DateModified: fee.DateModified,
+            FeeSetupId: fee.FeeSetupId,
+            RecalcCreateDate: fee.RecalcCreateDate,
+            LockOnPayment: fee.LockOnPayment,
+            FeeTypeId: fee.FeeTypeId,
+            Invoiced: fee.Invoiced,
+            ModifiedBy: fee.ModifiedBy,
+            PaymentAmount: fee.PaymentAmount
+          }
+          fees.push(limited_fee)
+        })
+        resolve(fees)
       }).catch(e => {
         reject(e)
       })

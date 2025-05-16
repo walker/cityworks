@@ -1,6 +1,11 @@
 import { CWError } from './error'
 const _ = require('lodash')
 
+interface Coordinates {
+  x: number;
+  y: number;
+  z?: number;
+}
 
 export class WorkOrder {
   /**
@@ -870,17 +875,23 @@ export class WorkOrder {
    * Update Map Layer Fields
    *
    * @category WorkOrders
-   * @param {string} workOrderSId - The workorder S/ID to get the map layer fields for.
-   * @param {number} x
-   * @param {number} y
-   * @param {number} domainId - Should include WKT or WKID attribute. Can also include VcsWKID attribute.
-   * @param {number} [z] - Optional Z coordinate
-   * @return {Object} Returns Promise that represents a ...
+   * @param {string|number} workOrderSId - The workorder S/ID to get the map layer fields for.
+   * @param {Coords} coordinates - Object with X, Y, and optional Z coordinate specified.
+   * @param {number} woTemplateId - Optional. Work Order's Template ID. If provided, the map layer fields will be updated from the work order template otherwise, only existing updated.
+   * @param {number} domainId - Optional. Domain ID of org
+   * @return {Object} Returns Promise that represents an object with all the updated GIS info for the workorder, including a collection of the updated map layer fields
    */
-    updateMLFs(workOrderSId: string, x?: number, y?: number, domainId?: number, z?: number) { // |number
+    updateMLFs(workOrderSId: string|number, coordinates: Coordinates, woTemplateId?: number, domainId?: number) {
+      // TODO: make an optional attrs array and accept the others
+      // TODO: make it toggle to not/use ByTemplate
       return new Promise((resolve, reject) => {
-        var data = {}
-        var path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayers';
+        var data = _.merge({}, coordinates)
+        if(_.isNumber(woTemplateId)) {
+          var path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayersByTemplate'
+          _.set(data, 'WoTemplateId', woTemplateId)
+        } else
+          var path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayersByWorkOrderId'
+
         if(_.isString(workOrderSId)) {
           _.set(data, 'WorkOrderId', workOrderSId)
         } else if(_.isNumber(workOrderSId)) {
@@ -888,15 +899,6 @@ export class WorkOrder {
         } else {
           // throw error - was not number or string
           reject(new CWError(9, 'No workorder S/ID was provided.', {'workorderSId': workOrderSId}))
-        }
-        if(_.isNumber(x)) {
-          _.set(data, 'X', x)
-        }
-        if(_.isNumber(y)) {
-          _.set(data, 'Y', y)
-        }
-        if(_.isNumber(z)) {
-          _.set(data, 'Z', z)
         }
         if(_.isNumber(domainId)) {
           _.set(data, 'DomainId', domainId)

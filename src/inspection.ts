@@ -1,6 +1,12 @@
 import { CWError } from './error'
 const _ = require('lodash')
 
+interface Coordinates {
+  x: number;
+  y: number;
+  z?: number;
+}
+
 export class Inspection {
   /**
    * @hidden
@@ -788,27 +794,21 @@ export class Inspection {
    * Update Map Layer Fields
    *
    * @category Inspections
-   * @param {number} requestId - The inspection ID to get the map layer fields for.
-   * @param {number} x
-   * @param {number} y
-   * @param {number} domainId - Domain ID
-   * @param {number} [z] - Optional Z coordinate
+   * @param {string|number} inspectionId - The inspection ID to get the map layer fields for.
+   * @param {Coordinates} coordinates - Object with X, Y, and optional Z coordinate specified.
+   * @param {number} inspTemplateId - Optional. Inspection's template ID. If provided, the map layer fields will be updated from the inspection template otherwise, only existing updated.
+   * @param {number} domainId - Optional. Domain ID of org
    * @return {Object} Returns Promise that represents a ...
    */
-    updateMLFs(requestId: number, x?: number, y?: number, domainId?: number, z?: number) { // |number
+    updateMLFs(inspectionId: number, coordinates: Coordinates, inspTemplateId?: number, domainId?: number) { // |number
       return new Promise((resolve, reject) => {
-        var data = {}
-        var path = 'Ams/TemplateMapLayer/UpdateServiceRequestInstanceMapLayers';
-        _.set(data, 'ServiceRequestId', requestId)
-        if(_.isNumber(x)) {
-          _.set(data, 'X', x)
-        }
-        if(_.isNumber(y)) {
-          _.set(data, 'Y', y)
-        }
-        if(_.isNumber(z)) {
-          _.set(data, 'Z', z)
-        }
+        var data = _.merge({}, coordinates)
+        if(_.isNumber(inspTemplateId)) {
+          _.set(data, 'InspTemplateId', inspTemplateId)
+          var path = 'Ams/TemplateMapLayer/UpdateInspectionInstanceMapLayers';
+        } else
+          var path = 'Ams/TemplateMapLayer/UpdateInspectionInstanceMapLayersByTemplate'
+        _.set(data, 'InspectionId', inspectionId)
         if(_.isNumber(domainId)) {
           _.set(data, 'DomainId', domainId)
         }

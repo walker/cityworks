@@ -6,6 +6,7 @@ import { Gis } from './gis'
 import { MessageQueue } from './message_queue'
 import { Search } from './search'
 import { Query } from './query'
+import { Report } from './report'
 import { Request } from './request'
 import { Inspection } from './inspection'
 import { WorkOrder } from './workorder'
@@ -13,9 +14,10 @@ import { Briefcase } from './briefcase'
 import { CaseData } from './case_data'
 import { CaseFinancial } from './case_financial'
 import { CaseWorkflow} from './case_workflow'
+import { CasePeople } from './case_people'
+import { CaseAssets } from './case_assets'
 import { CaseAdmin } from './case_admin'
 import { Comments } from './comments'
-import { CaseAssets } from './case_assets'
 import { WorkOrderAdmin } from './workorder_admin'
 import { InspectionAdmin } from './inspection_admin'
 import { RequestAdmin } from './request_admin'
@@ -102,7 +104,7 @@ class Cityworks implements Citywork {
       default_domain: null,
       version: 23
     }
-    this.potential_loads = ['general', 'activity_link', 'message_queue', 'gis', 'search', 'request', 'case', 'case_financial']
+    this.potential_loads = ['general', 'activity_link', 'message_queue', 'gis', 'search', 'request', 'report', 'case', 'case_financial']
     if(typeof(base_url)!='undefined') {
       this.configure(base_url, settings, load)
     }
@@ -113,7 +115,7 @@ class Cityworks implements Citywork {
      *
      * @param {string} [base_url] - The first color, in hexadecimal format.
      * @param {object} [settings] - The second color, in hexadecimal format.
-     * @param {array} [load] - allows user to choose which modules to load and make available. Full availability array: ['general', 'activity_link', 'message_queue', 'gis', 'search', 'workorder', 'inspection', 'request', 'case']
+     * @param {array} [load] - allows user to choose which modules to load and make available. Full availability array: ['general', 'activity_link', 'message_queue', 'gis', 'search', 'workorder', 'inspection', 'request', 'report', 'case']
      * @return {boolean} Returns true if successful, otherwise, throws error
      */
   configure(base_url?: string, settings?: Object, load?: Array<string>) {
@@ -201,21 +203,43 @@ class Cityworks implements Citywork {
         }).then((r) => {
           resolve(r.data)
         })
+      } else if(_.startsWith(service_path, 'Pll/BusinessCaseReports/Download') || _.startsWith(service_path, 'Ams/Reports/Download')) {
+        /* ActiveReport downloading thanks to @ksfff5 */
+        https.get(options, resp => {
+          // Create an empty buffer for pdf data
+          // String would apply encoding to the raw data
+          var data: Buffer = Buffer.concat([])
+
+          // Grab the chunks of pdf and store in buffer
+          // The readable event may trigger multiple times before the full pdf is read, so chunk it
+          resp.on('readable', () => {
+            const chunk: Buffer = resp.read()
+            if(!(chunk == null)) {
+              data = Buffer.concat([data, chunk])
+            }
+          })
+
+          // Done, resolve PDF
+          resp.on('end', () => {
+            resolve(data)
+          })
+        })
+        /* End pf ActiveReport downloading thanks to @ksfff5 */
       } else {
-        if(service_path=='Pll/CaseRelDocs/ByCaObjectId' && !_.isEmpty(pd)){
-          _.set(options, 'path', options.path + '?' + querystring.stringify(pd))
-        } else {
-          // _.set(options, 'headers.Content-Type', 'application/json')
-          _.set(options, 'headers.Content-Type', 'application/x-www-form-urlencoded')
-          if(!_.isEmpty(pd)){
-            _.set(options, 'headers.Content-Length', Buffer.byteLength(querystring.stringify(pd)))
-          }
-        }
         // if(service_path=='Pll/CaseRelDocs/ByCaObjectId') {
           // console.log(options)
           // console.log(pd)
           // process.exit(0)
         // }
+        // TODO: check if still necessary
+        if(service_path=='Pll/CaseRelDocs/ByCaObjectId' && !_.isEmpty(pd)){
+          _.set(options, 'path', options.path + '?' + querystring.stringify(pd))
+        } else {
+          _.set(options, 'headers.Content-Type', 'application/x-www-form-urlencoded')
+          if(!_.isEmpty(pd)){
+            _.set(options, 'headers.Content-Length', Buffer.byteLength(querystring.stringify(pd)))
+          }
+        }
         let request = https.request(options, (response) => {
           let str=''
           response.on('error',function(e){
@@ -228,46 +252,50 @@ class Cityworks implements Citywork {
           })
 
           response.on('end',function(){
-            try {
-              var test_str = JSON.stringify(str) + "[test string]"
-              if(test_str.match(/\<h2\>Object\ moved\ to/)==null) {
-                var obj=JSON.parse(str)
-                if(typeof(obj)=='undefined') {
-                  // failed
-                  reject(new CWError(10, 'No response received from Cityworks API.'))
-                } else if(typeof(obj)!='undefined') { //  && typeof(obj.Value)!='undefined'
-                  switch(obj.Status) {
-                    case 1:
-                      reject(new CWError(1, 'Error', obj))
-                      break;
-                    case 2:
-                      reject(new CWError(2, 'Unauthorized', obj))
-                      break;
-                    case 3:
-                      reject(new CWError(3, 'InvalidCredentials', obj))
-                      break;
-                    case 0:
-                    default:
-                      if(typeof(obj)!='undefined' && typeof(obj.Value)=='undefined' && obj.Status==0) {
-                        resolve(true);
-                      } else {
-                        resolve(obj);
-                      }
-                      break;
+            if(_.indexOf(Attachments.downloadUrls, service_path)!=-1) {
+                            
+            } else {
+              try {
+                var test_str = JSON.stringify(str) + "[test string]"
+                if(test_str.match(/\<h2\>Object\ moved\ to/)==null) {
+                  var obj=JSON.parse(str)
+                  if(typeof(obj)=='undefined') {
+                    // failed
+                    reject(new CWError(10, 'No response received from Cityworks API.'))
+                  } else if(typeof(obj)!='undefined') { //  && typeof(obj.Value)!='undefined'
+                    switch(obj.Status) {
+                      case 1:
+                        reject(new CWError(1, 'Error', obj))
+                        break;
+                      case 2:
+                        reject(new CWError(2, 'Unauthorized', obj))
+                        break;
+                      case 3:
+                        reject(new CWError(3, 'InvalidCredentials', obj))
+                        break;
+                      case 0:
+                      default:
+                        if(typeof(obj)!='undefined' && typeof(obj.Value)=='undefined' && obj.Status==0) {
+                          resolve(true);
+                        } else {
+                          resolve(obj);
+                        }
+                        break;
+                    }
+                  } else {
+                    reject(new CWError(4, "Unknown error.", {options: options, postedData: pd, api_returned_string: obj}))
                   }
                 } else {
-                  reject(new CWError(4, "Unknown error.", {options: options, postedData: pd, api_returned_string: obj}))
+                  reject(new CWError(5, "Error parsing JSON. Cityworks returned HTML.", {response: str}))
                 }
-              } else {
-                reject(new CWError(5, "Error parsing JSON. Cityworks returned HTML.", {response: str}))
-              }
-            } catch (e) {
-              if (e instanceof SyntaxError) {
-                console.log('try/catch error on JSON', e)
-                reject(new CWError(6, "Error parsing JSON.", e))
-              } else {
-                console.log('try/catch error on JSON - but not an instance of SyntaxError')
-                reject(new CWError(7, "Error parsing JSON.", e))
+              } catch (e) {
+                if (e instanceof SyntaxError) {
+                  console.log('try/catch error on JSON', e)
+                  reject(new CWError(6, "Error parsing JSON.", e))
+                } else {
+                  console.log('try/catch error on JSON - but not an instance of SyntaxError')
+                  reject(new CWError(7, "Error parsing JSON.", e))
+                }
               }
             }
           })
@@ -308,6 +336,14 @@ class Cityworks implements Citywork {
         reject(error);
       })
     })
+  }
+
+  /**
+     * Current version
+     * @return {number} Returns a number that is the currently configured version of the Cityworks platform. Defaults to "23".
+     */
+  v() {
+    return this.settings.version
   }
 
   /**
@@ -704,6 +740,7 @@ const activity_link = new ActivityLinks(cw)
 const message_queue = new MessageQueue(cw)
 const search = new Search(cw)
 const query = new Query(cw)
+const report = new Report(cw)
 const gis = new Gis(cw)
 const request = new Request(cw)
 const inspection = new Inspection(cw)
@@ -714,6 +751,7 @@ briefcase.data = new CaseData(cw)
 briefcase.financial = new CaseFinancial(cw)
 briefcase.workflow = new CaseWorkflow(cw)
 briefcase.admin = new CaseAdmin(cw)
+briefcase.people = new CasePeople(cw)
 briefcase.comment = new Comments(cw, 'CaObject')
 briefcase.asset = new CaseAssets(cw)
 briefcase.attachments = new Attachments(cw, 'Case')
@@ -732,4 +770,4 @@ request.costs = new RequestCosts(cw)
 request.comment = new Comments(cw, 'Request')
 request.attachments = new Attachments(cw, 'Request')
 
-export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase }
+export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report }

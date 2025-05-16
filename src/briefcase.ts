@@ -122,6 +122,10 @@ export class Briefcase {
    */
   comment?: any
   /**
+   * Payment, Receipt, & Fee methods
+   */
+  people?: any
+  /**
    * PLL Administration methods
    */
   admin?: any
@@ -133,6 +137,29 @@ export class Briefcase {
     this.cw = cw
   }
 
+  // What is this?
+  // Pll/CustomColumnsDetail/GetListForAdd
+
+  /**
+   * Get Required items for case by case template id (BusCaseId)
+   *
+   * @category Cases
+   * @param {number} busCaseId - The case tmeplate ID (BusCaseId)
+   * @return {Object} Returns Promise that represents a collection of objects describing the requirements of the case template
+   */
+    getRequirements(busCaseId: number): Promise<Briefcase> {
+      return new Promise((resolve, reject) => {
+        var data = {
+          BusCaseId: busCaseId
+        }
+        this.cw.runRequest('Pll/CaseReqItems/GetByBusCaseId', data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      })
+    }
+  
   /**
    * Create new case
    *
