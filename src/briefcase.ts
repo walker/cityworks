@@ -509,48 +509,4 @@ export class Briefcase {
   //   })
   // }
 
-  /**
-   * Get Case Types by heirarchy
-   *
-   * @category Case Templates
-   * @param {boolean} quickCreateOnly - Include on the quick create case templates
-   * @param {boolean} expired - Include expired case templates
-   * @return {Object} Returns Promise that represents an object describing the case template heirarchy
-   */
-  getTemplateTypes(quickCreateOnly: boolean = false, expired: boolean = false) {
-    return new Promise((resolve, reject) => {
-      var data = {
-        QuickCreateOnly: quickCreateOnly,
-        Expired: expired
-      }
-      var path = 'PLL/BusinessCaseLabel/LabelTree';
-      this.cw.runRequest(path, data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
-  }
-
-  /**
-   * Get Case Template Properties
-   *
-   * @category Case Templates
-   * @param {number} caseTemplateId - The case template ID (BusCaseId)
-   * @return {Object} Returns Promise that represents an object describing the case template
-   */
-  getTemplateProperties(caseTemplateId: number) {
-    return new Promise((resolve, reject) => {
-      var data = {
-        BusCaseId: caseTemplateId
-      }
-      var path = 'Pll/Case/GetDefaultItems';
-      this.cw.runRequest(path, data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
-  }
-
 }

@@ -310,10 +310,10 @@ export class CaseWorkflow {
   }
 
   /**
-   * Deletes tasks by CaObjectId
+   * Deletes a task by TaskID
    *
    * @category Tasks
-   * @param {number} caObjectId - The caObjectId for the tasks which should be deleted
+   * @param {number} caTaskId - The caTaskId for the task which should be deleted
    * @return {Object} Returns Promise that represents the number of the CaObjectID
    */
    deleteTasksOnCase(caObjectId: number) {
@@ -330,7 +330,7 @@ export class CaseWorkflow {
   }
 
   /**
-   * Deletes task comments by ids
+   * Deletes tasks by TaskID
    *
    * @category Comments
    * @param {Array<number>} caTaskCommentIds - The comments to delete

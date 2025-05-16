@@ -240,15 +240,4 @@ export class Query {
       })
     })
   }
-
-    /**
-     * Save a query
-     *
-     * @category Query
-     * @param {string} query - The query to save
-     * @param {DynamicVariableMap} variables - Required if the query includes variables
-     * @param {number} [domainId] - The domain ID of the domain to search, defaut is authenticated user's current domain
-     * @return {Object} Returns Promise object that represents a list of Objects
-     */
-  
 }
