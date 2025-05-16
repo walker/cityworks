@@ -12,7 +12,12 @@ or
 
 Instantiate the Class for the instance of Cityworks available given a domain:
 
-      cw.Cityworks.configure('cw.domain.tld', {path: 'cityworks', version: 15})
+      cw.Cityworks.configure('cwoffice.domain.tld', {path: 'cityworks', version: 15})
+
+or 
+
+      cw.Cityworks.configure('cw.domain.tld', {path: 'cityworks', version: 23});
+
 
 ## Authentication
 

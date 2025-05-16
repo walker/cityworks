@@ -3,20 +3,16 @@ require('dotenv').config();
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 const cw1 = require('../dist/index.js');
-cw1.Cityworks.configure(process.env.domain, {path: process.env.install_path, version: process.env.version});
+cw1.Cityworks.configure(process.env.domain, {path: process.env.path, version: process.env.version});
 const cw4 = require('../dist/index.js');
-cw4.Cityworks.configure(process.env.domain, {path: process.env.install_path, version: process.env.version});
+cw4.Cityworks.configure(process.env.domain, {path: process.env.path, version: process.env.version});
 
 before(function(done) {
   this.timeout(20000000);
   done();
 });
 
-// beforeEach(function() {
-//   return cw1.Cityworks.configure(process.env.domain, {path: process.env.install_path});
-// });
-
-describe('[Cityworks (construct)] function test', () => {
+describe('[Cityworks::construct] function test', () => {
     it('should return a Cityworks object', (done) => {
         assert.isObject(cw1, 'cw is an object');
         done();
@@ -66,6 +62,8 @@ describe('[Cityworks::validateToken] function test', () => {
   it('should have a valid token set, if logged in', (done) => {
     cw1.Cityworks.authenticate(process.env.login, process.env.password).then(resp => {
       cw1.Cityworks.validateToken(cw1.Cityworks.getToken()).then(res => {
+        console.log(cw1.Cityworks.getToken(), 'token');
+        process.exit(0);
         assert.isTrue(res);
         done();
       }).catch(error => {

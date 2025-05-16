@@ -39,21 +39,21 @@
   },
   "homepage": "https://walker.github.io/cityworks/",
   "devDependencies": {
-    "chai": "*",
-    "chai-as-promised": "~8.0.0",
-    "dotenv": "~16.4.5",
-    "jsdoc-to-markdown": "~9.0.1",
+    "chai": "~5.2.0",
+    "chai-as-promised": "~8.0.1",
+    "dotenv": "~16.5.0",
+    "jsdoc-to-markdown": "~9.1.1",
     "microbundle": "~0.15.1",
-    "mocha": "~10.7.3",
-    "typedoc": "~0.26.7",
-    "typescript": "^5.6.2",
-    "winston": "~3.14.2"
+    "mocha": "~11.3.0",
+    "typedoc": "~0.28.4",
+    "typescript": "^5.8.3",
+    "winston": "~3.17.0"
   },
   "dependencies": {
-    "axios": "^1.7.7",
-    "form-data": "^4.0.0",
+    "axios": "^1.9.0",
+    "form-data": "^4.0.2",
     "lodash": "~4.17.21",
-    "mime-types": "^2.1.35",
+    "mime-types": "^3.0.1",
     "reversible-map": "~1.0.1"
   }
 }
