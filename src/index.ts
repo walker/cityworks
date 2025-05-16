@@ -6,6 +6,7 @@ import { Gis } from './gis'
 import { MessageQueue } from './message_queue'
 import { Search } from './search'
 import { Query } from './query'
+import { Report } from './report'
 import { Request } from './request'
 import { Inspection } from './inspection'
 import { WorkOrder } from './workorder'
@@ -13,9 +14,10 @@ import { Briefcase } from './briefcase'
 import { CaseData } from './case_data'
 import { CaseFinancial } from './case_financial'
 import { CaseWorkflow} from './case_workflow'
+import { CasePeople } from './case_people'
+import { CaseAssets } from './case_assets'
 import { CaseAdmin } from './case_admin'
 import { Comments } from './comments'
-import { CaseAssets } from './case_assets'
 import { WorkOrderAdmin } from './workorder_admin'
 import { InspectionAdmin } from './inspection_admin'
 import { RequestAdmin } from './request_admin'
@@ -102,7 +104,7 @@ class Cityworks implements Citywork {
       default_domain: null,
       version: 23
     }
-    this.potential_loads = ['general', 'activity_link', 'message_queue', 'gis', 'search', 'request', 'case', 'case_financial']
+    this.potential_loads = ['general', 'activity_link', 'message_queue', 'gis', 'search', 'request', 'report', 'case', 'case_financial']
     if(typeof(base_url)!='undefined') {
       this.configure(base_url, settings, load)
     }
@@ -113,7 +115,7 @@ class Cityworks implements Citywork {
      *
      * @param {string} [base_url] - The first color, in hexadecimal format.
      * @param {object} [settings] - The second color, in hexadecimal format.
-     * @param {array} [load] - allows user to choose which modules to load and make available. Full availability array: ['general', 'activity_link', 'message_queue', 'gis', 'search', 'workorder', 'inspection', 'request', 'case']
+     * @param {array} [load] - allows user to choose which modules to load and make available. Full availability array: ['general', 'activity_link', 'message_queue', 'gis', 'search', 'workorder', 'inspection', 'request', 'report', 'case']
      * @return {boolean} Returns true if successful, otherwise, throws error
      */
   configure(base_url?: string, settings?: Object, load?: Array<string>) {
@@ -738,6 +740,7 @@ const activity_link = new ActivityLinks(cw)
 const message_queue = new MessageQueue(cw)
 const search = new Search(cw)
 const query = new Query(cw)
+const report = new Report(cw)
 const gis = new Gis(cw)
 const request = new Request(cw)
 const inspection = new Inspection(cw)
@@ -748,6 +751,7 @@ briefcase.data = new CaseData(cw)
 briefcase.financial = new CaseFinancial(cw)
 briefcase.workflow = new CaseWorkflow(cw)
 briefcase.admin = new CaseAdmin(cw)
+briefcase.people = new CasePeople(cw)
 briefcase.comment = new Comments(cw, 'CaObject')
 briefcase.asset = new CaseAssets(cw)
 briefcase.attachments = new Attachments(cw, 'Case')
@@ -766,4 +770,4 @@ request.costs = new RequestCosts(cw)
 request.comment = new Comments(cw, 'Request')
 request.attachments = new Attachments(cw, 'Request')
 
-export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase }
+export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report }

@@ -2,7 +2,7 @@ import { CWError } from './error'
 const _ = require('lodash')
 import { convertToObject } from 'typescript';
 
-export class Reports {
+export class Report {
   /**
    * @hidden
    */
@@ -24,7 +24,7 @@ export class Reports {
    * @param {string} fileName - The filename of the report.
    * @return {Object} Returns Promise that represents a file stream of a pdf
    */
-  getReport(type: string, node_id: number, fileName: string) {
+  print(type: string, node_id: number|Array<number>, fileName?: string) {
     return new Promise((resolve, reject) => {
       var dl_url: String = ''
       // Check which verson of CW we're connected to
@@ -32,6 +32,23 @@ export class Reports {
         var data = {
           FileName: fileName
         }
+        if(!fileName) {
+          // If no filename is provided, we need to set the filename to the default for the node_id
+          this.cw.inspection.getById(node_id).then((r) => {
+            // resolve(r)
+            console.log(r)
+            if(r) {
+              console.log(r)
+              process.exit(0)
+            } else {
+
+            }
+          }).catch((e) => {
+            console.log(e)
+            reject(e)
+          })
+        }
+        process.exit(0)
         switch (type) {
           case 'request':
             dl_url = `Ams/Reports/DownloadSrReport`
@@ -71,7 +88,7 @@ export class Reports {
    * @param {number} report_id - CaseDataGroupId as defined in CaseDataGroup admin.
    * @return {Object} Returns Promise that represents a file stream of a pdf
    */
-    getCustomReport(type: string, node_id: number, fileName: string) {
+    get(type: string, node_id: number, fileName: string) {
       return new Promise((resolve, reject) => {
         var dl_url: String = ''
         // Check which verson of CW we're connected to

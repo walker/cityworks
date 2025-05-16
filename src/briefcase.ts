@@ -122,6 +122,10 @@ export class Briefcase {
    */
   comment?: any
   /**
+   * Payment, Receipt, & Fee methods
+   */
+  people?: any
+  /**
    * PLL Administration methods
    */
   admin?: any

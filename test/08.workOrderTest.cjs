@@ -5,7 +5,7 @@ const path = require('path');
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 var chaiAsPromised = require("chai-as-promised");
-chai.use(chaiAsPromised);
+// chai.use(chaiAsPromised);
 const cw8 = require('../dist/index.js');
 cw8.Cityworks.configure(process.env.domain, {path: process.env.install_path, version: process.env.version});
 

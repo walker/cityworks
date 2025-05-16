@@ -5,7 +5,7 @@ const path = require('path');
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 var chaiAsPromised = require("chai-as-promised");
-chai.use(chaiAsPromised);
+// chai.use(chaiAsPromised);
 const cw10 = require('../dist/index.js');
 cw10.Cityworks.configure(process.env.domain, {path: process.env.install_path, version: process.env.version});
 
@@ -49,9 +49,16 @@ describe('[Inspection::create] function test', () => {
   it('should have attached service requests when specified');
 });
 
-describe('[Inspection::create] function test', () => {
-  it('', (done) => {
-    done()
+describe('[Inspection::getById] function test', () => {
+  it('should return an inspection', (done) => {
+    cw10.inspection.getById(171018).then(r => {
+      console.log(r);
+      assert.property(r, 'InspectionId');
+      done();
+    }).catch(e => {
+      console.log(e, 'unexpected error')
+      done();
+    });
   });
 });
 
