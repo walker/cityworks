@@ -50,15 +50,24 @@ describe('[CaseData::setCaseData] function test', () => {
       done();
     })
   });
+
   it('should set all the case data detail item values if they\'re all found', (done) => {
     cw12.briefcase.data.setCaseData(77950, [{code: 'TEST.TESTFIELD', value: 123456}]).then(r => {
       // assert.equal(r.NumberValue, 123456);
       done();
     }).catch(e => { console.log(e); })
   });
-  it('should set the single case data detail item', (done) => {
+
+  it('should set the single case data detail numbervalue item', (done) => {
     cw12.briefcase.data.setCaseDataItem(77950, 'TEST.TESTFIELD', 456789).then(r => {
       assert.equal(r.NumberValue, 456789);
+      done();
+    }).catch(e => { console.log(e); })
+  });
+
+  it('should set the single case data detail listvalue item', (done) => {
+    cw12.briefcase.data.setCaseDataItem(105573, 'STRLOADING.STRLZRLZ', 'East').then(r => {
+      assert.equal(r.ListValue, 'East');
       done();
     }).catch(e => { console.log(e); })
   });

@@ -448,8 +448,6 @@ export class CaseData {
           if(value=='Y' || value=='Yes') value = 'Y'
           if(value=='N' || value=='No') value = 'N'
           _.set(data, 'YesNoValue', value)
-        } else if(detail.CalcRateFlag=='Y') {
-          _.set(data, 'CalcRateValue', value)
         } else if(detail.CommentFlag=='Y') {
           _.set(data, 'CommentValue', value)
         } else if(detail.CurrencyFlag=='Y') {
@@ -510,7 +508,7 @@ export class CaseData {
         _.forEach(detail_items_to_set, function (item) {
           let item_parts = item.code.split('.')
           let item_value = item.value
-          let caDataDetailId = 0
+          let caDataDetailId: number = 0
           let check_for_item = new Promise((resolve, reject) => {
             _.forEach(case_detail_items, function (detail, index) {
               if(item_parts.length>1 && detail.GroupCode==item_parts[0] && detail.DetailCode==item_parts[1]) {
@@ -523,9 +521,10 @@ export class CaseData {
             })
           })
           check_for_item.then(r_two => {
-            if(caDataDetailId>0) {
-              _this.updateDetailItemValue(caDataDetailId, item_value).then(r_three => {
-                // console.log(r)
+            const caDataDetailIdNum = r_two as number;
+            if(caDataDetailIdNum > 0) {
+              _this.updateDetailItemValue(caDataDetailIdNum, item_value).then(r_three => {
+                // console.log(r_three)
                 resolve(r_three)
               }).catch(e => {
                 reject(e)
@@ -543,6 +542,7 @@ export class CaseData {
 
   /**
    * Set Case Data Detail Item for a Case by GroupCode.ItemCode syntax reference
+   * This is a convenience method that allows you to set a single detail item without needing to find the type. Reference it within {instance}.briefcase.data.setCaseDataItem.
    *
    * @category Data Details
    * @param {number} caseId - The Case ID to set the detail for
