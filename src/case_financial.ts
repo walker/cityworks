@@ -678,6 +678,89 @@ export class CaseFinancial {
     })
   }
 
+  /* Escrow */
+  /**
+   * Get the Escrow Fees for a specific case template (BusCaseId).
+   *
+   * @category Case Escrow
+   * @param {number} busCaseId - The business case ID whose default fees should be added to the case
+   * @return {Object} Returns Promise that represents a collection of Fee Items. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaFeesItemBase
+   */
+  getEscrowFees(busCaseId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        BusCaseId: busCaseId
+      }
+      this.cw.runRequest('Pll/EscrowFees/GetByBusCaseId', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Add an Escrow Payment. Adds a payment to the case.
+   *
+   * @category Case Escrow
+   * @param {number} escrowPaymentItems - The escrow payment items to add to the case (See: /{subdirectory}/apidocs/#/data-type-info;dataType=EscrowPaymentItem)
+   * @return {Object} Returns Promise that represents a collection of Escrow Paymnent Items that were added.
+   */
+  addEscrowPayment(escrowPaymentItems: Array<Object>) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        EscrowPayments: escrowPaymentItems
+      }
+      this.cw.runRequest('Pll/EscrowPayment/Add', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  // 
+  /**
+   * Search for Escrow Payments
+   *
+   * @category Case Escrow
+   * @param {number} caObectId - The business case ID whose default fees should be added to the case
+   * @return {Object} Returns Promise that represents a collection of Fee Items. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaFeesItemBase
+   */
+  // searchEscrowPayments(whereClause: Array<FilterCondition>, limit, offset, sortDir, sortField) {
+  //   return new Promise((resolve, reject) => {
+  //     var data = {
+  //       CaObjectId: busCaseId
+  //     }
+  //     this.cw.runRequest('Pll/EscrowPayment/GetList', data).then(r => {
+  //       resolve(r.Value)
+  //     }).catch(e => {
+  //       reject(e)
+  //     })
+  //   })
+  // }
+
+  /**
+   * Get the Escrow Fees for a specific case template (BusCaseId).
+   *
+   * @category Case Escrow
+   * @param {number} busCaseId - The business case ID whose default fees should be added to the case
+   * @return {Object} Returns Promise that represents a collection of Fee Items. See /{subdirectory}/apidocs/#/data-type-info;dataType=CaFeesItemBase
+   */
+  updateEscrowPayment(busCaseId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {
+        BusCaseId: busCaseId
+      }
+      this.cw.runRequest('Pll/EscrowPayment/Update', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+  /* End Escrow */
+
   /**
    * Search for Case Deposits. Include at least one of the search fields. A logical 'and' operation is applied for multiple search fields.
    *
