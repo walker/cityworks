@@ -498,6 +498,54 @@ export class Briefcase {
     })
   }
 
+  /**
+   * Get the configured zip codes for the install
+   *
+   * @category Cases
+   * @return {Object} Returns Promise that represents a collection of zip codes configured for the install
+   */
+  getZips() {
+    return new Promise((resolve, reject) => {
+      this.cw.runRequest('Pll/Zip/GetAll', {}).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get the configured states for the install
+   *
+   * @category Cases
+   * @return {Object} Returns Promise that represents a collection of states configured for the install
+   */
+  getStates() {
+    return new Promise((resolve, reject) => {
+      this.cw.runRequest('Pll/State/GetList', {}).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get the configured countries for the install
+   *
+   * @category Cases
+   * @return {Object} Returns Promise that represents a collection of countries configured for the install
+   */
+  getCountries() {
+    return new Promise((resolve, reject) => {
+      this.cw.runRequest('Pll/Country/GetAll', {}).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
   // importCase(caseTypeId: number, subTypeId: number, caseName: string, location: string, x: number, y:number, appData: object, comment: string, expiration: string, assetIds: object) {
   //   return new Promise(resolve => {
   //     const _this = this;
