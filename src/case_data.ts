@@ -432,11 +432,11 @@ export class CaseData {
         }
         var detail = r[0]
         var data = {}
-        if(!_.isUndefined(rate)) {
-          _.set(data, 'Rate', rate)
-        }
         if(!_.isUndefined(quantity)) {
           _.set(data, 'Quantity', quantity)
+        }
+        if(!_.isUndefined(rate)) {
+          _.set(data, 'Rate', rate)
         }
         if(detail.NumberFlag=='Y') {
           _.set(data, 'NumberValue', value)
@@ -444,6 +444,12 @@ export class CaseData {
           _.set(data, 'TextValue', value)
         } else if(detail.DateFlag=='Y') {
           _.set(data, 'DateValue', value)
+        } else if(detail.DateCountFlag=='Y') {
+          if(!_.isArray(value)) {
+            value = [value]
+          }
+          var dateCountValue = JSON.stringify({'dateCount': value.length, 'value': value})
+          _.set(data, 'DateCountValue', dateCountValue)
         } else if(detail.YesNoFlag=='Y') {
           if(value=='Y' || value=='Yes') value = 'Y'
           if(value=='N' || value=='No') value = 'N'
@@ -455,8 +461,14 @@ export class CaseData {
         } else if(detail.ListValuesFlag=='Y') {
           _.set(data, 'ListValue', value)
         } else if(detail.Q1Q2Q3Flag=='Y') {
+          _.set(data, 'Quantity', value[0])
           _.set(data, 'Q2Value', value[1])
           _.set(data, 'Q3Value', value[2])
+          if(!_.isUndefined(rate)) {
+            _.set(data, 'Value', value[0] * value[1] * value[2] * _.get(data, 'Rate'))
+          } else {
+            _.set(data, 'Value', value[0] * value[1] * value[2])
+          }
         } else if(detail.ValueFlag=='Y') {
           _.set(data, 'Value', value)
         }
@@ -499,7 +511,7 @@ export class CaseData {
    * @param {Object} items - The parameters to search by. (DataGroup/Item string, Value) (e.g. {code: 'GroupCode.ItemCode', value: 'Value goes here'})
    * @return {Object} Returns Promise that represents a collection
    */
-  setCaseData(caseId: number, items: Array<{code: string, value: any}>) {
+  setCaseData(caseId: number, items: Array<{code: string, value: any, rate?: number, quantity?: number}>) {
     return new Promise((resolve, reject) => {
       let _this = this
       let detail_items_to_set = items
@@ -508,6 +520,8 @@ export class CaseData {
         _.forEach(detail_items_to_set, function (item) {
           let item_parts = item.code.split('.')
           let item_value = item.value
+          let item_rate = item.rate
+          let item_quantity = item.quantity
           let caDataDetailId: number = 0
           let check_for_item = new Promise((resolve, reject) => {
             _.forEach(case_detail_items, function (detail, index) {
@@ -523,7 +537,7 @@ export class CaseData {
           check_for_item.then(r_two => {
             const caDataDetailIdNum = r_two as number;
             if(caDataDetailIdNum > 0) {
-              _this.updateDetailItemValue(caDataDetailIdNum, item_value).then(r_three => {
+              _this.updateDetailItemValue(caDataDetailIdNum, item_value, item_rate, item_quantity).then(r_three => {
                 // console.log(r_three)
                 resolve(r_three)
               }).catch(e => {
@@ -550,9 +564,9 @@ export class CaseData {
    * @param {any} value - The value to set the specified detail to
    * @return {Object} Returns Promise
    */
-  setCaseDataItem(caseId: number, detailGroupAndItemCode: string, value: any) {
+  setCaseDataItem(caseId: number, detailGroupAndItemCode: string, value: any, rate?: number, quantity?: number) {
     return new Promise((resolve, reject) => {
-      this.setCaseData(caseId, [{code: detailGroupAndItemCode, value: value}]).then(r => {
+      this.setCaseData(caseId, [{'code': detailGroupAndItemCode, 'value': value, 'rate': rate, 'quantity': quantity}]).then(r => {
         resolve(r)
       }).catch(e => {
         reject(e)
