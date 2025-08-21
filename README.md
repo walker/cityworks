@@ -63,7 +63,11 @@ Some of the methods are general or top-level, and so, are accessed separately ar
 
       cw.gis.methodHere().then(resp => {})
 
-[General search methods](https://walker.github.io/cityworks/classes/search.Search.html):
+[General query methods](https://walker.github.io/cityworks/classes/query.Query.html):
+
+      cw.query.methodHere().then(resp => {})
+
+[(Deprecated) General search methods](https://walker.github.io/cityworks/classes/search.Search.html):
 
       cw.search.methodHere().then(resp => {})
 
