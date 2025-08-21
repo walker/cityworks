@@ -183,7 +183,7 @@ export class Query {
    * @param {Object} options - Other options. See: /{subdirectory}/apidocs/#/service-info/General/Query
    * @return {Object} Returns Promise object that represents a list of Objects
    */
-  run(query: string, options: {QueryValue?: string, Page?: number, PageSize?: number, ResponseFields?: any, SortDescending?: boolean, SortField?: string, Variables?: DynamicVariableMap} = {}) {
+  run(query: string|number, options: {QueryValue?: string, Page?: number, PageSize?: number, ResponseFields?: any, SortDescending?: boolean, SortField?: string, Variables?: DynamicVariableMap} = {}) {
     return new Promise((resolve, reject) => {
       var data = {}
       var api_path: string = 'General/Query/Query';
@@ -192,11 +192,12 @@ export class Query {
         if(typeof(options.QueryValue)!=='undefined') {
           _.unset(options, 'QueryValue')
         }
-      } else if(!isNaN(+query)) {
+      } else if(!isNaN(+query) || _.isNumber(query)) {
         _.set(data, "QueryId", query)
         var api_path = 'General/Query/RunById'
       } else {
         // throw error
+        reject(new CWError(501, 'Invalid query type', {'provided': query}))
       }
       data = _.merge(data, options)
       this.cw.runRequest(api_path, data).then(r => {
