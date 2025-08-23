@@ -24,27 +24,27 @@ describe('[Cityworks::construct] function test', () => {
 });
 
 describe('[Cityworks::authenticate] function test', () => {
-  // it('should throw Unknown Error if username provided is not known', (done) => {
-  //   cw1.Cityworks.authenticate('myuser', 'mypassword').then(res => {
-  //     // assert.isUndefined(cw1.Token);
-  //     done();
-  //   })
-  //   .catch(error => {
-  //     assert.equal(error.message, 'Unknown Error');
-  //     done();
-  //   });
-  // });
+  it('should throw Unknown Error if username provided is not known', (done) => {
+    cw1.Cityworks.authenticate('myuser', 'mypassword').then(res => {
+      // assert.isUndefined(cw1.Token);
+      done('Token should have been empty because username was unknown');
+    })
+    .catch(error => {
+      assert.equal(error.message, 'Unknown Error');
+      done();
+    });
+  });
 
   // TODO: Uncomment for commit
-  // it('should throw invalid login error if password provided is not provided user\'s password', (done) => {
-  //   cw4.Cityworks.authenticate('mrrobot', 'mypassword').then(resp => {
-  //     // assert.isNotEmpty(cw4.Token);
-  //     done()
-  //   }).catch(error => {
-  //     assert.equal(error.message, 'Invalid Credentials');
-  //     done()
-  //   });
-  // });
+  it('should throw invalid login error if password provided is not provided user\'s password', (done) => {
+    cw4.Cityworks.authenticate('mrrobot', 'mypassword').then(resp => {
+      // assert.isNotEmpty(cw4.Token);
+      done('Token should have been empty because password was wrong')
+    }).catch(error => {
+      assert.equal(error.message, 'Invalid Credentials');
+      done()
+    });
+  });
 
   it('should have a token set, if login valid', (done) => {
     cw4.Cityworks.authenticate(process.env.login, process.env.password).then(resp => {
@@ -52,8 +52,7 @@ describe('[Cityworks::authenticate] function test', () => {
       done()
     }).catch(error => {
       console.log(error)
-      // assert.equal(error.message, 'Invalid Credentials');
-      done()
+      done(error)
     });
   })
 });
@@ -62,17 +61,15 @@ describe('[Cityworks::validateToken] function test', () => {
   it('should have a valid token set, if logged in', (done) => {
     cw1.Cityworks.authenticate(process.env.login, process.env.password).then(resp => {
       cw1.Cityworks.validateToken(cw1.Cityworks.getToken()).then(res => {
-        console.log(cw1.Cityworks.getToken(), 'token');
-        process.exit(0);
+        // console.log(cw1.Cityworks.getToken(), 'token');
+        // process.exit(0);
         assert.isTrue(res);
         done();
       }).catch(error => {
-        console.log(error, 'unexpected error');
-        done();
+        done(error);
       });
     }).catch(error => {
-      console.log(error, 'unexpected error');
-      done();
+      done(error);
     });
   })
 })
@@ -84,7 +81,7 @@ describe('[Cityworks::setToken] function test', () => {
       done();
     }).catch(error => {
       console.log(error, 'unexpected error');
-      done();
+      done(error);
     });
   })
 })

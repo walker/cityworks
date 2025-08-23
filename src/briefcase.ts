@@ -261,10 +261,27 @@ export class Briefcase {
   }
 
   /**
+   * Get case by ID
+   *
+   * @category Cases
+   * @param {number} caObjectId - The case Object ID to get
+   * @return {Object} Returns Promise that represents an object describing the case
+   */
+  getById(caObjectId: number): Promise<Briefcase> {
+    return new Promise((resolve, reject) => {
+      this.getByIds([caObjectId]).then(r => {
+        resolve(r[0])
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
    * Get cases by IDs
    *
    * @category Cases
-   * @param {Array<number>} caObjectIds - The case Object ID to get
+   * @param {Array<number>} caObjectIds - The case Object IDs to get
    * @return {Object} Returns Promise that represents a collection of objects describing the cases
    */
   getByIds(caObjectIds: Array<number>): Promise<Array<Briefcase>> {

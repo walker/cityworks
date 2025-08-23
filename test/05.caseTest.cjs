@@ -76,8 +76,36 @@ describe('[Case::update] function test', () => {
   });
 });
 
+describe('[Case::getById::] function test', () => {
+  it('should resolve a collection of a single case object, if only one ID provided', (done) => {
+    cw5.briefcase.getByIds([106968]).then(rez => {
+      assert.isNumber(rez[0].CaObjectId);
+      done();
+    }).catch(e => {
+      console.log(e, 'unexpected error')
+      done(e);
+    });
+  });
+});
+
 describe('[Case::getByIds] function test', () => {
-  it('should resolve a collection of case objects', (done) => {
+  it('should resolve a collection of a single case object, if only one ID provided', (done) => {
+    cw5.briefcase.getByIds([106968]).then(rez => {
+      expect(rez).to.be.an('array').of.length(1);
+      done();
+    }).catch(e => {
+      console.log(e, 'unexpected error')
+      done(e);
+    });
+  });
+  it('should resolve a collection of a single case objects, if multiple IDs provided', (done) => {
+    cw5.briefcase.getByIds([106968, 106970, 106973]).then(rez => {
+      expect(rez).to.be.an('array').of.length(3);
+      done();
+    }).catch(e => {
+      console.log(e, 'unexpected error')
+      done(e);
+    });
   });
 });
 
