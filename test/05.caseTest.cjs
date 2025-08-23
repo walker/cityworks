@@ -98,7 +98,7 @@ describe('[Case::getByIds] function test', () => {
       done(e);
     });
   });
-  it('should resolve a collection of a single case objects, if multiple IDs provided', (done) => {
+  it('should resolve a collection of a case objects, if multiple IDs provided', (done) => {
     cw5.briefcase.getByIds([106968, 106970, 106973]).then(rez => {
       expect(rez).to.be.an('array').of.length(3);
       done();
