@@ -5,12 +5,12 @@ var expect = require('chai').expect;
 var assert = require('chai').assert;
 var chaiAsPromised = require("chai-as-promised");
 // chai.use(chaiAsPromised);
-const cw14 = require('../dist/index.js');
-cw14.Cityworks.configure(process.env.domain, {path: process.env.path, version: process.env.version});
+const cw15 = require('../dist/index.js');
+cw15.Cityworks.configure(process.env.domain, {path: process.env.path, version: process.env.version});
   
 before(function(done) {
   this.timeout(20000000);
-  cw14.Cityworks.authenticate(process.env.login, process.env.password).then(resp => {
+  cw15.Cityworks.authenticate(process.env.login, process.env.password).then(resp => {
     done();
   }).catch(e => {
     console.log(e, 'unexpected error')
@@ -18,10 +18,10 @@ before(function(done) {
   });
 });
 
-describe('[CaseWorkflow::setTaskResult] function test', () => {
-  it('set a task result', (done) => {
-    cw14.caseWorkflow.setTaskResult(171018, 'TestTask').then(r => {
-      assert.isNumber(r.CaTaskId);
+describe('[CaseFlag::deleteAll] function test', () => {
+  it('Should delete all flags', (done) => {
+    cw15.briefcase.flag.deleteAll(107213).then(r => {
+      assert.isNumber(r);
       done();
     }).catch(e => {
       done(e);

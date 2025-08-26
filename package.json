@@ -1,6 +1,6 @@
 {
   "name": "cityworks",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "A Cityworks API wrapper",
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",

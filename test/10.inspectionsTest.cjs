@@ -1,5 +1,5 @@
 'use strict';
-require('dotenv').config();
+require('dotenv').config({quiet: true, debug: false});
 var chai = require('chai');
 const path = require('path');
 var expect = require('chai').expect;

@@ -19,7 +19,7 @@ export class CaseAssets {
    * Attach asset to case
    *
    * @category Case Assets
-   * @param {number} caObjectId - The Case Object to attach the data group to.
+   * @param {number} caObjectId - The Case Object to attach the asset to.
    * @param {boolean} updateXY - Whether or not to update the Case's X/Y values when attaching the asset. Defaults to true.
    * @param {Object} [options] - Options for CaseDataGroup including Address, AddressId, AssetId, AssetObjectId, AssetType, CityName, CrossStreet, DateExpired, ExpiredFlag, Facility_Id, FeatureAssetId, FeatureClass, FeatureObjectId, LegacyId, Level_Id, LndObjectId, Location, MasterFlag, ObjectId, StateCode, StreetDirection, StreetFraction, StreetName, StreetNumber, StreetPostDir, StreetType, Suite, TileNo, UpdateCaseData, XCoord, YCoord, ZCoord, and ZipCode
    * @return {Object} Returns Promise that represents an object describing CaAddress.

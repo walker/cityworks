@@ -1,5 +1,5 @@
 'use strict';
-require('dotenv').config();
+require('dotenv').config({quiet: true, debug: false});
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 const cw5 = require('../dist/index.js');
@@ -79,7 +79,6 @@ describe('[Case::update] function test', () => {
 describe('[Case::getById::] function test', () => {
   it('should resolve a collection of a single case object, if only one ID provided', (done) => {
     cw5.briefcase.getById(107138).then(rez => {
-      console.log(rez);
       assert.isNumber(rez.CaObjectId);
       done();
     }).catch(e => {

@@ -16,6 +16,7 @@ import { CaseFinancial } from './case_financial'
 import { CaseWorkflow} from './case_workflow'
 import { CasePeople } from './case_people'
 import { CaseAssets } from './case_assets'
+import { CaseFlags } from './case_flags'
 import { CaseAdmin } from './case_admin'
 import { Comments } from './comments'
 import { WorkOrderAdmin } from './workorder_admin'
@@ -226,10 +227,10 @@ class Cityworks implements Citywork {
         })
         /* End pf ActiveReport downloading thanks to @ksfff5 */
       } else {
-        // if(service_path=='Pll/CaseRelDocs/ByCaObjectId') {
-          // console.log(options)
-          // console.log(pd)
-          // process.exit(0)
+        // if(service_path=='Pll/CaseFlags/DeleteByCaObjectId') {
+        //   console.log(options)
+        //   console.log(pd)
+        //   process.exit(0)
         // }
         // TODO: check if still necessary
         if(service_path=='Pll/CaseRelDocs/ByCaObjectId' && !_.isEmpty(pd)){
@@ -243,7 +244,7 @@ class Cityworks implements Citywork {
         let request = https.request(options, (response) => {
           let str=''
           response.on('error',function(e){
-              // console.log(e, 'Caught on error')
+              console.log(e, 'Caught on error')
               reject(new CWError(13, "Unknown error.", e))
           })
 
@@ -290,7 +291,7 @@ class Cityworks implements Citywork {
                 }
               } catch (e) {
                 if (e instanceof SyntaxError) {
-                  console.log('try/catch error on JSON', e)
+                  // console.log('try/catch error on JSON', e)
                   reject(new CWError(6, "Error parsing JSON.", e))
                 } else {
                   console.log('try/catch error on JSON - but not an instance of SyntaxError')
@@ -754,6 +755,7 @@ briefcase.admin = new CaseAdmin(cw)
 briefcase.people = new CasePeople(cw)
 briefcase.comment = new Comments(cw, 'CaObject')
 briefcase.asset = new CaseAssets(cw)
+briefcase.flag = new CaseFlags(cw)
 briefcase.attachments = new Attachments(cw, 'Case')
 
 workorder.admin = new WorkOrderAdmin(cw)

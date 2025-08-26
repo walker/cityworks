@@ -10,6 +10,7 @@ import { CaseWorkflow} from './case_workflow'
 import { CaseAdmin } from './case_admin'
 import { Comments } from './comments'
 import { CaseAssets } from './case_assets'
+import { CaseFlags } from './case_flags'
 
 export interface Briefcase {
   TempTableName: string
@@ -105,6 +106,10 @@ export class Briefcase {
    * Asset (Address) methods
    */
   asset?: any
+  /**
+   * Flag methods
+   */
+  flag?: any
   /**
    * Asset (Address) methods
    */
