@@ -78,8 +78,9 @@ describe('[Case::update] function test', () => {
 
 describe('[Case::getById::] function test', () => {
   it('should resolve a collection of a single case object, if only one ID provided', (done) => {
-    cw5.briefcase.getByIds([106968]).then(rez => {
-      assert.isNumber(rez[0].CaObjectId);
+    cw5.briefcase.getById(107138).then(rez => {
+      console.log(rez);
+      assert.isNumber(rez.CaObjectId);
       done();
     }).catch(e => {
       console.log(e, 'unexpected error')

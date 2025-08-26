@@ -273,7 +273,8 @@ export class CaseWorkflow {
    setTaskResult(caTaskId: number, resultCode: string, options?: Object) {
     return new Promise((resolve, reject) => {
       var data = {
-        CaTaskId: caTaskId
+        CaTaskId: caTaskId,
+        ResultCode: resultCode
       }
       if(_.intersectionBy(_.keysIn(options), ['TaskCompleteDate', 'TaskCompletedBy']).length==0) {
         reject(new CWError(2, 'At least one of the attributes (TaskCompletedBy, TaskCompleteDate) must be defined.'))
