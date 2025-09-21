@@ -233,7 +233,11 @@ class Cityworks implements Citywork {
           response.on('end',function(){
             if(!_.isUndefined(_.findKey(Attachments.downloadUrls(), function(o) { return o === service_path })) || !_.isUndefined(_.findKey(Report.downloadUrls(), function(o) { return o === service_path }))) {
               // This is an attachment or report download call
-              resolve(str);
+              if(_.findKey(Report.downloadUrls(), function(o) { return o === service_path })==='case' && response.statusCode==500) {
+                reject(new CWError(13, 'Could not find report template for specified case or other server error occurred.'))
+              } else {
+                resolve(str);
+              }
             } else {
               try {
                 var test_str = JSON.stringify(str) + "[test string]"

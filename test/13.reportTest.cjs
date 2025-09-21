@@ -55,7 +55,7 @@ describe('[Report::SRPrint] (Service Request Print) function test', () => {
       done();
     });
   });
-  it('should provide a buffer and filename if the service request print template and node are available', (done) => {
+  it('should provide a PDF string and filename if the service request print template and node are available', (done) => {
     cw13.report.print('request', 1998321).then(r => {
       assert.isString(r.file, 'Report.print did not return a file');
       assert.include(r.file, 'PDF', 'Report.print did not return a PDF file');
@@ -85,7 +85,7 @@ describe('[Report::WOPrint] (Work Order Print) function test', () => {
       done();
     });
   });
-  it('should provide a buffer and filename if the work order print template and node are available', (done) => {
+  it('should provide a PDF string and filename if the work order print template and node are available', (done) => {
     cw13.report.print('workorder', 263076).then(r => {
       assert.isString(r.file, 'Report.print did not return a file');
       assert.include(r.file, 'PDF', 'Report.print did not return a PDF file');
@@ -124,6 +124,36 @@ describe('[Report::InspPrint] (Inspection Print) function test', () => {
     }).catch(e => {
       // console.log('e', e);
       assert.equal(e.Message, 'Activity type provided does not exist.');
+      done();
+    });
+  });
+});
+
+describe('[Report::CasePrint] (Case Print) function test', () => {
+  it('should reject with an error if the case type does not have a print report available and a report filename is not provided', (done) => {
+    cw13.report.print('case', 4777).then(r => {
+      assert.fail('Report.print for case should have rejected with an error');
+    }).catch(e => {
+      assert.include(e.Message, 'No print template defined for this case', 'Report.print for case did not have the expected error message');
+      done();
+    });
+  });
+  it('should reject with an error if the case print template file could not be found.', (done) => {
+    cw13.report.print('case', 107192).then(r => {
+      assert.fail('Report.print for case should have rejected with an error');
+    }).catch(e => {
+      expect(e.Message).to.include('Could not find report');
+      done();
+    });
+  });
+  it('should provide a PDF string and filename if the case print template and node are available', (done) => {
+    cw13.report.print('case', 28770).then(r => {
+      assert.isString(r.file, 'Report.print did not return a file');
+      assert.include(r.file, 'PDF', 'Report.print did not return a PDF file');
+      assert.isString(r.name, 'Report.print did not return a name for the file');
+      done();
+    }).catch(e => {
+      console.log('Error in test', e);
       done();
     });
   });

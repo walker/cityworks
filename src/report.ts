@@ -69,11 +69,14 @@ export class Report {
       var output_name = _.capitalize(type) + '_' + node_id
       // Check which verson of CW we're connected to
       if(this.cw.v() >= 23) {
-        this.resolveFileName(type, node_id, filename).then((resolvedInfo: {fn: string, desc: string}) => {
+        this.resolveFileName(type, node_id, filename).then((resolvedInfo: {fn: string, desc: string, cn?: string}) => {
           var data = {
             FileName: resolvedInfo.fn
           }
-          output_name += (resolvedInfo.desc && resolvedInfo.desc.length>0 ? '_' + _.replace(_.startCase(resolvedInfo.desc), ' ', '_') : '') + '.pdf'
+          if(!_.isUndefined(resolvedInfo.cn)) {
+            output_name = resolvedInfo.cn ?? output_name
+          }
+          output_name += (resolvedInfo.desc && resolvedInfo.desc.length>0 ? '_' + _.startCase(resolvedInfo.desc).replaceAll(' ', '_') : '') + '.pdf'
           switch (type) {
             case 'request':
               dl_url = Report.downloadUrls()['request']
@@ -103,7 +106,7 @@ export class Report {
               resolve({file: file_contents, name: output_name})
             }
           }).catch(e => {
-            console.log('Error', e)
+            // console.log('Error', e)
             reject(e)
           })
         }).catch((e) => {
@@ -149,10 +152,11 @@ export class Report {
    * @param {string} type - The node type (case, workorder, inspection, request)
    * @param {number} node_id - CaseDataGroupId as defined in CaseDataGroup admin.
    * @param {string | undefined} filename - The filename of the report.
+   * @param {Object<[key: string]: any> | undefined} options - Additional options for the report.
    * @return {Object} Returns Promise that represents a file stream of a pdf
    */
-  resolveFileName(type: string, node_id: number, filename?: string | undefined): Promise<{fn: string, desc: string}> {
-    return new Promise<{fn: string, desc: string}>((resolve, reject) => {
+  resolveFileName(type: string, node_id: number, filename?: string | undefined, options?: { [key: string]: any }): Promise<{fn: string, desc: string, cn?: string}> {
+    return new Promise<{fn: string, desc: string, cn?: string}>((resolve, reject) => {
       if(typeof(filename)==='undefined' || filename===null || filename==='') {
         // If no filename is provided, we need to set the filename to the default for the node_id
         switch (type) {
@@ -195,6 +199,7 @@ export class Report {
           case 'inspection':
             this.inspection.getById(node_id).then((r) => {
               this.inspection.admin.getTemplateById(r.InspTemplateId).then((template) => {
+                // default to first if no print template named
                 if(typeof(template.PrintTemplate)==='undefined' || template.PrintTemplate===null || template.PrintTemplate==='') {
                   reject(new CWError(404, 'No print template defined for this inspection type.'))
                   return
@@ -210,9 +215,29 @@ export class Report {
             })
           break
           case 'case':
+            this.briefcase.getById(node_id).then((r) => {
+              if(!_.isUndefined(r.CaseNumber) && r.CaseNumber!==null && r.CaseNumber.length>0) {
+                // include case number in output name
+                var cn = r.CaseNumber;
+              }
+              this.briefcase.getPrintTemplates(node_id).then((r) => {
+                // default to first if no print template named
+                if(r===null ||typeof(r)==='undefined' || typeof(r[0].ReportName)==='undefined' || r[0].ReportName===null || r[0].ReportName==='') {
+                  reject(new CWError(404, 'No print template defined for this case'));
+                  return;
+                } else {
+                  resolve({fn: r[0].FileName.replace('.rpt', ''), desc: r[0].ReportName, cn: cn});
+                }
+              }).catch((e) => {
+                reject(e);
+              });
+            }).catch((e) => {
+              reject(e);
+            });
           break
         }
       } else {
+        // We should really move this up to above. But for now, if a filename is provided, just use it.
         resolve({fn: filename, desc: ''})
       }
     })
