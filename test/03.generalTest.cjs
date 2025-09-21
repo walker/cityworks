@@ -31,7 +31,7 @@ describe('[General::amIWatching] function test', () => {
   it('should reject with an error if the activity type is not available or does not exist', (done) => {
     cw3.general.amIWatching('request', 42015).then(r => {
     }).catch(e => {
-      assert.equal(e.message, 'Activity type provided does not exist.');
+      assert.equal(e.Message, 'Activity type provided does not exist.');
       done();
     });
   });
@@ -52,7 +52,7 @@ describe('[General::amIWatching] function test', () => {
   it('should reject with an error if the activity id is too large', (done) => {
     cw3.general.amIWatching('case', 10000000000).then(response => {
     }).catch(e => {
-      assert.equal(e.message, 'Unknown error.');
+      assert.equal(e.Message, 'Unknown error.');
       done();
     });
   });

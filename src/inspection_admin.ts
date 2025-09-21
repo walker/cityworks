@@ -42,4 +42,42 @@ export class InspectionAdmin {
       })
     })
   }
+
+  /**
+   * Get inspection template by ID
+   *
+   * @category Inspection Templates
+   * @param {number} [templateId] - The ID of the template to retrieve
+   * @return {Object} Returns Promise that represents the Inspection template matching the provided ID
+   */
+  getTemplateById(templateId: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.getTemplatesByIds([templateId]).then((r: Array<any>) => {
+        resolve(r[0])
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get inspection templates by IDs
+   *
+   * @category Inspection Templates
+   * @param {Array<number>} [templateIds] - The Entity Type(s) to return potential inspections for
+   * @return {Object} Returns Promise that represents a collection of all Inspection templates matching the provided IDs
+   */
+  getTemplatesByIds(templateIds: Array<number>): Promise<Array<any>> {
+    return new Promise((resolve, reject) => {
+      var data: {InspTemplateIds?: Array<number>} = {}
+      if (_.isArray(templateIds) && templateIds.length > 0) {
+        data.InspTemplateIds = templateIds
+      }
+      this.cw.runRequest('Ams/InspectionTemplate/byIds', data).then((r: any) => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
 }

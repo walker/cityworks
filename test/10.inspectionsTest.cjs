@@ -52,7 +52,6 @@ describe('[Inspection::create] function test', () => {
 describe('[Inspection::getById] function test', () => {
   it('should return an inspection', (done) => {
     cw10.inspection.getById(171018).then(r => {
-      console.log(r);
       assert.property(r, 'InspectionId');
       done();
     }).catch(e => {

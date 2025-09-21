@@ -46,7 +46,7 @@ describe('[CaseData::setCaseData] function test', () => {
   // it('should return an error if a data detail item is not found', (done) => {
   //   cw12.briefcase.data.setCaseData(77950, [{code: 'TEST.TESTNOFIELD', value: 123456}]).then(r => {
   //   }).catch(e => {
-  //     expect(e.message).to.have.string('The matching data detail item was not found for')
+  //     expect(e.Message).to.have.string('The matching data detail item was not found for')
   //     done();
   //   })
   // });

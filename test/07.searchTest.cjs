@@ -61,7 +61,7 @@ describe('[Search::getSaved] function test', () => {
   it('should reject with an error if the search type does not exist', (done) => {
     cw7.search.getSaved('ServiceRequest').then(r => {
     }).catch(e => {
-      assert.equal(e.message, 'SearchType provided does not exist or is mispelled.')
+      assert.equal(e.Message, 'SearchType provided does not exist or is mispelled.')
       done();
     });
   });
@@ -69,7 +69,7 @@ describe('[Search::getSaved] function test', () => {
   it('should reject with an error if the applyToEntities and employeeSid/domainId are all set at the same time', (done) => {
     cw7.search.getSaved('Request', ['EASEMENT_TREES'], 127, 1).then(r => {
     }).catch(e => {
-      assert.equal(e.message, 'You cannot specify both applyToEntities AND employeeSid/domainId')
+      assert.equal(e.Message, 'You cannot specify both applyToEntities AND employeeSid/domainId')
       done();
     });
   });
@@ -86,7 +86,7 @@ describe('[Search::displayFields] function test', () => {
   it('should reject with an error if the searchType is not found', (done) => {
     cw7.search.displayFields('ServiceRequest').then(r => {
     }).catch(e => {
-      assert.equal(e.message, 'SearchType provided does not exist or is mispelled.')
+      assert.equal(e.Message, 'SearchType provided does not exist or is mispelled.')
       done();
     });
   });

@@ -66,6 +66,44 @@ export class WorkOrderAdmin {
   }
 
   /**
+   * Get work order template by ID
+   *
+   * @category WorkOrders Admin
+   * @param {number} [templateId] - The ID of the template to retrieve
+   * @return {Object} Returns Promise that represents the WorkOrder template matching the provided ID
+   */
+  getTemplateById(templateId: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.getTemplatesByIds([templateId]).then((r: Array<any>) => {
+        resolve(r[0])
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * Get work order templates by IDs
+   *
+   * @category WorkOrders Admin
+   * @param {Array<number>} [templateIds] - The Entity Type(s) to return potential work orders for
+   * @return {Object} Returns Promise that represents a collection of all WorkOrder templates matching the provided IDs
+   */
+  getTemplatesByIds(templateIds: Array<number>): Promise<Array<any>> {
+    return new Promise((resolve, reject) => {
+      var data: {WOTemplateIds?: Array<number>} = {}
+      if (_.isArray(templateIds) && templateIds.length > 0) {
+        data.WOTemplateIds = templateIds
+      }
+      this.cw.runRequest('Ams/WorkOrderTemplate/byIds', data).then((r: any) => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
    * Update WorkOrder template
    *
    * @category WorkOrders Admin

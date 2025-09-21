@@ -204,28 +204,6 @@ class Cityworks implements Citywork {
         }).then((r) => {
           resolve(r.data)
         })
-      } else if(_.startsWith(service_path, 'Pll/BusinessCaseReports/Download') || _.startsWith(service_path, 'Ams/Reports/Download')) {
-        /* ActiveReport downloading thanks to @ksfff5 */
-        https.get(options, resp => {
-          // Create an empty buffer for pdf data
-          // String would apply encoding to the raw data
-          var data: Buffer = Buffer.concat([])
-
-          // Grab the chunks of pdf and store in buffer
-          // The readable event may trigger multiple times before the full pdf is read, so chunk it
-          resp.on('readable', () => {
-            const chunk: Buffer = resp.read()
-            if(!(chunk == null)) {
-              data = Buffer.concat([data, chunk])
-            }
-          })
-
-          // Done, resolve PDF
-          resp.on('end', () => {
-            resolve(data)
-          })
-        })
-        /* End pf ActiveReport downloading thanks to @ksfff5 */
       } else {
         // if(service_path=='Pll/CaseFlags/DeleteByCaObjectId') {
         //   console.log(options)
@@ -253,8 +231,9 @@ class Cityworks implements Citywork {
           })
 
           response.on('end',function(){
-            if(_.indexOf(Attachments.downloadUrls, service_path)!=-1) {
-                            
+            if(!_.isUndefined(_.findKey(Attachments.downloadUrls(), function(o) { return o === service_path })) || !_.isUndefined(_.findKey(Report.downloadUrls(), function(o) { return o === service_path }))) {
+              // This is an attachment or report download call
+              resolve(str);
             } else {
               try {
                 var test_str = JSON.stringify(str) + "[test string]"
@@ -741,7 +720,6 @@ const activity_link = new ActivityLinks(cw)
 const message_queue = new MessageQueue(cw)
 const search = new Search(cw)
 const query = new Query(cw)
-const report = new Report(cw)
 const gis = new Gis(cw)
 const request = new Request(cw)
 const inspection = new Inspection(cw)
@@ -771,5 +749,7 @@ request.admin = new RequestAdmin(cw)
 request.costs = new RequestCosts(cw)
 request.comment = new Comments(cw, 'Request')
 request.attachments = new Attachments(cw, 'Request')
+
+const report = new Report(cw, inspection, workorder, request, briefcase)
 
 export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report }

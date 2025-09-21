@@ -51,8 +51,7 @@ export class CaseFlags {
    * Delete specific flag from case
    *
    * @category Case Flags
-   * @param {number} caObjectId - The Case Object to attach the data group to.
-   * @param {boolean} updateXY - Whether or not to update the Case's X/Y values when detaching the flags. Defaults to true.
+   * @param {number} caFlagId - The CaFlagId (case flag instance ID) that should be deleted
    * @return {Object} Returns Promise that represents the CaFlag that has been deleted.
    */
   delete(caFlagId: number) {
@@ -72,7 +71,7 @@ export class CaseFlags {
    * Delete all flags from case
    *
    * @category Case Flags
-   * @param {number} caObjectId - The Case Object to detach the flags from.
+   * @param {number} caObjectId - The Case Object to delete the flags from.
    * @return {Object} Returns Promise that represents the number of flags deleted from the case provided.
    */
   deleteAll(caObjectId: number) {

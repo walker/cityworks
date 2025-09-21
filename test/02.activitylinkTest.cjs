@@ -26,7 +26,7 @@ describe('[ActivityLink::get] function test', () => {
   it('should return error if type doesn\'t exist', (done) => {
     cw2.activity_link.get('something').then(resp => {
     }).catch(e => {
-      expect(e.message).to.have.string('not found.').and.to.have.string('Activity type');
+      expect(e.Message).to.have.string('not found.').and.to.have.string('Activity type');
       done();
     });
   });

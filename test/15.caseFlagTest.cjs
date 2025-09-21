@@ -18,10 +18,54 @@ before(function(done) {
   });
 });
 
+describe('[CaseFlag::add] function test', () => {
+  it('Should add one flag to the case', (done) => {
+    cw15.briefcase.flag.add(107213, 7, 'FLAG', 420, new Date()).then(r => {
+      assert.isNumber(r);
+      done();
+    }).catch(e => {
+      done(e);
+    });
+  });
+});
+
+describe('[CaseFlag::deleteOne] function test', () => {
+  it('Should delete one flag', (done) => {
+    cw15.briefcase.flag.delete().then(r => {
+      assert.isNumber(r);
+      done();
+    }).catch(e => {
+      done(e);
+    });
+  });
+});
+
 describe('[CaseFlag::deleteAll] function test', () => {
   it('Should delete all flags', (done) => {
     cw15.briefcase.flag.deleteAll(107213).then(r => {
       assert.isNumber(r);
+      done();
+    }).catch(e => {
+      done(e);
+    });
+  });
+});
+
+describe('[CaseFlag::getForCase] function test', () => {
+  it('Should get all flags for provided CaseID', (done) => {
+    cw15.briefcase.flag.getForCase(107213).then(r => {
+      assert.isArray(r);
+      done();
+    }).catch(e => {
+      done(e);
+    });
+  });
+});
+
+describe('[CaseFlag::search] function test', () => {
+  it('Should get all flags that match the provided search criteria', (done) => {
+    cw15.briefcase.flag.search({FlagDesc: 'Unprocessed'}).then(r => {
+      assert.isArray(r);
       done();
     }).catch(e => {
       done(e);

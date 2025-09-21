@@ -32,4 +32,21 @@ export class RequestAdmin {
     })
   }
 
+   /**
+   * Get request template by ID
+   *
+   * @category Request Templates
+   * @param {number} [templateId] - The ID of the template to retrieve
+   * @return {Object} Returns Promise that represents the Request template matching the provided ID
+   */
+  getTemplateById(templateId: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      var data = {ProblemSid: templateId}
+      this.cw.runRequest('Ams/ServiceRequest/problemLeafBySid', data).then((r: any) => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
 }

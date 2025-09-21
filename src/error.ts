@@ -17,11 +17,11 @@ export interface CWErrorMsgs {
  *
  */
 export interface CWErrorInt {
-  name: string
-  code: number
-  message: string
-  error_messages?: Array<CWErrorMsgs>
-  info?: string
+  Name: string
+  Code: number
+  Message: string
+  Error_messages?: Array<CWErrorMsgs>
+  Info?: string
 }
 
 /**
@@ -32,23 +32,23 @@ export class CWError implements CWErrorInt {
   /**
    * Just statically set to "Cityworks Exception" for now
    */
-  name: string
+  Name: string
   /**
    * Number for the thrown error (Efforts were made to make these unique when thrown throughout the codebase)
    */
-  code: number
+  Code: number
   /**
    * The error message
    */
-  message: string
+  Message: string
   /**
    * The error message
    */
-  error_messages: Array<CWErrorMsgs>
+  Error_messages: Array<CWErrorMsgs>
   /**
    * Object stuffed with any other information one wishes to include in the thrown error
    */
-  info?: string
+  Info?: string
 
   /**
    * CWError implements a custom error class for this codebase with additional information
@@ -59,22 +59,22 @@ export class CWError implements CWErrorInt {
    * @return {Object} Returns instance of CWError object
    */
   constructor(code:number, message:string, info?:any) {
-    this.name = "Cityworks Exception"
-    this.code = code
-    this.message = message
-    this.error_messages = []
+    this.Name = "Cityworks Exception"
+    this.Code = code
+    this.Message = message
+    this.Error_messages = []
     // console.log('CWERROR', code, message, info)
     if(typeof(info) !== 'undefined') {
       if(_.has(info, 'ErrorMessages')) {
         _.forEach(info.ErrorMessages, (v) => {
           _.set(v, 'Service', v.Service.replace(/([a-z])([A-Z])/g, '$1 $2'))
           _.set(v, 'Name', v.Name.replace(/([a-z])([A-Z])/g, '$1 $2'))
-          this.error_messages.push(v)
+          this.Error_messages.push(v)
         })
       }
       if(_.has(info, 'Message'))
-        this.message = _.get(info, 'Message')
-      this.info = JSON.stringify(info)
+        this.Message = _.get(info, 'Message')
+      this.Info = JSON.stringify(info)
     }
   }
 }

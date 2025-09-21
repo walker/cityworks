@@ -191,13 +191,10 @@ export class Attachments {
   }
 
   /**
-   * Get attachment URLs in array
-   *
-   * @category Attachments
-   * @return {Object} Returns array of attachment URLs
+   * @hidden
    */
   static downloadUrls() {
-    return ['Pll/CaseRelDocs/DownloadCaRelDocs', 'Ams/Attachments/DownloadInspectionAttachment', 'Ams/Attachments/DownloadRequestAttachment', 'Ams/Attachments/DownloadWorkOrderAttachment']
+    return {'case': 'Pll/CaseRelDocs/DownloadCaRelDocs', 'inspection': 'Ams/Attachments/DownloadInspectionAttachment', 'request': 'Ams/Attachments/DownloadRequestAttachment', 'workorder': 'Ams/Attachments/DownloadWorkOrderAttachment'}
   }
 
   /**
@@ -215,19 +212,19 @@ export class Attachments {
       switch(this.currentActivityType) {
         case 'Case':
           _.set(data, 'CaRelDocsId', attachmentId)
-          endpoint = 'Pll/CaseRelDocs/DownloadCaRelDocs'
+          endpoint = Attachments.downloadUrls()['case']
           break;
         case 'Inspection':
           _.set(data, 'AttachmentId', attachmentId)
-          endpoint = 'Ams/Attachments/DownloadInspectionAttachment'
+          endpoint = Attachments.downloadUrls()['inspection']
           break;
         case 'Request':
           _.set(data, 'AttachmentId', attachmentId)
-          endpoint = 'Ams/Attachments/DownloadRequestAttachment'
+          endpoint = Attachments.downloadUrls()['request']
           break;
         case 'WorkOrder':
           _.set(data, 'AttachmentId', attachmentId)
-          endpoint = 'Ams/Attachments/DownloadWorkOrderAttachment'
+          endpoint = Attachments.downloadUrls()['workorder']
           break;
         default:
           reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
