@@ -416,6 +416,78 @@ export class CaseFinancial {
   }
 
   /**
+   * Get Receipts by Case ObjectId
+   *
+   * @category Case Payments
+   * @param {number} caObjectId - The Case Object ID for the case to get the payment receipts for
+   * @return {Object} Returns Promise that represents a collection of Case Receipts.
+   */
+  getReceipts(caObjectId: number) {
+    return new Promise((resolve, reject) => {
+      var data = {"FilterColumn":"CA_RECEIPT_CASES.Ca_Object_Id","FilterOperator":"=","FilterValue":caObjectId}
+      this.cw.runRequest('Pll/CaseReceiptCase/GetList', data).then(r => {
+        var receipt_ids: number[] = []
+        _.forEach(r.Value, (receiptCase) => {
+          receipt_ids.push(receiptCase.CaReceiptId)
+        })
+        if(receipt_ids.length>0) {
+          var receipt_data = {"WhereClause":` CA_RECEIPTS.CA_RECEIPT_ID in (${receipt_ids.join(',')})`}
+          this.cw.runRequest('Pll/CaseReceipt/GetList', receipt_data).then((receipt_list) => {
+            resolve(receipt_list.Value)
+          }).catch(e => {
+            reject(e)
+          })
+        } else {
+          resolve([])
+        }
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
+   * @hidden
+   */
+  static downloadUrls() {
+    return {'receipt': 'Pll/CasePayment/DownloadReceipt'}
+  }
+
+  /**
+   * Download a Receipt by Receipt Id or Receipt Name.
+   *
+   * @category Case Payments
+   * @param {string | number} receipt - The Receipt Name or Receipt ID for the receipt to download
+   * @return {Object} Returns Promise that represents the downloaded Receipt PDF and Filename.
+   */
+  downloadReceipt(receipt: string | number) {
+    return new Promise((resolve, reject) => {
+      var receipt_name: string = ''
+      if(typeof(receipt)==='number') {
+        var receipt_data = {"WhereClause":` CA_RECEIPTS.CA_RECEIPT_ID in (${receipt})`}
+        this.cw.runRequest('Pll/CaseReceipt/GetList', receipt_data).then((receipt_list) => {
+          receipt_name = receipt_list.Value[0].ReceiptFileName
+          var data = {"Name":receipt_name}
+          this.cw.runRequest(CaseFinancial.downloadUrls().receipt, data).then(r => {
+            resolve({file: r, name: receipt_name+'.pdf'})
+          }).catch(e => {
+            reject(e)
+          })
+        }).catch(e => {
+          reject(e)
+        })
+      } else {
+        var data = {"Name":receipt}
+        this.cw.runRequest(CaseFinancial.downloadUrls().receipt, data).then(r => {
+          resolve({file: r, name: receipt+'.pdf'})
+        }).catch(e => {
+          reject(e)
+        })
+      }
+    })
+  }
+
+  /**
    * Gets the instruments from the case specified by the CaObectId.
    *
    * @category Case Instruments

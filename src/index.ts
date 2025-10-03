@@ -231,10 +231,12 @@ class Cityworks implements Citywork {
           })
 
           response.on('end',function(){
-            if(!_.isUndefined(_.findKey(Attachments.downloadUrls(), function(o) { return o === service_path })) || !_.isUndefined(_.findKey(Report.downloadUrls(), function(o) { return o === service_path }))) {
+            if(!_.isUndefined(_.findKey(Attachments.downloadUrls(), function(o) { return o === service_path })) || !_.isUndefined(_.findKey(Report.downloadUrls(), function(o) { return o === service_path })) || !_.isUndefined(_.findKey(CaseFinancial.downloadUrls(), function(o) { return o === service_path }))) {
               // This is an attachment or report download call
               if(_.findKey(Report.downloadUrls(), function(o) { return o === service_path })==='case' && response.statusCode==500) {
                 reject(new CWError(13, 'Could not find report template for specified case or other server error occurred.'))
+              } else if(_.findKey(Report.downloadUrls(), function(o) { return o === service_path })==='receipt' && response.statusCode==500) {
+                reject(new CWError(14, 'Could not find receipt file or another server error occurred.'))
               } else {
                 resolve(str);
               }

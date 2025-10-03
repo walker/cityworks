@@ -170,3 +170,31 @@ describe('[CaseFinancial::addTenderType] function test', () => {
 describe('[CaseFinancial::updateTenderType] function test', () => {
   it('should resolve an object with the details of the updated tender type');
 });
+
+describe('[CaseFinancial::getReceipts] function test', () => {
+  it('should resolve a collection of all receipts configured', (done) => {
+    cw6.briefcase.financial.getReceipts(107529).then(r => {
+      console.log(r, 'r')
+      assert.isArray(r);
+      done();
+    }).catch(e => {
+      console.log(e, 'e')
+    })
+  });
+});
+
+describe('[CaseFinancial::downloadReceipts] function test', () => {
+  it('should resolve an object with the Receipt\'s file contents and name', (done) => {
+    cw6.briefcase.financial.getReceipts(107529).then(r => {
+      cw6.briefcase.financial.downloadReceipt(r[0].ReceiptFileName).then(r => {
+        // assert.include(r.file, 'PDF');
+        assert.isString(r.name);
+        done();
+      }).catch(e => {
+        console.log(e, 'e')
+      })
+    }).catch(e => {
+      console.log(e, 'e')
+    })
+  });
+});
