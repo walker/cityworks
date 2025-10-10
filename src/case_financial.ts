@@ -64,8 +64,8 @@ export class CaseFinancial {
    * Make a Payment. Adds a payment to the case fee(s) specified.
    *
    * @category Case Payments
-   * @param {Array<Array<string>>} payments - The Case Object ID for the case to which to add the fee
-   * @param {Array<number>} caseFees - Fees this payment should be applied to. Array of CaFeeIds values.
+   * @param {Array<Array<string>>} payments - A collection of Payments to add: [Payment Tender Type, Amount, Comment, Date Received, Reference String] (All as strings)
+   * @param {Array<number>} caseFees - The Ca Fee IDs to which to apply the payment.
    * @param {stringName:string,AddressLine1?:string,AddressLine2?:string,AddressLine3?:string,CityName?:string,CommentText?:string,Email?:string,FaxNumber?:string,PhoneHome?:string,PhoneMobile?:string,PhoneWork?:string,PhoneWorkExt?:string,StateCode?:string,WebSiteUrl?:string,ZipCode?:string,CountryCode?:string} payerInfo - Payer info for the payment being made.
    * @return {Object} Returns Promise that represents an object describing the newly-added payment.
    */
@@ -104,7 +104,7 @@ export class CaseFinancial {
           reject(new CWError(302, `Payment Tender amount, second item in array (${payment[1]}), must be a curreny number provided as a string.`))
         }
         //Check that item 3 is a datetime
-        else if(!_.isDate(Date.parse(payment[3]))) {
+        else if(!_.isDate(new Date(payment[3]))) {
           reject(new CWError(303, `Payment Tender date, fourth item in array (${payment[3]}), must be a datetime provided as a string.`))
         } else {
           data.TenderTypes.push(payment)

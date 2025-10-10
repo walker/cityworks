@@ -1,6 +1,6 @@
 {
   "name": "cityworks",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "A Cityworks API wrapper",
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
@@ -17,7 +17,7 @@
     "build": "microbundle",
     "test": "mocha -R spec --recursive ./test/ -g ",
     "fulltest": "mocha -R spec --recursive ./test/",
-    "docs": "./node_modules/typedoc/bin/typedoc --tsconfig ./tsconfig.json"
+    "docs": "typedoc --tsconfig ./tsconfig.json"
   },
   "repository": {
     "type": "git",
@@ -38,13 +38,14 @@
   },
   "homepage": "https://walker.github.io/cityworks/",
   "devDependencies": {
+    "@types/node": "^24.7.1",
     "chai": "~6.0.1",
     "chai-as-promised": "~8.0.2",
     "dotenv": "~17.2.2",
     "jsdoc-to-markdown": "~9.1.2",
     "microbundle": "~0.15.1",
     "mocha": "~11.7.2",
-    "typedoc": "~0.28.13",
+    "typedoc": "^0.28.13",
     "typescript": "^5.9.2",
     "winston": "~3.17.0"
   },
