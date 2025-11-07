@@ -104,9 +104,31 @@ export class CaseFinancial {
           reject(new CWError(302, `Payment Tender amount, second item in array (${payment[1]}), must be a curreny number provided as a string.`))
         }
         //Check that item 3 is a datetime
-        else if(!_.isDate(new Date(payment[3]))) {
+        else if(!_.isDate(payment[3]) && !_.isDate(new Date(payment[3]))) {
           reject(new CWError(303, `Payment Tender date, fourth item in array (${payment[3]}), must be a datetime provided as a string.`))
         } else {
+          if(_.isDate(new Date(payment[3]))) {
+            payment[3] = new Date(payment[3])
+          }
+          var hours_display = payment[3].getHours()
+          var ampm_display = 'AM'
+          var month_display = payment[3].getMonth()+1
+          if(payment[3].getHours()>12) {
+            hours_display = payment[3].getHours() - 12
+            ampm_display = 'PM'
+          }
+          var minutes_display = payment[3].getMinutes()
+          if(minutes_display<10) {
+            minutes_display = '0' + minutes_display
+          }
+          var seconds_display = payment[3].getSeconds()
+          if(seconds_display<10) {
+            seconds_display = '0' + seconds_display
+          }
+          payment[3] = month_display + '/' + payment[3].getDate() + '/' + payment[3].getFullYear() + ' ' + hours_display + ':' + minutes_display + ':' + seconds_display + ' ' + ampm_display
+
+          console.log(payment)
+          process.exit(0)
           data.TenderTypes.push(payment)
         }
       })
