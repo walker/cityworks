@@ -126,9 +126,6 @@ export class CaseFinancial {
             seconds_display = '0' + seconds_display
           }
           payment[3] = month_display + '/' + payment[3].getDate() + '/' + payment[3].getFullYear() + ' ' + hours_display + ':' + minutes_display + ':' + seconds_display + ' ' + ampm_display
-
-          console.log(payment)
-          process.exit(0)
           data.TenderTypes.push(payment)
         }
       })
