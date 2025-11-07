@@ -131,6 +131,8 @@ export class CaseFinancial {
       })
 
       this.cw.runRequest('Pll/CasePayment/MakePayment', data).then(r => {
+        console.log(data)
+        process.exit(0)
         resolve(r.Value)
       }).catch(e => {
         reject(e)

@@ -201,7 +201,14 @@ describe('[CaseFinancial::downloadReceipts] function test', () => {
 
 
 describe('[CaseFinancial::makePayment] function test', () => {
-  it('make a payment on a fee', (done) => {
+  it('should make a payment on a fee', (done) => {
+    cw6.briefcase.financial.makePayment([["CASH","3.23","test comment","2025-01-05 17:07:04","test"]], [93572]).then(r => {
+      assert.isNumber(r.Value);
+    }).catch(e => {
+      console.log(e, 'e')
+    })
+  });
+  it('should make payments on several fees', (done) => {
     cw6.briefcase.financial.makePayment([["CASH","3.23","test comment","2025-01-05 17:07:04","test"]], [93572]).then(r => {
       assert.isNumber(r.Value);
     }).catch(e => {
