@@ -70,7 +70,7 @@ export class CaseFinancial {
    * @return {Object} Returns Promise that represents an object describing the newly-added payment.
    */
   makePayment(payments: Array<Array<string>>, caseFees: Array<number>, payerInfo?: {
-    stringName:string,
+    Name:string,
     AddressLine1?:string,
     AddressLine2?:string,
     AddressLine3?:string,
@@ -94,6 +94,8 @@ export class CaseFinancial {
       }
       if(payerInfo) {
         _.set(data, 'CaPayer', payerInfo)
+      } else {
+        _.set(data, 'CaPayer', {"Name":""})
       }
       _.forEach(payments, payment => {
         if(payment.length!=5) {
@@ -129,7 +131,6 @@ export class CaseFinancial {
           data.TenderTypes.push(payment)
         }
       })
-
       this.cw.runRequest('Pll/CasePayment/MakePayment', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
