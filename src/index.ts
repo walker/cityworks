@@ -211,6 +211,7 @@ class Cityworks implements Citywork {
         //   process.exit(0)
         // }
         // TODO: check if still necessary
+
         if(service_path=='Pll/CaseRelDocs/ByCaObjectId' && !_.isEmpty(pd)){
           _.set(options, 'path', options.path + '?' + querystring.stringify(pd))
         } else {
@@ -218,6 +219,10 @@ class Cityworks implements Citywork {
           if(!_.isEmpty(pd)){
             _.set(options, 'headers.Content-Length', Buffer.byteLength(querystring.stringify(pd)))
           }
+        }
+        if(options.path!='/int/services/General/Authentication/Authenticate') {
+          console.log(options)
+          process.exit(0)
         }
         let request = https.request(options, (response) => {
           let str=''
