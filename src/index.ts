@@ -220,10 +220,6 @@ class Cityworks implements Citywork {
             _.set(options, 'headers.Content-Length', Buffer.byteLength(querystring.stringify(pd)))
           }
         }
-        if(options.path!='/int/services/General/Authentication/Authenticate') {
-          console.log(options)
-          process.exit(0)
-        }
         let request = https.request(options, (response) => {
           let str=''
           response.on('error',function(e){
