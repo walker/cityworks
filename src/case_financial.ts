@@ -69,7 +69,7 @@ export class CaseFinancial {
    * @param {stringName:string,AddressLine1?:string,AddressLine2?:string,AddressLine3?:string,CityName?:string,CommentText?:string,Email?:string,FaxNumber?:string,PhoneHome?:string,PhoneMobile?:string,PhoneWork?:string,PhoneWorkExt?:string,StateCode?:string,WebSiteUrl?:string,ZipCode?:string,CountryCode?:string} payerInfo - Payer info for the payment being made.
    * @return {Object} Returns Promise that represents an object describing the newly-added payment.
    */
-  makePayment(payments: Array<Array<string>>, caseFees: Array<number>, payerInfo?: {
+  makePayment(payments: Array<Array<string>>, caseFees: Array<number>, payerInfo: {
     Name:string,
     AddressLine1?:string,
     AddressLine2?:string,
