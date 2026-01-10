@@ -209,7 +209,7 @@ describe('[CaseFinancial::makePayment] function test', () => {
       console.log(e, 'e')
     })
   });
-  it('should make payments on several fees', (done) => {
+  it('should make a payment on several fees', (done) => {
     cw6.briefcase.financial.makePayment([["PAYIT CC","225.72","test comment","2025-11-09 11:45:00","test"]], [214310,263031,269293]).then(r => {
       assert.isNumber(r);
       done();
@@ -217,5 +217,12 @@ describe('[CaseFinancial::makePayment] function test', () => {
       console.log(e, 'e')
     })
   });
+  it('should make payments on several fees', (done) => {
+    cw6.briefcase.financial.makePayment([["ACH","117.72","test comment","2025-11-23 11:45:00","test"],["CC","108.00","test comment","2025-11-23 11:44:00","test"]], [263031,214310,269293]).then(r => {
+      assert.isNumber(r);
+      done();
+    }).catch(e => {
+      console.log(e, 'e')
+    })
+  });
 });
-
