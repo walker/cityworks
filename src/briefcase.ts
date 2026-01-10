@@ -327,6 +327,30 @@ export class Briefcase {
   }
 
   /**
+   * Get the configured custom data for the case, by template and table name
+   *
+   * @category Cases
+   * @param {number} caObjectId - The case Object ID to get
+   * @param {number} configId - The configuration ID to get use
+   * @param {string} tableName - The name of the table to get custom data from
+   * @return {Object} Returns Promise that represents a collection of custom fields with data for the case instance
+   */
+  getCustomData(caObjectId: number, configId: number, tableName: string): Promise<Array<any>> {
+    return new Promise((resolve, reject) => {
+      var data = {
+        CaObjectId: caObjectId,
+        ConfigurationId: configId,
+        TableName: tableName
+      }
+      this.cw.runRequest('Pll/CustomColumnsDetail/GetListForAdd', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
    * Move a Case point
    *
    * @category Cases
@@ -347,7 +371,7 @@ export class Briefcase {
         CaObjectId: caObjectId,
         X: x,
         Y: y
-      };
+      }
       if(typeof(z)!='undefined') {
         _.set(data_init, 'Z', z)
       }
@@ -567,6 +591,7 @@ export class Briefcase {
       })
     })
   }
+
 
   // importCase(caseTypeId: number, subTypeId: number, caseName: string, location: string, x: number, y:number, appData: object, comment: string, expiration: string, assetIds: object) {
   //   return new Promise(resolve => {
