@@ -331,15 +331,15 @@ export class Briefcase {
    *
    * @category Cases
    * @param {number} caObjectId - The case Object ID to get
-   * @param {number} configId - The configuration ID to get use
+   * @param {number} busCaseId - The business case template ID for which to get the custom columns configuration and data
    * @param {string} tableName - The name of the table to get custom data from
    * @return {Object} Returns Promise that represents a collection of custom fields with data for the case instance
    */
-  getCustomData(caObjectId: number, configId: number, tableName: string): Promise<Array<any>> {
+  getCustomData(caObjectId: number, busCaseId: number, tableName: string): Promise<Array<any>> {
     return new Promise((resolve, reject) => {
       var data = {
         CaObjectId: caObjectId,
-        ConfigurationId: configId,
+        ConfigurationId: busCaseId,
         TableName: tableName
       }
       this.cw.runRequest('Pll/CustomColumnsDetail/GetListForAdd', data).then(r => {
