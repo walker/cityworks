@@ -1,5 +1,46 @@
 import { CWError } from './error'
 import _ from 'lodash';
+
+export interface EmployeeBase {
+  LastName: string;
+  FirstName?: string;
+  Email?: string;
+  Password?: string;
+  AdDomain?: string;
+  BenefitRate?: number;
+  BenefitType?: number;
+  DefaultImgPath?: string;
+  DomainId?: number;
+  EmailReq?: string;
+  EmployeeId?: string;
+  GroupIds?: Array<number>;
+  HolidayRate?: number;
+  HolidayType?: number;
+  HourlyRate?: number;
+  IsActive?: boolean;
+  IsDomain?: boolean;
+  LicenseCodes?: Array<string>;
+  LoginName?: string;
+  MapServiceId?: number;
+  MiddleInitial?: string;
+  MobileMapCacheId?: number;
+  Organization?: string;
+  OtherRate?: number;
+  OtherRateType?: number;
+  OverheadRate?: number;
+  OverheadType?: number;
+  OvertimeRate?: number;
+  OvertimeType?: number;
+  Pager?: string;
+  ShiftDiffRate?: number;
+  ShiftDiffType?: number;
+  StandbyRate?: number;
+  StandbyType?: number;
+  Title?: string;
+  UniqueName?: string;
+  WorkPhone?: string;
+}
+
 /**
  * A plugin that contains "general" methods for a Cityworks install
  */
@@ -20,47 +61,76 @@ export class Employee {
   /**
    * Add a new employee
    *
-   * @param {string} activityType - which activity type the following ID will be for.
-   * @param {number} activityId - activity Case or CaseTask (task instance) ID to check
+   * @param {EmployeeBase} employee - The employee information. `LastName` is a required field.
    * @return {Object} Returns Promise object that represents an object that is the newly-added user
    */
-  add() {
+  add(employee: EmployeeBase) {
     return new Promise((resolve, reject) => {
+      var data = employee
+      this.cw.runRequest('Ams/Employee/Add', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
     })
   }
 
   /**
-   * Add a new employee
+   * Update an existing employee
    *
-   * @param {string} activityType - which activity type the following ID will be for.
+   * @param {EmployeeBase} employee - The employee information. `LastName` is a required field.
    * @return {Object} Returns Promise object that represents an object that is the updated user
    */
-  update() {
+  update(employee: EmployeeBase) {
     return new Promise((resolve, reject) => {
+      var data = employee
+      this.cw.runRequest('Ams/Employee/Update', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
     })
   }
 
   /**
    * Add a licenses to an employee
    *
-   * @param {string} activityType - which activity type the following ID will be for.
-   * @param {number} activityId - activity Case or CaseTask (task instance) ID to check
+   * @param {Array<number>} employeeIds - The IDs of the employees to whom to add licenses.
+   * @param {Array<string>} licenseCodes - The license codes to add.
    * @return {Object} Returns Promise object that represents an object that is the newly-added user
    */
-  addLicenses() {
+  addLicenses(employeeIds: Array<Number>, licenseCodes: Array<string>) {
     return new Promise((resolve, reject) => {
+      var data = {
+        EmployeeIds: employeeIds,
+        LicenseCodes: licenseCodes
+      }
+      this.cw.runRequest('Ams/Employee/AddLicensedItems', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
     })
   }
 
   /**
    * Delete licenses from an employee
    *
-   * @param {string} activityType - which activity type the following ID will be for.
-   * @param {number} activityId - activity Case or CaseTask (task instance) ID to check
+   * @param {Array<number>} employeeIds - The IDs of the employees from whom to delete licenses.
+   * @param {Array<string>} licenseCodes - The license codes to delete.
    * @return {Object} Returns Promise object that represents an object that is the newly-added user
    */
-  deleteLicenses() {
+  deleteLicenses(employeeIds: Array<Number>, licenseCodes: Array<string>) {
     return new Promise((resolve, reject) => {
+      var data = {
+        EmployeeIds: employeeIds,
+        LicenseCodes: licenseCodes
+      }
+      this.cw.runRequest('Ams/Employee/DeleteLicensedItems', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
     })
   }
 
@@ -73,9 +143,28 @@ export class Employee {
    */
   all(inactive: boolean = false) {
     return new Promise((resolve, reject) => {
+      var data = {
+        IncludeInactive: inactive
+      }
+      this.cw.runRequest('Ams/Employee/All', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
     })
   }
-
+    //   var data = {
+    //     IncludeInactive: inactive
+    //   }
+    //   if(typeof(options)!='undefined') {
+    //     data = _.merge(data, options)
+    //   }
+    //   this.cw.runRequest('Pll/CaseFlags/Add', data).then(r => {
+    //     resolve(r.Value)
+    //   }).catch(e => {
+    //     reject(e)
+    //   })
+    // })
   /**
    * Get the employees in the group with the given group ID.
    *
