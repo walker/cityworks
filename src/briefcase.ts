@@ -1,7 +1,7 @@
 import { CWError } from './error'
-const _ = require('lodash')
+import _ from 'lodash'
 const querystring = require('querystring')
-const fs = require('fs')
+import * as fs from 'fs'
 import * as https from 'https'
 
 import { CaseData } from './case_data'

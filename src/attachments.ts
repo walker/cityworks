@@ -1,6 +1,5 @@
 import { CWError } from './error'
-const _ = require('lodash')
-const fs = require('fs');
+import _ from 'lodash';
 
 
 export class Attachments {

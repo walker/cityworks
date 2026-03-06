@@ -1,6 +1,6 @@
 import { CWError } from './error'
 import ReversibleMap from 'reversible-map'
-const _ = require('lodash')
+import _ from 'lodash'
 
 export class WorkOrderCosts {
   /**

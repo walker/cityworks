@@ -1,5 +1,5 @@
 import { CWError } from './error'
-const _ = require('lodash')
+import _ from 'lodash'
 
 
 interface DynamicVariableMap {
