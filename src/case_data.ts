@@ -465,7 +465,8 @@ export class CaseData {
           _.set(data, 'Q2Value', value[1])
           _.set(data, 'Q3Value', value[2])
           if(!_.isUndefined(rate)) {
-            _.set(data, 'Value', value[0] * value[1] * value[2] * _.get(data, 'Rate'))
+            const rateValue = _.get(data, 'Rate') ?? 0
+            _.set(data, 'Value', value[0] * value[1] * value[2] * rateValue)
           } else {
             _.set(data, 'Value', value[0] * value[1] * value[2])
           }
