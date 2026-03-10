@@ -10,7 +10,7 @@ cw7.Cityworks.configure(process.env.cwdomain, {path: process.env.cwpath, version
 
 before(function(done) {
   this.timeout(20000000);
-  cw7.Cityworks.authenticate(process.env.login, process.env.password).then(resp => {
+  cw7.Cityworks.authenticate(process.env.cwlogin, process.env.cwpassword).then(resp => {
     done();
   }).catch(e => {
     console.log(e, 'unexpected error')

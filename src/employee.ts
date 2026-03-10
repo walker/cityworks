@@ -76,14 +76,20 @@ export class Employee {
   }
 
   /**
-   * Update an existing employee
+   * Update existing employee(s)
    *
+   * @param {number | Array<number>} employeeSids - The IDs of the employees to update.
    * @param {EmployeeBase} employee - The employee information. `LastName` is a required field.
    * @return {Object} Returns Promise object that represents an object that is the updated user
    */
-  update(employee: EmployeeBase) {
+  update(employeeSids: number | Array<number>, employee: EmployeeBase) {
     return new Promise((resolve, reject) => {
       var data = employee
+      if(typeof(employeeSids) == 'number') {
+        _.set(data, 'EmployeeSids', [employeeSids])
+      } else {
+        _.set(data, 'EmployeeSids', employeeSids)
+      }
       this.cw.runRequest('Ams/Employee/Update', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
@@ -241,13 +247,20 @@ export class Employee {
   /**
    * Search for employees
    *
-   * @param {Array<string>} namesToCheck - an array list of the names (strings) to check for uniqueness
-   * @return {Object} Returns Promise object that represents an object that is the newly-added user
+   * @param {string} search - The search object to filter employee records against.
+   * @return {Object} Returns Promise object that represents an array of employees matching the search
    */
-  search() {
+  search(search: any) {
     return new Promise((resolve, reject) => {
+      var data = search
+      this.cw.runRequest('Ams/Employee/Search', data).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
     })
-  } 
+  }
+
   /**
    * Get employee custom data fields by id
    *

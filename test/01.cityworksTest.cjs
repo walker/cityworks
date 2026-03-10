@@ -47,7 +47,7 @@ describe('[Cityworks::authenticate] function test', () => {
   });
 
   it('should have a token set, if login valid', (done) => {
-    cw4.Cityworks.authenticate(process.env.login, process.env.password).then(resp => {
+    cw4.Cityworks.authenticate(process.env.cwlogin, process.env.cwpassword).then(resp => {
       assert.isNotFalse(cw4.Cityworks.getToken());
       done()
     }).catch(error => {
@@ -59,7 +59,7 @@ describe('[Cityworks::authenticate] function test', () => {
 
 describe('[Cityworks::validateToken] function test', () => {
   it('should have a valid token set, if logged in', (done) => {
-    cw1.Cityworks.authenticate(process.env.login, process.env.password).then(resp => {
+    cw1.Cityworks.authenticate(process.env.cwlogin, process.env.cwpassword).then(resp => {
       cw1.Cityworks.validateToken(cw1.Cityworks.getToken()).then(res => {
         // console.log(cw1.Cityworks.getToken(), 'token');
         // process.exit(0);
@@ -76,7 +76,7 @@ describe('[Cityworks::validateToken] function test', () => {
 
 describe('[Cityworks::setToken] function test', () => {
   it('should have set token', (done) => {
-    cw1.Cityworks.authenticate(process.env.login, process.env.password).then(res => {
+    cw1.Cityworks.authenticate(process.env.cwlogin, process.env.cwpassword).then(res => {
       assert.isTrue(cw1.setToken(cw1.Token));
       done();
     }).catch(error => {

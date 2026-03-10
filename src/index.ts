@@ -25,6 +25,7 @@ import { RequestAdmin } from './request_admin'
 import { WorkOrderCosts } from './workorder_costs'
 import { InspectionCosts } from './inspection_costs'
 import { RequestCosts } from './request_costs'
+import { Employee } from './employee'
 
 import * as https from 'https'
 import * as querystring from 'querystring'
@@ -758,5 +759,6 @@ request.comment = new Comments(cw, 'Request')
 request.attachments = new Attachments(cw, 'Request')
 
 const report = new Report(cw, inspection, workorder, request, briefcase)
+const employee = new Employee(cw)
 
-export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report }
+export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report, employee }
