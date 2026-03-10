@@ -1,6 +1,5 @@
 import { CWError } from './error'
-
-const _ = require('lodash')
+import _ from 'lodash'
 
 export class CaseAssets {
   /**

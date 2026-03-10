@@ -1,5 +1,5 @@
 import { CWError } from './error'
-const _ = require('lodash')
+import _ from 'lodash'
 
 interface Coordinates {
   x: number;
@@ -439,8 +439,9 @@ export class Request {
         ViewOnly: viewOnly
       }
       if(typeof displayMode != 'undefined' && displayMode !== null && _.has(displayMode, 'DisplayTextMode')) {
-        _.set(data, 'DisplayTextMode', _.get(displayMode, 'DisplayTextMode'))
-        if(_.get(displayMode, 'DisplayTextMode')=='CD' && _.has(displayMode, 'DisplayTextDelimeter')) {
+        const displayTextMode = _.get(displayMode, 'DisplayTextMode') as unknown as string
+        _.set(data, 'DisplayTextMode', displayTextMode)
+        if(displayTextMode === 'CD' && _.has(displayMode, 'DisplayTextDelimeter')) {
           _.set(data, 'DisplayTextDelimeter', _.get(displayMode, 'DisplayTextDelimeter'))
         }
       }

@@ -1,5 +1,5 @@
 import { CWError } from './error'
-const _ = require('lodash')
+import _ from 'lodash'
 
 /**
  * A plugin that contains "general" methods for a Cityworks install

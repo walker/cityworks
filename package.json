@@ -38,7 +38,7 @@
   },
   "homepage": "https://walker.github.io/cityworks/",
   "devDependencies": {
-    "@types/node": "^25.3.3",
+    "@types/node": "^25.3.5",
     "chai": "~6.2.2",
     "chai-as-promised": "~8.0.2",
     "dotenv": "~17.3.1",

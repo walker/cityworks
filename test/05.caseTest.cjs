@@ -8,7 +8,7 @@ const _ = require('lodash')
 
 before(function(done) {
   this.timeout(20000000);
-  cw5.Cityworks.authenticate(process.env.login, process.env.password).then(r => {
+  cw5.Cityworks.authenticate(process.env.cwlogin, process.env.cwpassword).then(r => {
     done();
   }).catch(e => {
     console.log(e, 'unexpected error')

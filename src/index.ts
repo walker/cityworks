@@ -25,20 +25,21 @@ import { RequestAdmin } from './request_admin'
 import { WorkOrderCosts } from './workorder_costs'
 import { InspectionCosts } from './inspection_costs'
 import { RequestCosts } from './request_costs'
+import { Employee } from './employee'
 
-const https = require('https')
-const querystring = require('querystring')
-const _ = require('lodash')
-const FormData = require('form-data')
-const fs = require('fs')
-const path = require('path')
-// const mimetypes = require('mime-types')
-const axios = require('axios')
+import * as https from 'https'
+import * as querystring from 'querystring'
+import _ from 'lodash'
+import FormData from 'form-data'
+import * as fs from 'fs'
+import * as path from 'path'
+import axios from 'axios'
 
 interface postData {
   data?: string
   token?: string
   file?: any
+  [key: string]: any
 }
 
 interface Citywork {
@@ -196,11 +197,11 @@ class Cityworks implements Citywork {
         if(this.settings.version<23 && typeof(this.Token) !== 'undefined' && this.Token != '' && service_path!='General/Authentication/CityworksOnlineAuthenticate' && service_path!='General/Authentication/Authenticate') {
           cw_url += '?token='+this.Token
         }
-        axios.postForm(cw_url, {
-          data: JSON.stringify(post_data),
-          file: fs.createReadStream(post_file)
-        }, {
-          headers: options.headers
+        const formData = new FormData()
+        formData.append('data', JSON.stringify(post_data))
+        formData.append('file', fs.createReadStream(post_file))
+        axios.post(cw_url, formData, {
+          headers: formData.getHeaders()
         }).then((r) => {
           resolve(r.data)
         })
@@ -758,5 +759,6 @@ request.comment = new Comments(cw, 'Request')
 request.attachments = new Attachments(cw, 'Request')
 
 const report = new Report(cw, inspection, workorder, request, briefcase)
+const employee = new Employee(cw)
 
-export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report }
+export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report, employee }
