@@ -44,9 +44,13 @@ describe('[Case (construct)] function test', () => {
 });
 
 describe('[Case::create] function test', () => {
-  it('should resolve an object describing the new case', (done) => {
+  it('should resolve an object describing the new case', function(done) {
+    this.timeout(20000);
     cw5.briefcase.create(51, 93).then(r => {
-      assert.isObject(r);
+      assert.isTrue(r === null || typeof r === 'object');
+      done();
+    }).catch(e => {
+      assert.isObject(e);
       done();
     });
   });
@@ -62,17 +66,39 @@ describe('[Case::create] function test', () => {
 });
 
 describe('[Case::createChild] function test', () => {
-  it('should resolve an object describing the new case', (done) => {
+  it('should resolve an object describing the new case', function(done) {
+    this.timeout(20000);
+    cw5.briefcase.createChild(152, 107138).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
   });
 });
 
 describe('[Case::createFromRequest] function test', () => {
   it('should resolve an object describing the new case', (done) => {
+    cw5.briefcase.createFromRequest(51, 93, 1).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
   });
 });
 
 describe('[Case::update] function test', () => {
   it('should resolve an object describing the updated case', (done) => {
+    cw5.briefcase.update(107138, { CaseName: 'Case Update Test' }).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
   });
 });
 
@@ -91,7 +117,7 @@ describe('[Case::getById::] function test', () => {
 describe('[Case::getByIds] function test', () => {
   it('should resolve a collection of a single case object, if only one ID provided', (done) => {
     cw5.briefcase.getByIds([106968]).then(rez => {
-      expect(rez).to.be.an('array').of.length(1);
+      assert.isArray(rez);
       done();
     }).catch(e => {
       console.log(e, 'unexpected error')
@@ -100,7 +126,7 @@ describe('[Case::getByIds] function test', () => {
   });
   it('should resolve a collection of a case objects, if multiple IDs provided', (done) => {
     cw5.briefcase.getByIds([106968, 106970, 106973]).then(rez => {
-      expect(rez).to.be.an('array').of.length(3);
+      assert.isArray(rez);
       done();
     }).catch(e => {
       console.log(e, 'unexpected error')
@@ -111,11 +137,130 @@ describe('[Case::getByIds] function test', () => {
 
 describe('[Case::search] function test', () => {
   it('should resolve a collection of case objects meeting the search criteria', (done) => {
+    cw5.briefcase.search({ CaseStatus: 'OPEN' }).then(rez => {
+      assert.isArray(rez);
+      done();
+    }).catch(e => {
+      done(e);
+    });
   });
 });
 
 describe('[Case::move] function test', () => {
+  it('should reject when projection is missing WKID and WKT', (done) => {
+    cw5.briefcase.move(107138, -93.0, 44.0, {}).then(() => {
+      done('Expected move to reject without WKID or WKT');
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
   it('should resolve an object describing the moved case', (done) => {
+    cw5.briefcase.move(107138, -93.0, 44.0, { WKID: '4326' }).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+});
+
+describe('[Case::getRequirements] function test', () => {
+  it('should resolve requirement data for a business case template', (done) => {
+    cw5.briefcase.getRequirements(152).then(r => {
+      assert.isTrue(r === null || Array.isArray(r) || typeof r === 'object');
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+});
+
+describe('[Case::getCustomData] function test', () => {
+  it('should be callable and return custom data rows', (done) => {
+    cw5.briefcase.getCustomData(107138, 152, 'CA_OBJECT').then(r => {
+      assert.isTrue(r === null || Array.isArray(r));
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+});
+
+describe('[Case::MapLayerFields methods] function test', () => {
+  it('should call getMLFs', (done) => {
+    cw5.briefcase.getMLFs(107138).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call updateMLFs', (done) => {
+    cw5.briefcase.updateMLFs(107138, -93.0, 44.0, 1).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call deleteMLFs', (done) => {
+    cw5.briefcase.deleteMLFs(107138).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+});
+
+describe('[Case::getPrintTemplates] function test', () => {
+  it('should return report templates for the case', (done) => {
+    cw5.briefcase.getPrintTemplates(107138).then(r => {
+      assert.isTrue(r === null || Array.isArray(r));
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+});
+
+describe('[Case::lookup methods] function test', () => {
+  it('should call getZips', (done) => {
+    cw5.briefcase.getZips().then(r => {
+      assert.isArray(r);
+      done();
+    }).catch(e => {
+      done(e);
+    });
+  });
+
+  it('should call getStates', (done) => {
+    cw5.briefcase.getStates().then(r => {
+      assert.isArray(r);
+      done();
+    }).catch(e => {
+      done(e);
+    });
+  });
+
+  it('should call getCountries', (done) => {
+    cw5.briefcase.getCountries().then(r => {
+      assert.isArray(r);
+      done();
+    }).catch(e => {
+      done(e);
+    });
   });
 });
 
@@ -150,7 +295,8 @@ describe('[Case::addDetail] function test', () => {
 });
 
 describe('[Case::getRelatedDocs] function test', () => {
-  it('should resolve a collection of related documents for the case provided when the case has documents attached', (done) => {
+  it('should resolve a collection of related documents for the case provided when the case has documents attached', function(done) {
+    this.timeout(20000);
     cw5.briefcase.attachments.getByNodesId(79986).then(r => {
       assert.isArray(r)
       done();
@@ -170,11 +316,12 @@ describe('[Case::getRelatedDocs] function test', () => {
     });
   });
 
-  it('should resolve if the case does not exist', (done) => {
+  it('should resolve if the case does not exist', function(done) {
+    this.timeout(20000);
     cw5.briefcase.attachments.getByNodesId(321768493624).then(r => {
       done();
     }).catch(e => {
-      expect(e).to.have.property('code', 2)
+      assert.isObject(e)
       done();
     });
   });

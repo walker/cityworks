@@ -26,6 +26,8 @@ import { WorkOrderCosts } from './workorder_costs'
 import { InspectionCosts } from './inspection_costs'
 import { RequestCosts } from './request_costs'
 import { Employee } from './employee'
+import { Equipment } from './equipment'
+import { Contractor } from './contractor'
 
 import * as https from 'https'
 import * as querystring from 'querystring'
@@ -760,5 +762,7 @@ request.attachments = new Attachments(cw, 'Request')
 
 const report = new Report(cw, inspection, workorder, request, briefcase)
 const employee = new Employee(cw)
+const equipment = new Equipment(cw)
+const contractor = new Contractor(cw)
 
-export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report, employee }
+export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report, employee, equipment, contractor }
