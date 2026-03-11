@@ -34,6 +34,11 @@ export class WorkOrder {
   attachments: any
 
   /**
+   * WorkOrder audit log methods
+   */
+  audit: any
+
+  /**
    * @hidden
    */
   constructor(cw) {
@@ -41,6 +46,7 @@ export class WorkOrder {
     this.admin
     this.comment
     this.attachments
+    this.audit
   }
 
   /**

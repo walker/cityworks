@@ -43,6 +43,33 @@ describe('[ActivityLink::get] function test', () => {
 });
 
 describe('[ActivityLink::add] function test', () => {
+  it('should return error if source type does not exist', (done) => {
+    cw2.activity_link.add('notatype', 1, 'workorder', 241525).then(() => {
+      done('Expected add to reject invalid source type');
+    }).catch(e => {
+      expect(e.Message).to.have.string('not found.').and.to.have.string('Activity type');
+      done();
+    });
+  });
+
+  it('should return error if destination type does not exist', (done) => {
+    cw2.activity_link.add('workorder', 241437, 'notatype', 1).then(() => {
+      done('Expected add to reject invalid destination type');
+    }).catch(e => {
+      expect(e.Message).to.have.string('not found.').and.to.have.string('Activity type');
+      done();
+    });
+  });
+
+  it('should return error if link type does not exist', (done) => {
+    cw2.activity_link.add('workorder', 241437, 'workorder', 241525, 'notalinktype').then(() => {
+      done('Expected add to reject invalid link type');
+    }).catch(e => {
+      expect(e.Message).to.have.string('not found.').and.to.have.string('Activity type');
+      done();
+    });
+  });
+
   it('should return the new link', (done) => {
     cw2.activity_link.add('workorder', 241437, 'workorder', 241525).then(resp => {
       assert.isNumber(resp.ActivityLinkId);
@@ -59,6 +86,24 @@ describe('[ActivityLink::add] function test', () => {
 });
 
 describe('[ActivityLink::clone] function test', () => {
+  it('should return error if source type does not exist', (done) => {
+    cw2.activity_link.clone('badtype', 53215, 'inspection', 53217).then(() => {
+      done('Expected clone to reject invalid source type');
+    }).catch(e => {
+      expect(e.Message).to.have.string('not found.').and.to.have.string('Activity type');
+      done();
+    });
+  });
+
+  it('should return error if destination type does not exist', (done) => {
+    cw2.activity_link.clone('inspection', 53215, 'badtype', 53217).then(() => {
+      done('Expected clone to reject invalid destination type');
+    }).catch(e => {
+      expect(e.Message).to.have.string('not found.').and.to.have.string('Activity type');
+      done();
+    });
+  });
+
   it('should create a clone of the link on the source, to the links on the second', (done) => {
     cw2.activity_link.clone('inspection', 53215, 'inspection', 53217).then(resp => {
       assert.isArray(resp);
@@ -104,13 +149,40 @@ describe('[ActivityLink::delete] function test', () => {
 
 
 describe('[ActivityLink::remove] function test', () => {
+  it('should return error if source type does not exist', (done) => {
+    cw2.activity_link.remove('badtype', 53217, 'request', 1089178).then(() => {
+      done('Expected remove to reject invalid source type');
+    }).catch(e => {
+      expect(e.Message).to.have.string('not found.').and.to.have.string('Activity type');
+      done();
+    });
+  });
+
+  it('should return error if destination type does not exist', (done) => {
+    cw2.activity_link.remove('inspection', 53217, 'badtype', 1089178).then(() => {
+      done('Expected remove to reject invalid destination type');
+    }).catch(e => {
+      expect(e.Message).to.have.string('not found.').and.to.have.string('Activity type');
+      done();
+    });
+  });
+
+  it('should return error if link type does not exist', (done) => {
+    cw2.activity_link.remove('inspection', 53217, 'request', 1089178, 'badlink').then(() => {
+      done('Expected remove to reject invalid link type');
+    }).catch(e => {
+      expect(e.Message).to.have.string('not found.').and.to.have.string('Activity type');
+      done();
+    });
+  });
+
   it('should remove a link when found', (done) => {
     cw2.activity_link.remove('inspection', 53217, 'request', 1089178).then(resp => {
       assert.isTrue(resp);
       done();
     }).catch(error => {
       console.log(error)
-      // done();
+      done(error);
     });
   });
 });
