@@ -142,26 +142,36 @@ export class General {
   }
 
   /**
-   * Get Holidays
+   * Get All Holidays. Will return all holidays in the system. If start and end date parameters are included, they are used to filter the response.
    *
    * @param {Date} startDate - Date to search for Holidays, including this date.
    * @param {Date} [endDate] - If not specified, Holidays _on_ startDate are returned. If specified, Holidays on startDate up to, but not including endDate are returned.
    * @return {Object} Returns Promise object that represents a list of the holiday(s) found
    */
-  getHolidays(startDate: Date, endDate?: Date) {
+  getHolidays(startDate?: Date, endDate?: Date) {
     return new Promise((resolve, reject) => {
       let data = {}
-      var api_path = 'General/Holidays/All'
-      if(typeof(endDate)=='undefined') {
-        _.set(data, "Date", startDate)
-        var api_path = 'General/Holidays/ByDate'
-      } else {
-        _.set(data, "StartDate", startDate)
-        _.set(data, "EndDate", endDate)
-      }
-      this.cw.runRequest(api_path, data).then(r => {
-        console.log(r)
-        resolve(r.Value)
+      // Because endpoint commented out does not work
+      // var api_path = 'General/Holidays/All'
+      var api_path = 'Ams/Designer/Holidays'
+      // Because endpoint commented out does not work
+      // if(typeof(endDate)=='undefined') {
+      //   _.set(data, "Date", startDate)
+      //   var api_path = 'General/Holidays/ByDate'
+      // } else {
+      //   _.set(data, "StartDate", startDate)
+      //   _.set(data, "EndDate", endDate)
+      // }
+      this.cw.runRequest(api_path, {}).then(r => {
+        let holidays = r.Value
+        // Filtering because the endpoint is not working with parameters, but it does return all holidays, so we can filter within this client
+        holidays = _.filter(holidays, (h: any) => {
+          let holidayDate = new Date(h.HolidayDate)
+          let isAfterStart = typeof (startDate) === 'undefined' || holidayDate >= startDate
+          let isBeforeEnd = typeof (endDate) === 'undefined' || holidayDate < endDate
+          return isAfterStart && isBeforeEnd
+        })
+        resolve(holidays)
       }).catch(e => {
         reject(e)
       })

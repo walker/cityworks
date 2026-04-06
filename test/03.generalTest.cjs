@@ -74,6 +74,35 @@ describe('[General::quickSearch] function test', () => {
   });
 });
 
+describe('[General::getHolidays] function test', () => {
+  it('should resolve a collection', (done) => {
+    cw3.general.getHolidays().then(resp => {
+      assert.isArray(resp);
+      done();
+    });
+  });
+  it('should not return holidays before the provided start date', (done) => {
+    let startDate = new Date('2024-01-01');
+    cw3.general.getHolidays(startDate).then(resp => {
+      resp.forEach(holiday => {
+        let holidayDate = new Date(holiday.HolidayDate);
+        assert.isAtLeast(holidayDate.getTime(), startDate.getTime(), `Holiday ${holiday.Description} (${holiday.HolidayDate}) is before ${startDate.toISOString()}`);
+      });
+      done();
+    });
+  });
+  it('should not return holidays after the provided end date', (done) => {
+    let endDate = new Date('2025-12-31');
+    cw3.general.getHolidays(undefined, endDate).then(resp => {
+      resp.forEach(holiday => {
+        let holidayDate = new Date(holiday.HolidayDate);
+        assert.isAtMost(holidayDate.getTime(), endDate.getTime(), `Holiday ${holiday.Description} (${holiday.HolidayDate}) is after ${endDate.toISOString()}`);
+      });
+      done();
+    });
+  });
+});
+
 describe('[General::getActivityMetadataByIds] function test', () => {
   it('should resolve an activity based on the metadata ids');
 });
