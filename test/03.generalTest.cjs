@@ -77,16 +77,18 @@ describe('[General::quickSearch] function test', () => {
 describe('[General::getHolidays] function test', () => {
   it('should resolve a collection', (done) => {
     cw3.general.getHolidays().then(resp => {
-      assert.isArray(resp);
+      assert.isNotEmpty(resp, 'No holidays were returned, but at least one was expected');
+      assert.isArray(resp, `Expected response to be an array, but got ${typeof resp}`);
       done();
     });
   });
   it('should not return holidays before the provided start date', (done) => {
-    let startDate = new Date('2024-01-01');
+    let startDate = new Date('2026-01-01');
     cw3.general.getHolidays(startDate).then(resp => {
+      assert.isNotEmpty(resp, 'No holidays were returned, but at least one was expected');
       resp.forEach(holiday => {
-        let holidayDate = new Date(holiday.HolidayDate);
-        assert.isAtLeast(holidayDate.getTime(), startDate.getTime(), `Holiday ${holiday.Description} (${holiday.HolidayDate}) is before ${startDate.toISOString()}`);
+        let holidayDate = new Date(holiday.Holiday);
+        assert.isAtLeast(holidayDate.getTime(), startDate.getTime(), `Holiday ${holiday.Description} (${holiday.Holiday}) is before ${startDate.toISOString()}`);
       });
       done();
     });
@@ -94,9 +96,23 @@ describe('[General::getHolidays] function test', () => {
   it('should not return holidays after the provided end date', (done) => {
     let endDate = new Date('2025-12-31');
     cw3.general.getHolidays(undefined, endDate).then(resp => {
+      assert.isNotEmpty(resp, 'No holidays were returned, but at least one was expected');
       resp.forEach(holiday => {
-        let holidayDate = new Date(holiday.HolidayDate);
-        assert.isAtMost(holidayDate.getTime(), endDate.getTime(), `Holiday ${holiday.Description} (${holiday.HolidayDate}) is after ${endDate.toISOString()}`);
+        let holidayDate = new Date(holiday.Holiday);
+        assert.isAtMost(holidayDate.getTime(), endDate.getTime(), `Holiday ${holiday.Description} (${holiday.Holiday}) is after ${endDate.toISOString()}`);
+      });
+      done();
+    });
+  });
+  it('should return only holidays within the provided window', (done) => {
+    let startDate = new Date('2026-01-01');
+    let endDate = new Date('2026-12-31');
+    cw3.general.getHolidays(startDate, endDate).then(resp => {
+      assert.isNotEmpty(resp, 'No holidays were returned, but at least one was expected');
+      resp.forEach(holiday => {
+        let holidayDate = new Date(holiday.Holiday);
+        assert.isAtLeast(holidayDate.getTime(), startDate.getTime(), `Holiday ${holiday.Description} (${holiday.Holiday}) is before ${startDate.toISOString()}`);
+        assert.isAtMost(holidayDate.getTime(), endDate.getTime(), `Holiday ${holiday.Description} (${holiday.Holiday}) is after ${endDate.toISOString()}`);
       });
       done();
     });

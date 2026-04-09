@@ -166,7 +166,7 @@ export class General {
         let holidays = r.Value
         // Filtering because the endpoint is not working with parameters, but it does return all holidays, so we can filter within this client
         holidays = _.filter(holidays, (h: any) => {
-          let holidayDate = new Date(h.HolidayDate)
+          let holidayDate = new Date(h.Holiday)
           let isAfterStart = typeof (startDate) === 'undefined' || holidayDate >= startDate
           let isBeforeEnd = typeof (endDate) === 'undefined' || holidayDate < endDate
           return isAfterStart && isBeforeEnd
