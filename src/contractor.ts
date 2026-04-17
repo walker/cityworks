@@ -1,5 +1,62 @@
 import _ from 'lodash';
 
+export interface ContractorTypeSearch {
+  ContractorDesc?: string;
+  ContractorType?: string;
+  ContractorTypeId?: number;
+}
+
+export interface ContractorPLLSearch {
+  BusinessName?: string;
+  ContractorId?: number;
+}
+
+export class ContractorType {
+  cw: any
+
+  constructor(cw) {
+    this.cw = cw
+  }
+
+  all() {
+    return new Promise((resolve, reject) => {
+      this.cw.runRequest('Pll/ContractorType/All', {}).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  search(filters: ContractorTypeSearch) {
+    return new Promise((resolve, reject) => {
+      if(_.intersection(_.keysIn(filters), ['ContractorDesc', 'ContractorType', 'ContractorTypeId']).length === 0) {
+        reject(new Error('At least one of the attributes (ContractorDesc, ContractorType, ContractorTypeId) must be defined.'))
+        return
+      }
+      this.cw.runRequest('Pll/ContractorType/Search', filters).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  searchObject(filters: ContractorTypeSearch) {
+    return new Promise((resolve, reject) => {
+      if(_.intersection(_.keysIn(filters), ['ContractorDesc', 'ContractorType', 'ContractorTypeId']).length === 0) {
+        reject(new Error('At least one of the attributes (ContractorDesc, ContractorType, ContractorTypeId) must be defined.'))
+        return
+      }
+      this.cw.runRequest('Pll/ContractorType/SearchObject', filters).then(r => {
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+}
+
 export interface ContractorBase {
   ContractorSid?: number;
   ContractorName?: string;
@@ -57,9 +114,11 @@ export interface ContractorBase {
 
 export class Contractor {
   cw: any
+  type: ContractorType
 
   constructor(cw) {
     this.cw = cw
+    this.type = new ContractorType(cw)
   }
 
   add(contractor: ContractorBase) {
@@ -116,12 +175,26 @@ export class Contractor {
     })
   }
 
-  search(contractorSids: Array<number>) {
+  search(contractorSids: Array<number> | ContractorPLLSearch) {
     return new Promise((resolve, reject) => {
-      var data = {
-        ContractorSids: contractorSids
+      if(Array.isArray(contractorSids)) {
+        var data = {
+          ContractorSids: contractorSids
+        }
+        this.cw.runRequest('Ams/Contractor/Search', data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+        return
       }
-      this.cw.runRequest('Ams/Contractor/Search', data).then(r => {
+
+      if(_.intersection(_.keysIn(contractorSids), ['BusinessName', 'ContractorId']).length === 0) {
+        reject(new Error('At least one of the attributes (BusinessName, ContractorId) must be defined.'))
+        return
+      }
+
+      this.cw.runRequest('Pll/ContractorPll/SearchObject', contractorSids).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)

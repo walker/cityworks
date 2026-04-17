@@ -773,4 +773,6 @@ const contractor = new Contractor(cw)
 const recent_activity = new RecentActivity(cw)
 const general_admin = new GeneralAdmin(cw)
 
+;(cw as any).contractor = contractor
+
 export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report, employee, equipment, contractor, recent_activity, general_admin }
