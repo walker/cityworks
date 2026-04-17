@@ -179,13 +179,13 @@ export class General {
   }
 
   /**
-   * Add Holidays
+   * Add Holiday
    *
    * @param {Date} holiday - The holiday's date
    * @param {string} description - The holiday's name/description
-   * @return {Object} Returns Promise object that represents a
+   * @return {Object} Returns Promise object that represents a holiday that was added
    */
-  addHolidays(holiday: Date, description: string) {
+  addHoliday(holiday: Date, description: string) {
     return new Promise((resolve, reject) => {
       let data = {
         "Holiday": holiday,
