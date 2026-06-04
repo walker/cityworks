@@ -18,23 +18,25 @@ before(function(done) {
 
 describe('[CaseFinancial (construct)] function test', () => {
   it('should be a defined object', (done) => {
-    assert.isObject(cw6.case.financial, 'Request is an object');
+    assert.isObject(cw6.briefcase.financial, 'Request is an object');
     done();
   });
 });
 
 describe('[CaseFinancial::getFees] function test', () => {
   it('should resolve a collection of case fees', (done) => {
-    cw6.case.financial.getFees(16086).then(r => { // TODO: find case, then get fees
-      assert.isArray(r);
-      done();
-    });
+    cw6.briefcase.financial.getFees(685646).then(r => { // TODO: find case, then get fees
+      assert.isArray(r)
+      done()
+    }).catch(e => {
+      console.log('Error:', e)
+    })
   });
 });
 
 describe('[CaseFinancial::addFee] function test', () => {
   it('should resolve a fee object', (done) => {
-    cw6.case.financial.addFee(16085, 183, {AutoRecalculate: 'Y', Amount: 9}).then(r => { // TODO: find case, then get fees
+    cw6.briefcase.financial.addFee(16085, 183, {AutoRecalculate: 'Y', Amount: 9}).then(r => { // TODO: find case, then get fees
       assert.isNumber(r.CaFeeId);
       done();
     });
@@ -43,7 +45,7 @@ describe('[CaseFinancial::addFee] function test', () => {
 
 describe('[CaseFinancial::addDefaultFees] function test', () => {
   it('should resolve a ', (done) => {
-    cw6.case.financial.addDefaultFees(42337, 152).then(r => { // TODO: find case, then get fees
+    cw6.briefcase.financial.addDefaultFees(42337, 152).then(r => { // TODO: find case, then get fees
       assert.isArray(r);
       done();
     }).catch(e => {
