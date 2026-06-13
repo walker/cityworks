@@ -104,7 +104,7 @@ describe('[Case::update] function test', () => {
 
 describe('[Case::getById::] function test', () => {
   it('should resolve a collection of a single case object, if only one ID provided', (done) => {
-    cw5.briefcase.getById(107138).then(rez => {
+    cw5.briefcase.getById(654660).then(rez => {
       assert.isNumber(rez.CaObjectId);
       done();
     }).catch(e => {
@@ -141,6 +141,23 @@ describe('[Case::search] function test', () => {
       assert.isArray(rez);
       done();
     }).catch(e => {
+      done(e);
+    });
+  });
+});
+
+describe('[Case::getCustomData] function test', () => {
+  it('should resolve an array of custom data for the case', (done) => {
+    cw5.briefcase.getById(654660).then(caseObj => {
+      cw5.briefcase.getCustomData(caseObj.CaObjectId, caseObj.BusCaseId, "BUSINESS_CASE").then(r => {
+        assert.isArray(r);
+        done();
+      }).catch(e => {
+        console.log(e, 'unexpected error')
+        done(e);
+      });
+    }).catch(e => {
+      console.log(e, 'unexpected error getting a case to test');
       done(e);
     });
   });

@@ -338,7 +338,7 @@ export class Briefcase {
   getCustomData(caObjectId: number, busCaseId: number, tableName: string): Promise<Array<any>> {
     return new Promise((resolve, reject) => {
       var data = {
-        CaObjectId: caObjectId,
+        PrimaryId: caObjectId,
         ConfigurationId: busCaseId,
         TableName: tableName
       }

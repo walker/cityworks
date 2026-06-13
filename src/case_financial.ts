@@ -345,7 +345,7 @@ export class CaseFinancial {
   getFees(caObjectId: number) {
     return new Promise((resolve, reject) => {
       var data = {
-        WhereClause: `"CA_FEES_VW.CA_OBJECT_ID=${caObjectId}"}`
+        WhereClause: `CA_FEES_VW.CA_OBJECT_ID=${caObjectId}`
       }
       this.cw.runRequest('Pll/CaseFees/GetList', data).then(r => {
         var fees = new Array()
