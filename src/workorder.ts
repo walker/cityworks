@@ -92,7 +92,7 @@ export class WorkOrder {
         } else {
           _.set(data, 'WorkOrderSid', workOrderSId)
         }
-        this.cw.runRequest('Ams/WorkOrder/Create', data).then(r => {
+        this.cw.runRequest('Ams/WorkOrder/CreateFromParent', data).then(r => {
           resolve(r.Value)
         }).catch(e => {
           reject(e)
