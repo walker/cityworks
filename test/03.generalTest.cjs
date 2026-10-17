@@ -1,5 +1,7 @@
 'use strict';
 require('dotenv').config({quiet: true, debug: false});
+const { shouldRunBefore } = require('./testGuard');
+const suiteName = 'general';
 var chai = require('chai');
 var expect = require('chai').expect;
 var assert = require('chai').assert;
@@ -9,6 +11,10 @@ const cw3 = require('../dist/index.js');
 cw3.Cityworks.configure(process.env.cwdomain, {path: process.env.cwpath, version: process.env.cwversion});
 
 before(function(done) {
+  if (!shouldRunBefore(suiteName)) {
+    return done();
+  }
+
   this.timeout(20000000);
   cw3.Cityworks.authenticate(process.env.cwlogin, process.env.cwpassword).then(resp => {
     done();
@@ -211,17 +217,14 @@ describe('[General::deleteHolidays] function test', () => {
 describe('[General::batchExecute] function test', () => {
   it('should execute a single batch request with auto-generated id', (done) => {
     cw3.general.batchExecute({
-      Requests: [
-        {
           Request: {
             EntityType: 'EASEMENT_TREES',
             EntityUid: '{26AABDD2-77FC-4F17-851B-9CD2AC0EEC40}'
           },
           Method: 'ams/entity/workActivityHistory'
-        }
-      ]
     }).then(resp => {
       assert.isDefined(resp);
+      assert.isNotEmpty(resp[0].Response.Value);
       done();
     }).catch(e => {
       done(e);
@@ -229,8 +232,7 @@ describe('[General::batchExecute] function test', () => {
   });
 
   it('should execute a multi-request batch payload with auto-generated ids', (done) => {
-    cw3.general.batchExecute({
-      Requests: [
+    cw3.general.batchExecute([
         {
           Request: {
             EntityType: 'EASEMENT_TREES',
@@ -263,9 +265,11 @@ describe('[General::batchExecute] function test', () => {
           },
           Method: 'ams/entity/assetCostHistory'
         }
-      ]
-    }).then(resp => {
+    ]).then(resp => {
       assert.isDefined(resp);
+      assert.isNotEmpty(resp[0].Response.Value);
+      assert.isNotEmpty(resp[1].Response.Value);
+      assert.isNotEmpty(resp[2].Response.Value);
       done();
     }).catch(e => {
       done(e);

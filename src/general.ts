@@ -104,21 +104,20 @@ export class General {
   /**
    * Execute a batch of API requests in a single call.
    *
-   * @param {Object} requestBatch - Batch payload with a single Requests array.
-   * @param {Array<Object>} requestBatch.Requests - Individual requests to process, each with Request and Method
+   * @param {Object|Array} requestBatch - Either a single request object with Request and Method properties, or an array of such objects.
    * @return {Object} Returns Promise object that represents the batch execution response
    */
-  batchExecute(requestBatch: { Requests: Array<{ Request: Record<string, any>, Method: string }> }) {
+  batchExecute(requestBatch: { Request: Record<string, any>, Method: string } | Array<{ Request: Record<string, any>, Method: string }>) {
     return new Promise((resolve, reject) => {
+      const requests = Array.isArray(requestBatch) ? requestBatch : [requestBatch]
       const payload = {
-        Requests: requestBatch.Requests.map((request, index) => ({
-          Id: index * -1,
+        Requests: requests.map((request, index) => ({
+          Id: index === 0 ? 0 : index * -1,
           ...request
         }))
       }
 
-      this.cw.runRequest('General/Batch/Execute', { data: payload }).then(r => {
-        console.log(r)
+      this.cw.runRequest('General/Batch/Execute', payload).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)

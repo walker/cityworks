@@ -1,11 +1,17 @@
 'use strict';
 require('dotenv').config({quiet: true, debug: false});
+const { shouldRunBefore } = require('./testGuard');
+const suiteName = 'auditlogs';
 var assert = require('chai').assert;
 const cw30 = require('../dist/index.js');
 
 cw30.Cityworks.configure(process.env.cwdomain, {path: process.env.cwpath, version: process.env.cwversion});
 
 before(function(done) {
+  if (!shouldRunBefore(suiteName)) {
+    return done();
+  }
+
   this.timeout(20000000);
   cw30.Cityworks.authenticate(process.env.cwlogin, process.env.cwpassword).then(() => {
     done();
