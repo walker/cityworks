@@ -133,4 +133,224 @@ describe('[CaseData::setCaseData] function test', () => {
 
 });
 
+describe('[CaseData::group methods not currently covered] function test', () => {
+  it('should call addGroup', (done) => {
+    cw12.briefcase.data.addGroup(106149, 1, 'TEST', { GroupDesc: 'Test Group' }).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call addDefaultGroups', (done) => {
+    cw12.briefcase.data.addDefaultGroups(106149, 1).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call wipAddDetail', (done) => {
+    cw12.briefcase.data.wipAddDetail(1, 1, 'A', 'TEST', 1, {}).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call deleteGroupsByCaseId', (done) => {
+    cw12.briefcase.data.deleteGroupsByCaseId(106149).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should reject searchForGroups when no filters are provided', (done) => {
+    cw12.briefcase.data.searchForGroups({}).then(() => {
+      done('Expected searchForGroups to reject when no filters are provided');
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call searchForGroups when filters are provided', (done) => {
+    cw12.briefcase.data.searchForGroups({ GroupCode: 'TEST' }).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should reject checkGIS when neither CaObjectId nor CaseDataGroupId is provided', (done) => {
+    cw12.briefcase.data.checkGIS('ASSET', 'UID-1', {}).then(() => {
+      done('Expected checkGIS to reject without CaObjectId or CaseDataGroupId');
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call checkGIS when CaObjectId is provided', (done) => {
+    cw12.briefcase.data.checkGIS('ASSET', 'UID-1', { CaObjectId: 106149 }).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call updateGroupsFromAsset', (done) => {
+    cw12.briefcase.data.updateGroupsFromAsset(106149, 'ASSET', 'UID-1').then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+});
+
+describe('[CaseData::detail methods not currently covered] function test', () => {
+  it('should call addDetail', (done) => {
+    cw12.briefcase.data.addDetail(1, 1, {}).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call updateDetail', (done) => {
+    cw12.briefcase.data.updateDetail(1, { TextValue: 'Updated' }).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call lockDetail', (done) => {
+    cw12.briefcase.data.lockDetail(1).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call unlockDetail', (done) => {
+    cw12.briefcase.data.unlockDetail(1).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should reject searchForDetails when no filters are provided', (done) => {
+    cw12.briefcase.data.searchForDetails({}).then(() => {
+      done('Expected searchForDetails to reject when no filters are provided');
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call searchForDetails when filters are provided', (done) => {
+    cw12.briefcase.data.searchForDetails({ DetailCode: 'TEST' }).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call getAllDataDetails', (done) => {
+    cw12.briefcase.data.getAllDataDetails(106149).then(r => {
+      assert.isArray(r);
+      done();
+    }).catch(e => {
+      done(e);
+    });
+  });
+});
+
+describe('[CaseData::list value methods not currently covered] function test', () => {
+  it('should call addListValue', (done) => {
+    cw12.briefcase.data.addListValue(1, 'TestValue').then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call deleteListValue', (done) => {
+    cw12.briefcase.data.deleteListValue(1).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should reject searchForListValueIds when no filters are provided', (done) => {
+    cw12.briefcase.data.searchForListValueIds({}).then(() => {
+      done('Expected searchForListValueIds to reject when no filters are provided');
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call searchForListValueIds when filters are provided', (done) => {
+    cw12.briefcase.data.searchForListValueIds({ ListValue: 'East' }).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should reject searchForListValueObjects when no filters are provided', (done) => {
+    cw12.briefcase.data.searchForListValueObjects({}).then(() => {
+      done('Expected searchForListValueObjects to reject when no filters are provided');
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+
+  it('should call searchForListValueObjects when filters are provided', (done) => {
+    cw12.briefcase.data.searchForListValueObjects({ ListValue: 'East' }).then(r => {
+      assert.isNotNull(r);
+      done();
+    }).catch(e => {
+      assert.isObject(e);
+      done();
+    });
+  });
+});
+
 

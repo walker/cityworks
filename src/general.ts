@@ -102,6 +102,31 @@ export class General {
   }
 
   /**
+   * Execute a batch of API requests in a single call.
+   *
+   * @param {Object} requestBatch - Batch payload with a single Requests array.
+   * @param {Array<Object>} requestBatch.Requests - Individual requests to process, each with Request and Method
+   * @return {Object} Returns Promise object that represents the batch execution response
+   */
+  batchExecute(requestBatch: { Requests: Array<{ Request: Record<string, any>, Method: string }> }) {
+    return new Promise((resolve, reject) => {
+      const payload = {
+        Requests: requestBatch.Requests.map((request, index) => ({
+          Id: index * -1,
+          ...request
+        }))
+      }
+
+      this.cw.runRequest('General/Batch/Execute', { data: payload }).then(r => {
+        console.log(r)
+        resolve(r.Value)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+
+  /**
    * Get cost summary for WorkOrder entities
    *
    * @param {Array<number>} ObjectIds
@@ -179,13 +204,13 @@ export class General {
   }
 
   /**
-   * Add Holidays
+   * Add Holiday
    *
    * @param {Date} holiday - The holiday's date
    * @param {string} description - The holiday's name/description
-   * @return {Object} Returns Promise object that represents a
+   * @return {Object} Returns Promise object that represents a holiday that was added
    */
-  addHolidays(holiday: Date, description: string) {
+  addHoliday(holiday: Date, description: string) {
     return new Promise((resolve, reject) => {
       let data = {
         "Holiday": holiday,

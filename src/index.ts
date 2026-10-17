@@ -26,6 +26,11 @@ import { WorkOrderCosts } from './workorder_costs'
 import { InspectionCosts } from './inspection_costs'
 import { RequestCosts } from './request_costs'
 import { Employee } from './employee'
+import { Equipment } from './equipment'
+import { Contractor } from './contractor'
+import { RecentActivity } from './recent_activity'
+import { GeneralAdmin } from './general_admin'
+import { AuditLogs } from './audit_logs'
 
 import * as https from 'https'
 import * as querystring from 'querystring'
@@ -748,17 +753,26 @@ workorder.admin = new WorkOrderAdmin(cw)
 workorder.costs = new WorkOrderCosts(cw)
 workorder.comment = new Comments(cw, 'WorkOrder')
 workorder.attachments = new Attachments(cw, 'WorkOrder')
+workorder.audit = new AuditLogs(cw, 'WORKORDER')
 
 inspection.admin = new InspectionAdmin(cw)
 inspection.costs = new InspectionCosts(cw)
 inspection.attachments = new Attachments(cw, 'Inspection')
+inspection.audit = new AuditLogs(cw, 'INSPECTION')
 
 request.admin = new RequestAdmin(cw)
 request.costs = new RequestCosts(cw)
 request.comment = new Comments(cw, 'Request')
 request.attachments = new Attachments(cw, 'Request')
+request.audit = new AuditLogs(cw, 'REQUEST')
 
 const report = new Report(cw, inspection, workorder, request, briefcase)
 const employee = new Employee(cw)
+const equipment = new Equipment(cw)
+const contractor = new Contractor(cw)
+const recent_activity = new RecentActivity(cw)
+const general_admin = new GeneralAdmin(cw)
 
-export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report, employee }
+;(cw as any).contractor = contractor
+
+export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report, employee, equipment, contractor, recent_activity, general_admin }

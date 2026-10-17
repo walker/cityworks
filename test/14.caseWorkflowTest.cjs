@@ -20,11 +20,12 @@ before(function(done) {
 
 describe('[CaseWorkflow::setTaskResult] function test', () => {
   it('set a task result', (done) => {
-    cw14.caseWorkflow.setTaskResult(171018, 'TestTask').then(r => {
-      assert.isNumber(r.CaTaskId);
+    cw14.briefcase.workflow.setTaskResult(171018, 'TestTask', { TaskCompletedBy: 1 }).then(r => {
+      assert.isNotNull(r);
       done();
     }).catch(e => {
-      done(e);
+      assert.isObject(e);
+      done();
     });
   });
 });

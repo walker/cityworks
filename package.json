@@ -1,6 +1,6 @@
 {
   "name": "cityworks",
-  "version": "2.2.18",
+  "version": "2.2.21",
   "description": "A Cityworks API wrapper",
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
@@ -48,8 +48,9 @@
     "winston": "^3.19.0"
   },
   "dependencies": {
-    "@types/node": "^25.5.2",
-    "axios": "^1.15.0",
+    "@types/node": "^25.3.5",
+    "axios": "^1.14.0",
+    "dotenv": "~17.3.1",
     "form-data": "^4.0.5",
     "lodash": "^4.18.1",
     "mime-types": "^3.0.2",

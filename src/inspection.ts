@@ -29,6 +29,11 @@ export class Inspection {
   costs: any
 
   /**
+   * Inspection audit log methods
+   */
+  audit: any
+
+  /**
    * @hidden
    */
   constructor(cw) {
@@ -36,6 +41,7 @@ export class Inspection {
     this.admin
     this.attachments
     this.costs
+    this.audit
   }
 
   /**

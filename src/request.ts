@@ -34,6 +34,11 @@ export class Request {
   attachments: any
 
   /**
+   * Request audit log methods
+   */
+  audit: any
+
+  /**
    * @hidden
    */
   constructor(cw) {
@@ -41,6 +46,7 @@ export class Request {
     this.admin
     this.comment
     this.attachments
+    this.audit
   }
 
   /**
