@@ -208,6 +208,71 @@ describe('[General::deleteHolidays] function test', () => {
   });
 });
 
+describe('[General::batchExecute] function test', () => {
+  it('should execute a single batch request with auto-generated id', (done) => {
+    cw3.general.batchExecute({
+      Requests: [
+        {
+          Request: {
+            EntityType: 'EASEMENT_TREES',
+            EntityUid: '{26AABDD2-77FC-4F17-851B-9CD2AC0EEC40}'
+          },
+          Method: 'ams/entity/workActivityHistory'
+        }
+      ]
+    }).then(resp => {
+      assert.isDefined(resp);
+      done();
+    }).catch(e => {
+      done(e);
+    });
+  });
+
+  it('should execute a multi-request batch payload with auto-generated ids', (done) => {
+    cw3.general.batchExecute({
+      Requests: [
+        {
+          Request: {
+            EntityType: 'EASEMENT_TREES',
+            EntityUid: '{26AABDD2-77FC-4F17-851B-9CD2AC0EEC40}'
+          },
+          Method: 'ams/entity/workActivityHistory'
+        },
+        {
+          Request: {
+            QueryValue: 'CaseObject(, Address(FeatureClass = "EASEMENT_TREES" AND FeatureAssetId = "{26AABDD2-77FC-4F17-851B-9CD2AC0EEC40}"))',
+            ResponseFields: {
+              BusCaseDesc: true,
+              CaObjectId: true,
+              CaseName: true,
+              CaseNumber: true,
+              CaseStatus: true,
+              CaseTypeDesc: true,
+              DateCreated: true,
+              DateIssued: true,
+              StatusCode: true,
+              SubTypeDesc: true
+            }
+          },
+          Method: 'general/query/query'
+        },
+        {
+          Request: {
+            EntityType: 'EASEMENT_TREES',
+            EntityUids: ['{26AABDD2-77FC-4F17-851B-9CD2AC0EEC40}']
+          },
+          Method: 'ams/entity/assetCostHistory'
+        }
+      ]
+    }).then(resp => {
+      assert.isDefined(resp);
+      done();
+    }).catch(e => {
+      done(e);
+    });
+  });
+});
+
 describe('[General::getActivityMetadataByIds] function test', () => {
   it('should resolve an activity based on the metadata ids');
 });
