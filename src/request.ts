@@ -1,5 +1,6 @@
 import { CWError } from './error'
 import _ from 'lodash'
+import type { CustomerCallData, CustomerCallOptions } from './customer_call'
 
 interface Coordinates {
   x: number;
@@ -39,6 +40,11 @@ export class Request {
   audit: any
 
   /**
+   * Customer call (caller) methods
+   */
+  customerCall: any
+
+  /**
    * @hidden
    */
   constructor(cw) {
@@ -47,23 +53,45 @@ export class Request {
     this.comment
     this.attachments
     this.audit
+    this.customerCall
   }
 
   /**
-   * Create new requests
+   * Save customer calls onto a request that was just saved, resolving the request with a `CustomerCalls` array attached.
+   * If the callers fail, the request itself has already been saved, so the rejection includes it.
+   *
+   * @hidden
+   */
+  private withCustomerCalls(sr: any, requestId: number, calls: CustomerCallData | Array<CustomerCallData> | undefined, options?: CustomerCallOptions) {
+    if(_.isNil(calls) || _.isEmpty(calls)) {
+      return Promise.resolve(sr)
+    }
+    if(_.isNil(this.customerCall)) {
+      return Promise.reject(new CWError(606, 'Customer calls are not available on this object.', {'RequestId': requestId, 'Request': sr}))
+    }
+    return this.customerCall.applyToRequest(requestId, calls, options).then(created => {
+      return _.assign({}, sr, {CustomerCalls: created})
+    }).catch(e => {
+      throw new CWError(607, 'The request was saved, but its customer call(s) were not: ' + _.get(e, 'Message', String(e)), {'RequestId': requestId, 'Request': sr, 'Cause': e})
+    })
+  }
+
+  /**
+   * Create new requests, optionally adding one or more callers once the request exists
    *
    * @category Requests
    * @param {Object} sr_data - See /{subdirectory}/apidocs/#/data-type-infodataType=RequestBase on the Cityworks instance
-   * @return {Object} Returns Promise that represents an object describing the newly-created request
+   * @param {Object|Array<Object>} [customerCall] - Customer call data (see {@link CustomerCall.addToRequest}) to add to the new request. RequestId is filled in for you.
+   * @return {Object} Returns Promise that represents an object describing the newly-created request. When customer calls are provided, the object also has a `CustomerCalls` array of the created calls.
    */
-  create(sr_data: Object) {
+  create(sr_data: Object, customerCall?: CustomerCallData | Array<CustomerCallData>) {
     return new Promise((resolve, reject) => {
       if(!_.has(sr_data, 'ProblemSid')) {
         reject(new CWError(2, 'ProblemSid must be provided.', {'provided': sr_data}))
       } else {
         this.cw.runRequest('Ams/ServiceRequest/Create', sr_data).then(r => {
-          resolve(r.Value)
-        }).catch(e => {
+          return this.withCustomerCalls(r.Value, r.Value.RequestId, customerCall, {newCall: true})
+        }).then(resolve).catch(e => {
           reject(e)
         })
       }
@@ -71,20 +99,27 @@ export class Request {
   }
 
   /**
-   * Update a request
+   * Update a request, optionally adding or updating callers on it
+   *
+   * Each customer call containing an IncidentNum updates that existing call. Otherwise, if the request already has a customer call with a
+   * matching phone number or email address, that call is updated. Otherwise a new call is added.
+   * To record the same caller phoning in again about this request, pass `{newCall: true}` so a new customer call is created
+   * instead of the previous one being updated.
    *
    * @category Requests
    * @param {object} sr_data - See /{subdirectory}/apidocs/#/data-type-infodataType=RequestBase on the Cityworks instance
-   * @return {Object} Returns Promise that represents an object describing the updated request
+   * @param {Object|Array<Object>} [customerCall] - Customer call data (see {@link CustomerCall.addToRequest}). RequestId is filled in for you.
+   * @param {Object} [options] - `{newCall: true}` to add every provided customer call as a new call, ignoring any IncidentNum or matching phone/email
+   * @return {Object} Returns Promise that represents an object describing the updated request. When customer calls are provided, the object also has a `CustomerCalls` array of the created/updated calls.
    */
-  update(sr_data: Object) {
+  update(sr_data: Object, customerCall?: CustomerCallData | Array<CustomerCallData>, options?: CustomerCallOptions) {
     return new Promise((resolve, reject) => {
       if(!_.has(sr_data, 'RequestId')) {
         reject(new CWError(3, 'RequestId must be provided.', {'provided': sr_data}))
       } else {
         this.cw.runRequest('Ams/ServiceRequest/Update', sr_data).then(r => {
-          resolve(r.Value)
-        }).catch(e => {
+          return this.withCustomerCalls(r.Value, _.get(sr_data, 'RequestId') as unknown as number, customerCall, options)
+        }).then(resolve).catch(e => {
           reject(e)
         })
       }

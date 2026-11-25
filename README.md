@@ -101,6 +101,28 @@ For any object in Cityworks which can be commented on, use the [Comments class](
 
       cw.request.comment.add(RequestIDGoesHere, "Comment goes here").then(resp => {})
 
+## Customer calls (callers)
+
+Customer calls belong to an existing service request. The [CustomerCall class](https://walker.github.io/cityworks/classes/customer_call.CustomerCall.html) is a subclass of `Request`, available as `cw.request.customerCall`:
+
+      cw.request.customerCall.addToRequest(RequestIDGoesHere, {FirstName: 'Pat', LastName: 'Smith', HomePhone: '555-0100'}).then(resp => {})
+
+      cw.request.customerCall.getByRequestId(RequestIDGoesHere).then(resp => {})
+
+      cw.request.customerCall.updateCall(IncidentNumGoesHere, {Email: 'pat@example.com'}).then(resp => {})
+
+You can also pass customer call data straight through `request.create` and `request.update`. The resolved request gets a `CustomerCalls` array:
+
+      cw.request.create({ProblemSid: 309}, {FirstName: 'Pat', LastName: 'Smith'}).then(sr => { sr.CustomerCalls })
+
+      // A call with an IncidentNum updates that call; without one, an existing call on the request with a matching phone number or email is updated; otherwise a new call is added
+      cw.request.update({RequestId: 123, Description: 'More info'}, [{IncidentNum: 456, Email: 'pat@example.com'}, {FirstName: 'Lee'}])
+
+      // The same caller phones in again: create a NEW customer call, never updating their previous one
+      cw.request.update({RequestId: 123}, {FirstName: 'Pat', LastName: 'Smith', Comments: 'Called again'}, {newCall: true})
+
+`{newCall: true}` ignores any IncidentNum and phone/email matching (e.g. when you copied data from a previous call). Note any `DateTimeCall` you copy over will be sent as well.
+
 ## Attachments
 
 For any object in Cityworks which has attachments, (including cases as CaRelDocs), use the [Attachments class](https://walker.github.io/cityworks/modules/attachments.html) via the class the attachment is to be made on:

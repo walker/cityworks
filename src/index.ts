@@ -8,6 +8,7 @@ import { Search } from './search'
 import { Query } from './query'
 import { Report } from './report'
 import { Request } from './request'
+import { CustomerCall } from './customer_call'
 import { Inspection } from './inspection'
 import { WorkOrder } from './workorder'
 import { Briefcase } from './briefcase'
@@ -765,6 +766,7 @@ request.costs = new RequestCosts(cw)
 request.comment = new Comments(cw, 'Request')
 request.attachments = new Attachments(cw, 'Request')
 request.audit = new AuditLogs(cw, 'REQUEST')
+request.customerCall = new CustomerCall(cw)
 
 const report = new Report(cw, inspection, workorder, request, briefcase)
 const employee = new Employee(cw)
