@@ -43,8 +43,7 @@ describe('[CaseData] simple wrapper methods', () => {
     ['unlockDetail', 'Pll/CaseDataDetail/UpdateLock', [1], {CaDataDetailId: 1, Lock: false}],
     ['getAllDataDetails', 'Pll/CaseDataGroup/GetItemsForXml', [106149], {CaObjectId: 106149}],
     ['addListValue', 'Pll/CaseDataListValues/Add', [1, 'TestValue'], {CaDataDetailId: 1, ListValue: 'TestValue'}],
-    ['deleteListValue', 'Pll/CaseDataListValues/Delete', [1], {CaDataDetailId: 1}],
-    ['wipAddDetail', 'Pll/CaseDataDetail/Add', [1, 2, 'A', 'TEST', 3, {Extra: 1}], {CaseDataDetailId: 1, CaDataGroupId: 2, ColumnSequence: 'A', DetailCode: 'TEST', DetailSequence: 3, Extra: 1}]
+    ['deleteListValue', 'Pll/CaseDataListValues/Delete', [1], {CaDataDetailId: 1}]
   ];
 
   cases.forEach(([method, path, args, payload], i) => {

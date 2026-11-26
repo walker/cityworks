@@ -17,6 +17,8 @@
     "build": "microbundle",
     "test": "mocha -R spec --recursive ./test/ -g ",
     "fulltest": "mocha -R spec --recursive ./test/",
+    "contracts": "CW_RECORD_CONTRACTS=1 mocha -R dot --recursive ./test/",
+    "test:live": "mocha -R spec ./live/liveContract.cjs",
     "docs": "typedoc --tsconfig ./tsconfig.json"
   },
   "repository": {

@@ -136,6 +136,20 @@ For any object in Cityworks which has attachments, (including cases as CaRelDocs
       cw.inspection.attachment.add(InspectionIDGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
 
 
+## Tests
+
+`npm test` / `npm run fulltest` run the mocked test suite: no Cityworks instance or network is needed.
+
+### Live contract check
+
+The mocked tests assume how the Cityworks API behaves (service paths, request parameters, the type of each response). To find out where a real instance disagrees:
+
+1. Put `cwdomain`, `cwpath`, `cwversion`, `cwlogin` and `cwpassword` in `.env`.
+2. `npm run contracts` re-records `live/contracts.json` from the mocked tests (every request a wrapper made and the response type the test expected). Commit it when wrappers or tests change.
+3. `npm run test:live` replays the recorded **read-only** requests against your instance and reports where it differs: endpoints that don't exist or aren't permitted, and responses whose type differs from the mocked one (mocked keys missing from the live response are noted, or fail with `CW_LIVE_STRICT_KEYS=1`). A summary is also written to `live/report.json`.
+
+Only read-only endpoints are replayed (the replay uses the mocked tests' dummy ids, so "not found" errors are expected and count as reachable). Anything that adds, updates, deletes or moves data is never called; those endpoints, and any it can't classify, are listed as skipped (add safe ones with `CW_LIVE_READONLY=path1,path2`). Some differences will be inaccurate mock data rather than API surprises, since the mocks were written without live responses.
+
 ## Activity Links
 
       cw.activity_link.add(source_type, source_sid, destination_type, destination_sid)

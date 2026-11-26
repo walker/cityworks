@@ -113,3 +113,5 @@ typings/
 
 # Distribution
 dist/*
+# live contract report
+live/report.json

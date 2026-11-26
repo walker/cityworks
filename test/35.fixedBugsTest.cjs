@@ -1,6 +1,8 @@
 'use strict';
 // Regression tests for bugs that were fixed in the wrappers. No Cityworks instance is contacted.
 const assert = require('chai').assert;
+const https = require('https');
+const EventEmitter = require('events');
 const cw = require('../dist/index.js');
 const { createMock } = require('./mockCityworks');
 
@@ -214,5 +216,33 @@ describe('[CaseFinancial::makePayment] validation', () => {
     const e2 = await rejection(cw.briefcase.financial.makePayment([['Cash', 'abc', 'c', '2026-01-01', 'r']], [1]));
     assert.equal(e2.Code, 302);
     assert.deepEqual(mock.paths(), []);
+  });
+});
+
+describe('[Cityworks::runRequest] network failures', () => {
+  const realRequest = https.request;
+  afterEach(() => { https.request = realRequest; });
+
+  it('should reject (CWError 13) when the connection fails instead of crashing', async () => {
+    https.request = () => {
+      const req = new EventEmitter();
+      req.write = () => {};
+      req.end = () => { setImmediate(() => req.emit('error', new Error('ETIMEDOUT'))); };
+      return req;
+    };
+    const e = await rejection(new CW('cw.example.test').runRequest('Ams/Thing/Get', {}));
+    assert.equal(e.Code, 13);
+  });
+
+  it('should destroy the request and reject when it times out', async () => {
+    https.request = () => {
+      const req = new EventEmitter();
+      req.write = () => {};
+      req.destroy = (err) => { setImmediate(() => req.emit('error', err)); };
+      req.end = () => { setImmediate(() => req.emit('timeout')); };
+      return req;
+    };
+    const e = await rejection(new CW('cw.example.test').runRequest('Ams/Thing/Get', {}));
+    assert.equal(e.Code, 13);
   });
 });

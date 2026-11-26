@@ -14,6 +14,8 @@
 //     });
 //   });
 
+const recorder = require('./contractRecorder');
+
 const SETTINGS = {path: 'cityworks', version: 23};
 const DOMAIN = 'cityworks.example.test';
 
@@ -89,6 +91,9 @@ function createMock(cw, options) {
           return resolveWith(h.response).then(e => Promise.reject(e instanceof Error || (e && e.Code) ? e : new CWMockError(1, (e && e.Message) || 'Error', e)));
         }
         return resolveWith(h.response).then(v => {
+          // what the wrapper sees as `Value`: undefined means the API answered Status 0 with no Value
+          const value = h.type === 'raw' ? (v && typeof v === 'object' && 'Status' in v ? v.Value : v) : (v === undefined ? true : v);
+          recorder.record(path, data, value === undefined ? true : value, mock.currentTitle);
           if(h.type === 'raw') return v;
           return v === undefined ? true : {Status: 0, Value: v};
         });
@@ -103,7 +108,7 @@ function createMock(cw, options) {
   };
 
   if(options.hooks !== false && typeof beforeEach === 'function') {
-    beforeEach(() => { mock.reset(); mock.install(); });
+    beforeEach(function() { mock.currentTitle = this.currentTest && this.currentTest.fullTitle(); mock.reset(); mock.install(); });
     afterEach(() => { mock.restore(); });
   }
   return mock;

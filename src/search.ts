@@ -96,7 +96,7 @@ export class Search {
   }
 
   /**
-   * Get a list of the saved searches by search type and specific entity types OR employeeSid/domainId. You cannot search for saved searches by both specific entity type AND employeeSid/domainId.
+   * Get a list of the saved searches by search type and specific entity types OR employeeSid/domainId. You cannot search for saved searches by both specific entity type AND employeeSid/domainId. This is a pre-platform/saved-search endpoint. Not for Queries.
    *
    * @category Search
    * @param {string} searchType - Get the saved searches for a particular type

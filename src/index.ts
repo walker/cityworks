@@ -326,8 +326,14 @@ class Cityworks implements Citywork {
             }
           })
         })
+        request.on('error', (e) => {
+          reject(new CWError(13, 'Unknown error.', e))
+        })
+        request.on('timeout', () => {
+          request.destroy(new Error('Request to the Cityworks API timed out.'))
+        })
         request.write(querystring.stringify(pd))
-        request.end()  
+        request.end()
       }
     })
   }
