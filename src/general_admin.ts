@@ -1,3 +1,4 @@
+import type { CityworksClient } from './client'
 export interface CwHoliday {
     Holiday: Date | string
     Description?: string
@@ -16,12 +17,12 @@ export class GeneralAdmin {
     /**
      * @hidden
      */
-    cw: any
+    cw: CityworksClient
 
     /**
      * @hidden
      */
-    constructor(cw) {
+    constructor(cw: CityworksClient) {
         this.cw = cw
     }
 
@@ -35,7 +36,7 @@ export class GeneralAdmin {
                 Description: description
             }
             this.cw.runRequest('General/Holidays/Add', data).then(r => {
-                resolve(r.Value)
+                resolve(r === true ? true : r.Value)
             }).catch(e => {
                 reject(e)
             })
@@ -87,7 +88,7 @@ export class GeneralAdmin {
                 Holidays: holidays
             }
             this.cw.runRequest('General/Holidays/Delete', data).then(r => {
-                resolve(r.Value)
+                resolve(r === true ? true : r.Value)
             }).catch(e => {
                 reject(e)
             })
@@ -105,7 +106,7 @@ export class GeneralAdmin {
             }
             var data = Object.assign(data_init, options || {})
             this.cw.runRequest('General/EurlQuery/FindReplaceConfigurationText', data).then(r => {
-                resolve(r.Value)
+                resolve(r === true ? true : r.Value)
             }).catch(e => {
                 reject(e)
             })

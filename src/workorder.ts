@@ -1,4 +1,10 @@
 import { CWError } from './error'
+import { WorkOrderAdmin } from './workorder_admin'
+import { WorkOrderCosts } from './workorder_costs'
+import { Comments } from './comments'
+import { Attachments } from './attachments'
+import { AuditLogs } from './audit_logs'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 
 interface Coordinates {
@@ -11,42 +17,43 @@ export class WorkOrder {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * WorkOrder Administration methods
    */
-  admin: any
+  admin: WorkOrderAdmin
 
   /**
    * WorkOrder Costing methods
    */
-  costs: any
+  costs: WorkOrderCosts
 
   /**
    * WorkOrder Comments methods
    */
-  comment: any
+  comment: Comments
 
   /**
    * WorkOrder Comments methods
    */
-  attachments: any
+  attachments: Attachments
 
   /**
    * WorkOrder audit log methods
    */
-  audit: any
+  audit: AuditLogs
 
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
-    this.admin
-    this.comment
-    this.attachments
-    this.audit
+    this.admin = new WorkOrderAdmin(cw)
+    this.costs = new WorkOrderCosts(cw)
+    this.comment = new Comments(cw, 'WorkOrder')
+    this.attachments = new Attachments(cw, 'WorkOrder')
+    this.audit = new AuditLogs(cw, 'WORKORDER')
   }
 
   /**
@@ -87,7 +94,7 @@ export class WorkOrder {
    * @param {string|number} workOrderSId - The workorder S/ID which the entities should be added to. # for SID, string for ID.
    * @return {Object} Returns Promise that represents an object describing the newly-created workorder
    */
-  createFromParent(wo_data: Object, workOrderSId: string|number, s: boolean = true) {
+  createFromParent(wo_data: Object, workOrderSId: string|number) {
     return new Promise((resolve, reject) => {
       if(!_.has(wo_data, 'WOTemplateId') || !_.has(wo_data, 'EntityType')) {
         reject(new CWError(2, 'WOTemplateId & EntityType must be provided.', {'provided': wo_data}))
@@ -173,6 +180,7 @@ export class WorkOrder {
       if(!_.has(projection, 'WKID') && !_.has(projection, 'WKT')) {
         // Throw error
         reject(new CWError(6, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
+        return
       }
       var base_data = {
         WorkOrderId: workOrderId,
@@ -180,7 +188,7 @@ export class WorkOrder {
         Y: y
       };
       if(typeof(z)!='undefined') {
-        _.set(base_data, 'z', z)
+        _.set(base_data, 'Z', z)
       }
       var data = _.merge(base_data, projection);
       this.cw.runRequest('Ams/WorkOrder/Move', data).then(r => {
@@ -196,10 +204,9 @@ export class WorkOrder {
    *
    * @category WorkOrders
    * @param {string|number} workOrderSId - The S/ID of the workorder to retrieve. # for SID, string for ID.
-   * @param {boolean} s - Whether first argument is an SID (true) or an ID (false). Defaults to true.
    * @return {Object} Returns Promise that represents an object describing the workorder
    */
-  getById(workOrderSId: string|number, s: boolean = true) {
+  getById(workOrderSId: string|number) {
     return new Promise((resolve, reject) => {
       var data = {}
       if(_.isString(workOrderSId)) {
@@ -241,6 +248,7 @@ export class WorkOrder {
         } else {
           // throw error - was not number or string
           reject(new CWError(9, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+          return
         }
         this.cw.runRequest(path, data).then(r => {
           resolve(r.Value)
@@ -275,6 +283,7 @@ export class WorkOrder {
         } else {
           // throw error - was not number or string
           reject(new CWError(9, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+          return
         }
         this.cw.runRequest(path, data).then(r => {
           resolve(r.Value)
@@ -302,6 +311,7 @@ export class WorkOrder {
       } else {
         // throw error - was not number or string
         reject(new CWError(9, 'Workorder S/IDs was not provided.', {'workorderSId': workOrderSId}))
+        return
       }
       this.cw.runRequest('Ams/WorkOrder/AuditLog', data).then(r => {
         resolve(r.Value)
@@ -331,6 +341,7 @@ export class WorkOrder {
       } else {
         // throw error - was not number or string
         reject(new CWError(9, 'No workorder S/IDs were provided.', {'workorderSIds': workOrderSIds}))
+        return
       }
       this.cw.runRequest(path, data).then(r => {
         resolve(r.Value)
@@ -405,6 +416,7 @@ export class WorkOrder {
          _.set(data, 'EntityType', _.get(entityInfo, 'EntityType'))
        } else {
          reject(new CWError(7, 'No entity info was provided.', {'workorderSId': workOrderSId,'entityInfo': entityInfo}))
+         return
        }
 
        this.cw.runRequest('Ams/WorkOrder/AddEntities', data).then(r => {
@@ -442,11 +454,12 @@ export class WorkOrder {
           _.set(data, 'Facility_Id', _.get(entityInfo, 'Facility_Id'))
         if(_.has(entityInfo, 'Level_Id'))
           _.set(data, 'Level_Id', _.get(entityInfo, 'Level_Id'))
-        if(_.has(entityInfo, 'EntityUids') && _.has(entityInfo, 'EntityType')) {
+        if(_.has(entityInfo, 'EntityUid') && _.has(entityInfo, 'EntityType')) {
           _.set(data, 'EntityUid', _.get(entityInfo, 'EntityUid'))
           _.set(data, 'EntityType', _.get(entityInfo, 'EntityType'))
         } else {
           reject(new CWError(7, 'No entity info was provided.', {'workorderSId': workOrderSId,'entityInfo': entityInfo}))
+          return
         }
 
         this.cw.runRequest('Ams/WorkOrder/UpdateEntity', data).then(r => {
@@ -487,6 +500,7 @@ export class WorkOrder {
          _.set(data, 'EntityType', _.get(entityInfo, 'EntityType'))
        } else {
          reject(new CWError(8, 'No entity info was provided.', {'workorderSId': workOrderSId,'entityInfo': entityInfo}))
+         return
        }
 
        this.cw.runRequest('Ams/WorkOrder/RemoveEntities', data).then(r => {
@@ -905,6 +919,7 @@ export class WorkOrder {
         } else {
           // throw error - was not number or string
           reject(new CWError(9, 'No workorder S/ID was provided.', {'workorderSId': workOrderSId}))
+          return
         }
         if(_.isNumber(domainId)) {
           _.set(data, 'DomainId', domainId)

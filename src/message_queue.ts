@@ -1,11 +1,12 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 
 export class MessageQueue {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
   /**
    * Statuses -
    * Pending: 0,
@@ -36,7 +37,7 @@ export class MessageQueue {
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 
@@ -71,6 +72,7 @@ export class MessageQueue {
     return new Promise((resolve, reject) => {
       if(typeof(this.status[status])=='undefined') {
         reject(new CWError(1, 'Status provided does not exist or is mispelled.', {'provided': status, 'available':this.status}))
+        return
       }
       let data = {
         "Ids": ids,
@@ -98,6 +100,7 @@ export class MessageQueue {
     return new Promise((resolve, reject) => {
       if(typeof(this.status[status])=='undefined') {
         reject(new CWError(2, 'Status provided does not exist or is mispelled.', {'provided': status, 'available':this.status}))
+        return
       }
       let data = {
         "Ids": ids,
@@ -216,6 +219,7 @@ export class MessageQueue {
     return new Promise((resolve, reject) => {
       if(typeof(this.status[status])=='undefined') {
         reject(new CWError(2, 'Status provided does not exist or is mispelled.', {'provided': status, 'available':this.status}))
+        return
       }
       let data = {
         "Ids": ids,

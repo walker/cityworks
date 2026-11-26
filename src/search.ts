@@ -1,11 +1,12 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 
 export class Search {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * Search Types: Null, Request, WorkOrder, Inspection, Contract, Permit, GIS, PermitTask, PermitAddress, InspCommon, Case, WorkOrderEntity, StoreTransaction, Requisition, Material, WorkActivity, MaterialLeaf, WoTemplate, Unknown, Employee, MessageQueue, Analytics, TokenState, AssetCalculationResult, Equipment, CustomerAccount, InspTemplate, ProblemLeaf, AssetSplitRecord, PavementInsp, TvInspection, Projects
@@ -48,7 +49,7 @@ export class Search {
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 
@@ -108,8 +109,10 @@ export class Search {
     return new Promise((resolve, reject) => {
       if(!_.has(this.searchTypes, searchType)) {
         reject(new CWError(2, 'SearchType provided does not exist or is mispelled.', {'provided': searchType, 'available':this.searchTypes}))
+        return
       } else if(typeof(applyToEntities)!='undefined' && applyToEntities!=null && applyToEntities.length>0 && (typeof(employeeSid)!='undefined' || typeof(domainId)!='undefined')) {
         reject(new CWError(3, 'You cannot specify both applyToEntities AND employeeSid/domainId'))
+        return
       }
       var data = {}
       var savedEndpoint = ''
@@ -123,7 +126,7 @@ export class Search {
         }
       } else {
         if(searchType=='Case') {
-          savedEndpoint = 'PllSavedSaved'
+          savedEndpoint = 'PllSaved'
         } else {
           savedEndpoint = searchType + 'Saved'
         }
@@ -150,6 +153,7 @@ export class Search {
     return new Promise((resolve, reject) => {
       if(!_.has(this.searchTypes, searchType)) {
         reject(new CWError(1, 'SearchType provided does not exist or is mispelled.', {'provided': searchType, 'available':this.searchTypes}))
+        return
       }
       var data = {
         searchType: _.get(this.searchTypes, searchType)
@@ -322,6 +326,7 @@ export class Search {
     return new Promise((resolve, reject) => {
       if(!_.has(this.searchTypes, searchFor)) {
         reject(new CWError(1, 'SearchType provided does not exist or is mispelled.', {'provided': searchFor, 'available':this.searchTypes}))
+        return
       }
       var data = {
         SearchFor: _.get(this.searchTypes, searchFor),

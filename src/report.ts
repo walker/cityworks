@@ -1,32 +1,37 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
+import type { Request } from './request'
+import type { Inspection } from './inspection'
+import type { WorkOrder } from './workorder'
+import type { Briefcase } from './briefcase'
 import { convertToObject } from 'typescript';
 
 export class Report {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * @hidden
    */
-  request: any
+  request: Request
  
   /**
    * @hidden
    */
-  inspection: any
+  inspection: Inspection
 
   /**
    * @hidden
    */
-  workorder: any
+  workorder: WorkOrder
 
   /**
    * @hidden
    */
-  briefcase: any
+  briefcase: Briefcase
 
   /**
    * @hidden
@@ -38,7 +43,7 @@ export class Report {
   /**
    * @hidden
    */
-  constructor(cw, inspection: any, workorder: any, request: any, briefcase: any) {
+  constructor(cw: CityworksClient, inspection: Inspection, workorder: WorkOrder, request: Request, briefcase: Briefcase) {
     this.cw = cw
     this.inspection = inspection
     this.workorder = workorder
@@ -65,7 +70,7 @@ export class Report {
         reject(new CWError(406, 'Invalid node_id provided. Must be a number greater than 0.'))
         return
       }
-      var dl_url: String = ''
+      var dl_url: string = ''
       var output_name = _.capitalize(type) + '_' + node_id
       // Check which verson of CW we're connected to
       if(this.cw.v() >= 23) {
@@ -112,12 +117,9 @@ export class Report {
         }).catch((e) => {
           reject(e)
         })
-      } else if(this.cw.v()<23) {
-        // Maybe I'll get to this for CR later. But you should really just update to 23.x and run ActiveReports
-        console.log('CR print not implemented yet')
       } else {
-        // Error, we don't know what version of CW we're connected to
-        console.log('No clue what version of CW we are connected to')
+        // Crystal Reports printing for older versions is not implemented; use 23.x and ActiveReports
+        reject(new CWError(407, 'Report printing is only supported for Cityworks version 23 or later.', {'version': this.cw.v()}))
       }
     })
   }
@@ -131,7 +133,7 @@ export class Report {
    */
   get(type: string, node_id: number, fileName: string) {
     return new Promise((resolve, reject) => {
-      var dl_url: String = ''
+      var dl_url: string = ''
       // Check which verson of CW we're connected to
       if(this.cw.v() >= 23) {
         // Custom reporting endpoints don't exist for AR in 23 right now...
@@ -161,7 +163,7 @@ export class Report {
         // If no filename is provided, we need to set the filename to the default for the node_id
         switch (type) {
           case 'request':
-            this.request.getById(node_id).then((r) => {
+            this.request.getById(node_id).then((r: any) => {
               this.request.admin.getTemplateById(r.ProblemSid).then((template) => {
                 if(typeof(template.SRPrintTmpt)==='undefined' || template.SRPrintTmpt===null || template.SRPrintTmpt==='') {
                   reject(new CWError(404, 'No print template defined for this service request'))
@@ -170,16 +172,14 @@ export class Report {
                   resolve({fn: template.SRPrintTmpt, desc: template.Description})
                 }
               }).catch((e) => {
-                console.log('Template error', e)
                 reject(e)
               })
             }).catch((e) => {
-              console.log('Inspection error', e)
               reject(e)
             })
           break
           case 'workorder':
-            this.workorder.getById(node_id).then((r) => {
+            this.workorder.getById(node_id).then((r: any) => {
               this.workorder.admin.getTemplateById(r.WOTemplateId).then((template) => {
                 if(typeof(template.WOPrintTmpt)==='undefined' || template.WOPrintTmpt===null || template.WOPrintTmpt==='') {
                   reject(new CWError(404, 'No print template defined for this work order'))
@@ -188,16 +188,14 @@ export class Report {
                   resolve({fn: template.WOPrintTmpt, desc: template.Description})
                 }
               }).catch((e) => {
-                console.log('Template error', e)
                 reject(e)
               })
             }).catch((e) => {
-              console.log('Work Order error', e)
               reject(e)
             })
           break
           case 'inspection':
-            this.inspection.getById(node_id).then((r) => {
+            this.inspection.getById(node_id).then((r: any) => {
               this.inspection.admin.getTemplateById(r.InspTemplateId).then((template) => {
                 // default to first if no print template named
                 if(typeof(template.PrintTemplate)==='undefined' || template.PrintTemplate===null || template.PrintTemplate==='') {
@@ -207,7 +205,6 @@ export class Report {
                   resolve({fn: template.PrintTemplate, desc: template.Description})
                 }
               }).catch((e) => {
-                console.log('Template error', e)
                 reject(e)
               })
             }).catch((e) => {
@@ -215,7 +212,7 @@ export class Report {
             })
           break
           case 'case':
-            this.briefcase.getById(node_id).then((r) => {
+            this.briefcase.getById(node_id).then((r: any) => {
               if(!_.isUndefined(r.CaseNumber) && r.CaseNumber!==null && r.CaseNumber.length>0) {
                 // include case number in output name
                 var cn = r.CaseNumber;

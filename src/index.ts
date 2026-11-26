@@ -94,12 +94,13 @@ class Cityworks implements Citywork {
   private extensions: Object
   private features: Object
   private potential_loads: Array<string>
+  private loaded: Array<string> | null = null
 
   /**
      * Contructor for a new cityworks instance's object, allows one to optionally configure the domain and other settings right from the get-go
      * @param {string} [base_url] - The base url of your Cityworks instance
      * @param {object} [settings] - The settings for your Cityworks site. Full list: {path: (defaults to "cityworks"), secure: defaults to true, expires: defaults to NULL, does not expire, default_domain: defaults to NULL, uses default user domain, version: defaults to 23, for 15.x set to 15}
-     * @param {array} [load] - allows user to choose which modules to load and make available. Full availability array: ['general', 'activity_link', 'message_queue', 'gis', 'workorder', 'inspection', 'request', 'case']
+     * @param {array} [load] - allows user to choose which modules to load and make available. Omit to load everything. See `configure` for the full list of module names.
      */
   constructor(base_url?: string, settings?: Object, load?: Array<string>) {
     this.base_url = 'cityworksonline'
@@ -112,7 +113,7 @@ class Cityworks implements Citywork {
       default_domain: null,
       version: 23
     }
-    this.potential_loads = ['general', 'activity_link', 'message_queue', 'gis', 'search', 'request', 'report', 'case', 'case_financial']
+    this.potential_loads = ['general', 'activity_link', 'message_queue', 'gis', 'search', 'query', 'request', 'inspection', 'workorder', 'case', 'report', 'employee', 'equipment', 'contractor', 'recent_activity', 'general_admin']
     if(typeof(base_url)!='undefined') {
       this.configure(base_url, settings, load)
     }
@@ -123,10 +124,11 @@ class Cityworks implements Citywork {
      *
      * @param {string} [base_url] - The first color, in hexadecimal format.
      * @param {object} [settings] - The second color, in hexadecimal format.
-     * @param {array} [load] - allows user to choose which modules to load and make available. Full availability array: ['general', 'activity_link', 'message_queue', 'gis', 'search', 'workorder', 'inspection', 'request', 'report', 'case']
+     * @param {array} [load] - allows user to choose which modules to make available; using any other module throws an error. Defaults to loading all of them. Names: 'general', 'activity_link', 'message_queue', 'gis', 'search', 'query', 'request', 'inspection', 'workorder', 'case' (alias 'briefcase'), 'report', 'employee', 'equipment', 'contractor', 'recent_activity', 'general_admin'. The 'report' module builds on 'request', 'inspection', 'workorder' and 'case' internally, but does not make them available to you unless you also list them.
      * @return {boolean} Returns true if successful, otherwise, throws error
      */
   configure(base_url?: string, settings?: Object, load?: Array<string>) {
+    this.loaded = this.normalizeLoad(load)
     if(typeof base_url !== 'undefined') { this.base_url = base_url } else { this.base_url = 'cityworksonline' }
     this.settings = {
       path: 'cityworks',
@@ -141,6 +143,34 @@ class Cityworks implements Citywork {
         if(typeof(this.settings[k])!='undefined') {this.settings[k] = v}
       })
     }
+  }
+
+  /**
+   * Whether a module (e.g. 'request', 'case') is available. All modules are available unless a `load` list was given to configure.
+   *
+   * @param {string} name - The module name
+   * @return {boolean}
+   */
+  isLoaded(name: string): boolean {
+    const canonical = Cityworks.loadAliases[name] || name
+    return this.loaded === null || this.loaded.indexOf(canonical) > -1
+  }
+
+  /**
+   * @hidden
+   */
+  private static loadAliases: {[key: string]: string} = {briefcase: 'case', case_financial: 'case'}
+
+  private normalizeLoad(load?: Array<string>): Array<string> | null {
+    if(typeof(load) === 'undefined' || load === null) {
+      return null
+    }
+    const names = _.uniq(_.map(load, n => Cityworks.loadAliases[n] || n))
+    const unknown = _.difference(names, this.potential_loads)
+    if(unknown.length > 0) {
+      throw new CWError(15, 'Unknown module(s) in load: ' + unknown.join(', '), {'provided': load, 'available': this.potential_loads})
+    }
+    return names
   }
 
   /**
@@ -210,6 +240,8 @@ class Cityworks implements Citywork {
           headers: formData.getHeaders()
         }).then((r) => {
           resolve(r.data)
+        }).catch((e) => {
+          reject(new CWError(17, 'Error sending the file to the Cityworks API.', e))
         })
       } else {
         // if(service_path=='Pll/CaseFlags/DeleteByCaObjectId') {
@@ -341,6 +373,15 @@ class Cityworks implements Citywork {
   }
 
   /**
+   * The absolute URL of the configured Cityworks install, e.g. https://cw.domain.tld/cityworks
+   *
+   * @return {string}
+   */
+  getBaseUrl(): string {
+    return (this.settings.secure == false ? 'http://' : 'https://') + this.base_url + '/' + this.settings.path
+  }
+
+  /**
      * Authenticate a username with a GIS Token
      * @param {login} - Gis user name, should match a Cityworks employee login name
      * @param {string} gisToken - Gis Oauth2 access token
@@ -351,7 +392,7 @@ class Cityworks implements Citywork {
     this.login = login
     this.gisToken = gisToken
     this.gisTokenUrl = gisTokenUrl
-    if(typeof(expires)!='undefined') {
+    if(typeof(expires)=='undefined') {
       expires = 1209600000
     }
 
@@ -362,7 +403,7 @@ class Cityworks implements Citywork {
       this.runRequest(path, data).then((response: any) => {
         if((typeof(response.Status)!='undefined' && response.Status>0)) {
           // failed
-          // TODO: CWError here.
+          reject(new CWError(100, response.Message))
         } else if(typeof(response.Value)!='undefined' && typeof(response.Value.Token)!='undefined') {
           this.Token = response.Value.Token
           resolve(true)
@@ -371,7 +412,7 @@ class Cityworks implements Citywork {
           resolve(false)
         }
       }).catch(error => {
-        throw error
+        reject(error)
       })
     })
   }
@@ -384,9 +425,6 @@ class Cityworks implements Citywork {
      */
   validateToken(token:string, set?:boolean) {
     return new Promise((resolve, reject) => {
-      if(typeof(set)=='undefined') {
-        let set = false
-      }
       let data = { Token: token }
       let path = 'General/Authentication/Validate'
       this.runRequest(path, data).then((response: any) => {
@@ -400,7 +438,7 @@ class Cityworks implements Citywork {
           resolve(response.Value)
         }
       }).catch(error => {
-        throw error
+        reject(error)
       })
     })
   }
@@ -449,7 +487,7 @@ class Cityworks implements Citywork {
           resolve(true)
         }
       }).catch(error => {
-        throw error
+        reject(error)
       })
     })
   }
@@ -527,6 +565,7 @@ class Cityworks implements Citywork {
     return new Promise((resolve, reject) => {
       if(typeof(this.extensions[extension])=='undefined') {
         reject(new CWError(4, 'Extension provided does not exist or is mispelled.', {'provided': extension, 'available': this.extensions}))
+        return
       }
       let data = {
         "Extension": this.extensions[extension]
@@ -588,6 +627,7 @@ class Cityworks implements Citywork {
     return new Promise((resolve, reject) => {
       if(typeof(this.features[feature])=='undefined') {
         reject(new CWError(7, 'Feature provided does not exist or is mispelled.', {'provided': feature, 'available': this.features}))
+        return
       }
       let data = {
         "Feature": this.features[feature]
@@ -729,52 +769,88 @@ class Cityworks implements Citywork {
 
 const cw = new Cityworks()
 
-const general = new General(cw)
-const activity_link = new ActivityLinks(cw)
-const message_queue = new MessageQueue(cw)
-const search = new Search(cw)
-const query = new Query(cw)
-const gis = new Gis(cw)
-const request = new Request(cw)
-const inspection = new Inspection(cw)
-const workorder = new WorkOrder(cw)
-const briefcase = new Briefcase(cw)
+/**
+ * Memoize a factory so each module is built once, the first time it is used
+ */
+function once<T>(factory: () => T): () => T {
+  let instance: T | undefined
+  let built = false
+  return () => {
+    if(!built) {
+      instance = factory()
+      built = true
+    }
+    return instance as T
+  }
+}
 
-briefcase.data = new CaseData(cw)
-briefcase.financial = new CaseFinancial(cw)
-briefcase.workflow = new CaseWorkflow(cw)
-briefcase.admin = new CaseAdmin(cw)
-briefcase.people = new CasePeople(cw)
-briefcase.comment = new Comments(cw, 'CaObject')
-briefcase.asset = new CaseAssets(cw)
-briefcase.flag = new CaseFlags(cw)
-briefcase.attachments = new Attachments(cw, 'Case')
+/**
+ * Stand-in for a module instance which builds the real instance on first use. All access is forwarded to the real instance,
+ * so `cw.request.create(...)` behaves exactly as if `request` had been built up front.
+ */
+function lazy<T extends object>(name: string, build: () => T): T {
+  const get = () => {
+    if(!cw.isLoaded(name)) {
+      throw new CWError(16, 'The "' + name + '" module is not loaded. It was left out of the load list given to Cityworks.configure().', {'module': name})
+    }
+    return build()
+  }
+  return new Proxy({} as T, {
+    get: (_t, prop) => Reflect.get(get(), prop, get()),
+    set: (_t, prop, value) => Reflect.set(get(), prop, value, get()),
+    has: (_t, prop) => Reflect.has(get(), prop),
+    deleteProperty: (_t, prop) => Reflect.deleteProperty(get(), prop),
+    ownKeys: () => Reflect.ownKeys(get()),
+    getOwnPropertyDescriptor: (_t, prop) => {
+      const d = Reflect.getOwnPropertyDescriptor(get(), prop)
+      if(d) d.configurable = true
+      return d
+    },
+    getPrototypeOf: () => Reflect.getPrototypeOf(get())
+  })
+}
 
-workorder.admin = new WorkOrderAdmin(cw)
-workorder.costs = new WorkOrderCosts(cw)
-workorder.comment = new Comments(cw, 'WorkOrder')
-workorder.attachments = new Attachments(cw, 'WorkOrder')
-workorder.audit = new AuditLogs(cw, 'WORKORDER')
+const modules = {
+  general: once(() => new General(cw)),
+  activity_link: once(() => new ActivityLinks(cw)),
+  message_queue: once(() => new MessageQueue(cw)),
+  search: once(() => new Search(cw)),
+  query: once(() => new Query(cw)),
+  gis: once(() => new Gis(cw)),
+  request: once(() => {
+    const request = new Request(cw)
+    request.customerCall = new CustomerCall(cw)
+    return request
+  }),
+  inspection: once(() => new Inspection(cw)),
+  workorder: once(() => new WorkOrder(cw)),
+  briefcase: once(() => new Briefcase(cw)),
+  report: once(() => new Report(cw, modules.inspection(), modules.workorder(), modules.request(), modules.briefcase())),
+  employee: once(() => new Employee(cw)),
+  equipment: once(() => new Equipment(cw)),
+  contractor: once(() => new Contractor(cw)),
+  recent_activity: once(() => new RecentActivity(cw)),
+  general_admin: once(() => new GeneralAdmin(cw))
+}
 
-inspection.admin = new InspectionAdmin(cw)
-inspection.costs = new InspectionCosts(cw)
-inspection.attachments = new Attachments(cw, 'Inspection')
-inspection.audit = new AuditLogs(cw, 'INSPECTION')
+// Each module is only constructed when first touched, e.g. `request.create(...)`.
+const general = lazy('general', modules.general)
+const activity_link = lazy('activity_link', modules.activity_link)
+const message_queue = lazy('message_queue', modules.message_queue)
+const search = lazy('search', modules.search)
+const query = lazy('query', modules.query)
+const gis = lazy('gis', modules.gis)
+const request = lazy('request', modules.request)
+const inspection = lazy('inspection', modules.inspection)
+const workorder = lazy('workorder', modules.workorder)
+const briefcase = lazy('case', modules.briefcase)
+const report = lazy('report', modules.report)
+const employee = lazy('employee', modules.employee)
+const equipment = lazy('equipment', modules.equipment)
+const contractor = lazy('contractor', modules.contractor)
+const recent_activity = lazy('recent_activity', modules.recent_activity)
+const general_admin = lazy('general_admin', modules.general_admin)
 
-request.admin = new RequestAdmin(cw)
-request.costs = new RequestCosts(cw)
-request.comment = new Comments(cw, 'Request')
-request.attachments = new Attachments(cw, 'Request')
-request.audit = new AuditLogs(cw, 'REQUEST')
-request.customerCall = new CustomerCall(cw)
-
-const report = new Report(cw, inspection, workorder, request, briefcase)
-const employee = new Employee(cw)
-const equipment = new Equipment(cw)
-const contractor = new Contractor(cw)
-const recent_activity = new RecentActivity(cw)
-const general_admin = new GeneralAdmin(cw)
-
-;(cw as any).contractor = contractor
+Object.defineProperty(cw, 'contractor', {get: () => contractor, configurable: true, enumerable: true})
 
 export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report, employee, equipment, contractor, recent_activity, general_admin }

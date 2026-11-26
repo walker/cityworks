@@ -1,3 +1,4 @@
+import type { CityworksClient } from './client'
 export interface RecentActivityUserOptions {
     IncludeCases?: boolean
     IncludeFireHydFlowTests?: boolean
@@ -26,12 +27,12 @@ export class RecentActivity {
     /**
      * @hidden
      */
-    cw: any
+    cw: CityworksClient
 
     /**
      * @hidden
      */
-    constructor(cw) {
+    constructor(cw: CityworksClient) {
         this.cw = cw
     }
 

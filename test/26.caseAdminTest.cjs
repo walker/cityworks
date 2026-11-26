@@ -1,419 +1,179 @@
 'use strict';
-require('dotenv').config({quiet: true, debug: false});
-const { shouldRunBefore } = require('./testGuard');
-const suiteName = 'caseadmin';
+// Mocked tests: no Cityworks instance is contacted.
 var assert = require('chai').assert;
 const cw26 = require('../dist/index.js');
+const { createMock } = require('./mockCityworks');
 
-cw26.Cityworks.configure(process.env.cwdomain, {path: process.env.cwpath, version: process.env.cwversion});
-
-before(function(done) {
-  if (!shouldRunBefore(suiteName)) {
-    return done();
+async function rejection(promise) {
+  try {
+    await promise;
+  } catch (e) {
+    return e;
   }
-
-  this.timeout(20000000);
-  cw26.Cityworks.authenticate(process.env.cwlogin, process.env.cwpassword).then(() => {
-    done();
-  }).catch(e => {
-    console.log(e, 'unexpected error');
-    done(e);
-  });
-});
+  assert.fail('should have rejected');
+}
 
 describe('[CaseAdmin (construct)] function test', () => {
-  it('should be a defined object', (done) => {
+  it('should be a defined object', () => {
     assert.isObject(cw26.briefcase.admin, 'Briefcase.admin is an object');
-    done();
   });
 });
 
 describe('[CaseAdmin::list/get methods] function test', () => {
-  it('should call getBusinessCaseTemplates', (done) => {
-    cw26.briefcase.admin.getBusinessCaseTemplates().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
+  const mock = createMock(cw26.Cityworks);
+
+  const getters = [
+    ['getBusinessCaseTemplates', 'Pll/BusinessCase/GetList'],
+    ['getCaseTypes', 'Pll/CaseType/GetList'],
+    ['getSubtypes', 'Pll/SubType/GetList'],
+    ['getFees', 'Pll/FeeSetup/All'],
+    ['getExpirations', 'Pll/ExpirationType/GetList'],
+    ['getDeposits', 'Pll/Deposit/All'],
+    ['getDisciplines', 'Pll/Discipline/All'],
+    ['getDepartments', 'Pll/Department/GetList'],
+    ['getDivisions', 'Pll/Division/GetList'],
+    ['getInspectionTimeBlocks', 'Pll/InspectionTimeBlock/GetList'],
+    ['getNotificationCases', 'Pll/NotificationCase/GetNotificationCaseList'],
+    ['getNotificationTypes', 'Pll/NotificationType/GetNotificationTypeList'],
+    ['getNumberingGroups', 'Pll/NumberingGroup/GetList'],
+    ['getPeople', 'Pll/People/GetList'],
+    ['getPeopleRoles', 'Pll/PeopleRole/GetList'],
+    ['getTaskResultDetails', 'Pll/TaskResultDetail/GetList'],
+    ['getTaskResultFeeInsert', 'Pll/TaskResultFeeInsert/GetList']
+  ];
+
+  getters.forEach(([method, path]) => {
+    it('should call ' + method + ' with an empty payload and resolve the Value', async () => {
+      const items = [{Id: 1, Name: 'Dummy A'}, {Id: 2, Name: 'Dummy B'}];
+      mock.on(path, items);
+      const r = await cw26.briefcase.admin[method]();
+      assert.deepEqual(r, items);
+      assert.deepEqual(mock.paths(), [path]);
+      assert.deepEqual(mock.lastCall(path).data, {});
+    });
+
+    it('should propagate ' + method + ' errors', async () => {
+      mock.onError(path, {Message: 'Dummy failure'});
+      const e = await rejection(cw26.briefcase.admin[method]());
+      assert.equal(e.Message, 'Dummy failure');
+    });
   });
 
-  it('should call getCaseTypes', (done) => {
-    cw26.briefcase.admin.getCaseTypes().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getSubtypes', (done) => {
-    cw26.briefcase.admin.getSubtypes().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getFees', (done) => {
-    cw26.briefcase.admin.getFees().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getExpirations', (done) => {
-    cw26.briefcase.admin.getExpirations().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getDeposits', (done) => {
-    cw26.briefcase.admin.getDeposits().then(r => {
-      assert.isTrue(r === null || Array.isArray(r));
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getDisciplines', (done) => {
-    cw26.briefcase.admin.getDisciplines().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getDepartments', (done) => {
-    cw26.briefcase.admin.getDepartments().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getDivisions', (done) => {
-    cw26.briefcase.admin.getDivisions().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getInspectionTimeBlocks', (done) => {
-    cw26.briefcase.admin.getInspectionTimeBlocks().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getNotificationCases', (done) => {
-    cw26.briefcase.admin.getNotificationCases().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getNotificationTypes', (done) => {
-    cw26.briefcase.admin.getNotificationTypes().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getNumberingGroups', (done) => {
-    cw26.briefcase.admin.getNumberingGroups().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getPeople', (done) => {
-    cw26.briefcase.admin.getPeople().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getPeopleRoles', (done) => {
-    cw26.briefcase.admin.getPeopleRoles().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getTaskResultDetails', (done) => {
-    cw26.briefcase.admin.getTaskResultDetails().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
-  });
-
-  it('should call getTaskResultFeeInsert', (done) => {
-    cw26.briefcase.admin.getTaskResultFeeInsert().then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => done(e));
+  it('should allow getDeposits to resolve null', async () => {
+    mock.on('Pll/Deposit/All', null);
+    assert.isNull(await cw26.briefcase.admin.getDeposits());
   });
 });
 
 describe('[CaseAdmin::search validation/callable methods] function test', () => {
-  it('should reject searchCaseTypeIDs with no filters', (done) => {
-    cw26.briefcase.admin.searchCaseTypeIDs({}).then(() => {
-      done('Expected searchCaseTypeIDs to reject without filters');
-    }).catch(e => {
-      assert.isObject(e);
-      done();
+  const mock = createMock(cw26.Cityworks);
+
+  const searches = [
+    ['searchCaseTypeIDs', 'Pll/CaseType/Search', 2, {CaseType: 'PERMIT'}],
+    ['searchCaseTypeObjects', 'Pll/CaseType/SearchObject', 3, {CaseTypeId: 4}],
+    ['searchFees', 'Pll/FeeSetup/Search', 4, {FeeCode: 'F-'}],
+    ['searchDeposits', 'Pll/Deposit/Search', 4, {DepositCode: 'DEP'}]
+  ];
+
+  searches.forEach(([method, path, code, filters]) => {
+    it('should reject ' + method + ' with no valid filters', async () => {
+      mock.on(path, []);
+      for (const bad of [{}, {Unrelated: 1}]) {
+        const e = await rejection(cw26.briefcase.admin[method](bad));
+        assert.equal(e.Code, code);
+        assert.match(e.Message, /At least one of the attributes/);
+      }
+      assert.deepEqual(mock.paths(), []);
+    });
+
+    it('should call ' + method + ' with filters and resolve the Value', async () => {
+      mock.on(path, [11, 12]);
+      const r = await cw26.briefcase.admin[method](filters);
+      assert.deepEqual(r, [11, 12]);
+      assert.deepEqual(mock.paths(), [path]);
+      assert.deepEqual(mock.lastCall(path).data, filters);
+    });
+
+    it('should propagate ' + method + ' errors', async () => {
+      mock.onError(path, {Message: 'Dummy failure'});
+      const e = await rejection(cw26.briefcase.admin[method](filters));
+      assert.equal(e.Message, 'Dummy failure');
     });
   });
 
-  it('should call searchCaseTypeIDs with filters', (done) => {
-    cw26.briefcase.admin.searchCaseTypeIDs({ CaseType: 'PERMIT' }).then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should reject searchCaseTypeObjects with no filters', (done) => {
-    cw26.briefcase.admin.searchCaseTypeObjects({}).then(() => {
-      done('Expected searchCaseTypeObjects to reject without filters');
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should reject searchFees with no filters', (done) => {
-    cw26.briefcase.admin.searchFees({}).then(() => {
-      done('Expected searchFees to reject without filters');
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call searchFees with filters', (done) => {
-    cw26.briefcase.admin.searchFees({ FeeCode: 'F-' }).then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should reject searchDeposits with no filters', (done) => {
-    cw26.briefcase.admin.searchDeposits({}).then(() => {
-      done('Expected searchDeposits to reject without filters');
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call searchDeposits with filters', (done) => {
-    cw26.briefcase.admin.searchDeposits({ DepositCode: 'DEP' }).then(r => {
-      assert.isArray(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
+  it('should accept any one of the documented filters', async () => {
+    mock.on('Pll/FeeSetup/Search', []);
+    mock.on('Pll/Deposit/Search', []);
+    for (const f of ['AccountCode', 'FeeCode', 'FeeDesc', 'FeeSetupId', 'FeeTypeId']) {
+      await cw26.briefcase.admin.searchFees({[f]: 1});
+    }
+    for (const f of ['AccountCode', 'DepositCode', 'DepositDesc', 'DepositId', 'DepositTypeId']) {
+      await cw26.briefcase.admin.searchDeposits({[f]: 1});
+    }
+    assert.lengthOf(mock.callsTo('Pll/FeeSetup/Search'), 5);
+    assert.lengthOf(mock.callsTo('Pll/Deposit/Search'), 5);
   });
 });
 
 describe('[CaseAdmin::mutation callable methods] function test', () => {
-  it('should call addBusinessCaseTemplate', (done) => {
-    cw26.briefcase.admin.addBusinessCaseTemplate({ BusCaseDesc: 'Copilot Test Template' }).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
+  const mock = createMock(cw26.Cityworks);
+  const admin = cw26.briefcase.admin;
+
+  // [name, path, args, expected payload]
+  const cases = [
+    ['addBusinessCaseTemplate', 'Pll/BusinessCase/Add', [{BusCaseDesc: 'Dummy Template'}], {BusCaseDesc: 'Dummy Template'}],
+    ['updateBusinessCaseTemplate', 'Pll/BusinessCase/Update', [1, {BusCaseDesc: 'Updated'}], {BusCaseId: 1, BusCaseDesc: 'Updated'}],
+    ['addCaseType', 'Pll/CaseType/Add', ['TESTTYPE', 'Test Case Type', {Extra: 'x'}], {CaseType: 'TESTTYPE', CaseTypeDesciption: 'Test Case Type', Extra: 'x'}],
+    ['updateCaseType', 'Pll/CaseType/Update', [1, {CaseTypeDesc: 'Updated type'}], {CaseTypeId: 1, CaseTypeDesc: 'Updated type'}],
+    ['addSubtype', 'Pll/SubType/Add', ['TESTSUB', 'Test subtype', {Extra: 'x'}], {SubType: 'TESTSUB', SubTypeDesc: 'Test subtype', Extra: 'x'}],
+    ['updateSubtype', 'Pll/SubType/Update', [1, {SubTypeDesc: 'Updated subtype'}], {SubTypeId: 1, SubTypeDesc: 'Updated subtype'}],
+    ['addExpiration', 'Pll/ExpirationType/Add', [{OrgId: 1, ExpirationTypeDesc: 'Dummy'}], {OrgId: 1, ExpirationTypeDesc: 'Dummy'}],
+    ['addDepartment', 'Pll/Department/Add', ['TST', 'Test Department', {Extra: 'x'}], {DepartmentCode: 'TST', DepartmentName: 'Test Department', Extra: 'x'}],
+    ['addDivision', 'Pll/Division/Add', [1, 'Test Division', {Extra: 'x'}], {DepartmentId: 1, DivisionName: 'Test Division', Extra: 'x'}],
+    ['addInspectionTimeBlock', 'Pll/InspectionTimeBlock/Add', ['Dummy Block', '08:00', '09:00'], {LabelText: 'Dummy Block', StartTime: '08:00', EndTime: '09:00'}],
+    ['addInspectionTimeBlock', 'Pll/InspectionTimeBlock/Add', ['Dummy Block', '08:00', '09:00', [{Day: 1}]], {LabelText: 'Dummy Block', StartTime: '08:00', EndTime: '09:00', InspTimeBlocksDetails: [{Day: 1}]}],
+    ['addNumberingGroup', 'Pll/NumberingGroup/Add', [{NumberingGroup: 'DUMMY'}], {NumberingGroup: 'DUMMY'}],
+    ['updateNumberingGroup', 'Pll/NumberingGroup/Update', [1, {NumberingGroup: 'DUMMY-UPD'}], {NumberingGroupId: 1, NumberingGroup: 'DUMMY-UPD'}],
+    ['addPerson', 'Pll/People/Add', ['Dummy Person', {Email: 'a@example.com'}], {Name: 'Dummy Person', Email: 'a@example.com'}],
+    ['addPeopleRole', 'Pll/PeopleRole/Add', ['TESTROLE', {RoleDesc: 'Test role'}], {RoleCode: 'TESTROLE', RoleDesc: 'Test role'}],
+    ['addTaskResultDetail', 'Pll/TaskResultDetail/Add', [{ResultDetailCode: 'TEST', ResultDetailDesc: 'Dummy'}], {ResultDetailCode: 'TEST', ResultDetailDesc: 'Dummy'}],
+    ['updateTaskResultDetail', 'Pll/TaskResultDetail/Update', [1, {ResultDetailDesc: 'Updated'}], {ResultDetailId: 1, ResultDetailDesc: 'Updated'}],
+    ['addTaskResultFeeInsert', 'Pll/TaskResultFeeInsert/Add', [{TaskId: 1, TaskResultId: 2}], {TaskId: 1, TaskResultId: 2}],
+    ['deleteTaskResultFeeInsert', 'Pll/TaskResultFeeInsert/Delete', [3], {TaskResultFeeInsertId: 3}],
+    ['deleteTaskResultFeeInsertByTaskId', 'Pll/TaskResultFeeInsert/DeleteByTaskId', [4], {TaskId: 4}],
+    ['updateTaskResultFeeInsert', 'Pll/TaskResultFeeInsert/Update', [1, 2, 3], {TaskResultFeeInsertId: 1, TaskId: 2, TaskResultId: 3}],
+    ['updateTaskResultFeeInsert', 'Pll/TaskResultFeeInsert/Update', [1, 2, 3, 4], {TaskResultFeeInsertId: 1, TaskId: 2, TaskResultId: 3, FeeSetupId: 4}]
+  ];
+
+  cases.forEach(([method, path, args, payload], i) => {
+    it('should call ' + method + ' (#' + i + ') with the expected payload and resolve the Value', async () => {
+      mock.on(path, {Result: 'dummy-' + method});
+      const r = await admin[method](...args);
+      assert.deepEqual(r, {Result: 'dummy-' + method});
+      assert.deepEqual(mock.paths(), [path]);
+      assert.deepEqual(mock.lastCall(path).data, payload);
+    });
+
+    it('should propagate ' + method + ' (#' + i + ') errors', async () => {
+      mock.onError(path, {Message: 'Dummy failure'});
+      const e = await rejection(admin[method](...args));
+      assert.equal(e.Message, 'Dummy failure');
     });
   });
 
-  it('should call updateBusinessCaseTemplate', (done) => {
-    cw26.briefcase.admin.updateBusinessCaseTemplate(1, { BusCaseDesc: 'Updated by test' }).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
+  it('should resolve the numeric ID returned by the delete methods', async () => {
+    mock.on('Pll/TaskResultFeeInsert/Delete', 3);
+    mock.on('Pll/TaskResultFeeInsert/DeleteByTaskId', 4);
+    assert.equal(await admin.deleteTaskResultFeeInsert(3), 3);
+    assert.equal(await admin.deleteTaskResultFeeInsertByTaskId(4), 4);
   });
 
-  it('should call addCaseType', (done) => {
-    cw26.briefcase.admin.addCaseType('TESTTYPE', 'Test Case Type', {}).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call updateCaseType', (done) => {
-    cw26.briefcase.admin.updateCaseType(1, { CaseTypeDesc: 'Updated type' }).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call addSubtype', (done) => {
-    cw26.briefcase.admin.addSubtype('TESTSUB', 'Test subtype', {}).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call updateSubtype', (done) => {
-    cw26.briefcase.admin.updateSubtype(1, { SubTypeDesc: 'Updated subtype' }).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should reject addExpiration when required fields are missing', (done) => {
-    cw26.briefcase.admin.addExpiration({}).then(() => {
-      done('Expected addExpiration to reject without OrgId and ExpirationTypeDesc');
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call addDepartment', (done) => {
-    cw26.briefcase.admin.addDepartment('TST', 'Test Department', {}).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call addDivision', (done) => {
-    cw26.briefcase.admin.addDivision(1, 'Test Division', {}).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call addInspectionTimeBlock', (done) => {
-    cw26.briefcase.admin.addInspectionTimeBlock('Copilot Block', '08:00', '09:00').then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call addNumberingGroup', (done) => {
-    cw26.briefcase.admin.addNumberingGroup({ NumberingGroup: 'COPILOT' }).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call updateNumberingGroup', (done) => {
-    cw26.briefcase.admin.updateNumberingGroup(1, { NumberingGroup: 'COPILOT-UPD' }).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call addPerson', (done) => {
-    cw26.briefcase.admin.addPerson('Case Admin Test Person', {}).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call addPeopleRole', (done) => {
-    cw26.briefcase.admin.addPeopleRole('TESTROLE', { RoleDesc: 'Test role' }).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call addTaskResultDetail', (done) => {
-    cw26.briefcase.admin.addTaskResultDetail({ ResultDetailCode: 'TEST', ResultDetailDesc: 'Test result detail' }).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call updateTaskResultDetail', (done) => {
-    cw26.briefcase.admin.updateTaskResultDetail(1, { ResultDetailDesc: 'Updated test result detail' }).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call addTaskResultFeeInsert', (done) => {
-    cw26.briefcase.admin.addTaskResultFeeInsert({ TaskId: 1, TaskResultId: 1 }).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call deleteTaskResultFeeInsert', (done) => {
-    cw26.briefcase.admin.deleteTaskResultFeeInsert(1).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call deleteTaskResultFeeInsertByTaskId', (done) => {
-    cw26.briefcase.admin.deleteTaskResultFeeInsertByTaskId(1).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-
-  it('should call updateTaskResultFeeInsert', (done) => {
-    cw26.briefcase.admin.updateTaskResultFeeInsert(1, 1, 1, 1).then(r => {
-      assert.isNotNull(r);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
+  it('should reject addExpiration when required fields are missing', async () => {
+    mock.on('Pll/ExpirationType/Add', {});
+    for (const bad of [{}, {OrgId: 1}, {ExpirationTypeDesc: 'Dummy'}]) {
+      const e = await rejection(admin.addExpiration(bad));
+      assert.equal(e.Code, 5);
+      assert.equal(e.Message, 'OrgId and ExpirationTypeDesc must both be defined.');
+    }
   });
 });

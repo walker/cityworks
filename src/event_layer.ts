@@ -1,4 +1,5 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 
 /**
@@ -8,12 +9,12 @@ export class EventLayer {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 
@@ -206,7 +207,7 @@ export class EventLayer {
    * @return {string} Returns string that is absolute URL for event layer GIS endpoint
    */
    getGISEndpoint(eventLayerId) {
-     return this.cw.base_url + '/' + this.cw.settings.path + '/eventlayer/1/' + eventLayerId + '/rest/services/cw/FeatureServer/{#}?f=json'; // 1 for SR, 2 for WorkOrders, 3 for Inspections, 5 for PLL Cases
+     return this.cw.getBaseUrl() + '/eventlayer/1/' + eventLayerId + '/rest/services/cw/FeatureServer/{#}?f=json'; // 1 for SR, 2 for WorkOrders, 3 for Inspections, 5 for PLL Cases
    }
 
 }

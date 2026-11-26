@@ -1,4 +1,5 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 import ReversibleMap from 'reversible-map'
 
@@ -6,12 +7,12 @@ export class CaseData {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 
@@ -65,35 +66,36 @@ export class CaseData {
     })
   }
 
-  /**
-   * Adds a data detail entry to the case data group specified by the CaDataGroupId. The CaDataGroupId is associated to a case.
-   *
-   * @category Data Groups
-   * @param {number} caseDataDetailId - The Data Detail template ID
-   * @param {number} caDataGroupId - The Case Instance Data Group ID
-   * @param {string} columnSequence - The column sequence
-   * @param {string} detailCode - The detail Code
-   * @param {number} detailSequence - The detail order number
-   * @param {Object} [options] - Other options for CaseDataDetail. See WIPAdd here: /{subdirectory}/apidocs/#/service-info/Pll/CaseDataDetail
-   * @return {Object} Returns Promise that represents an object describing CaDataDetailItemBase.
-   */
-   wipAddDetail(caseDataDetailId: number, caDataGroupId: number, columnSequence: string, detailCode: string, detailSequence: number, options?: Object) {
-    return new Promise((resolve, reject) => {
-      var data_init = {
-        CaseDataDetailId: caseDataDetailId,
-        CaDataGroupId: caDataGroupId,
-        ColumnSequence: columnSequence,
-        DetailCode: detailCode,
-        DetailSequence: detailSequence
-      }
-      var data = _.merge(data_init, options)
-      this.cw.runRequest('Pll/CaseDataGroup/Add', data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
-  }
+  // TODO: Figure out what this is supposed to do... I'm not entirely certain what this one is...
+  // /**
+  //  * Adds a data detail entry to the case data group specified by the CaDataGroupId. The CaDataGroupId is associated to a case.
+  //  *
+  //  * @category Data Groups
+  //  * @param {number} caseDataDetailId - The Data Detail template ID
+  //  * @param {number} caDataGroupId - The Case Instance Data Group ID
+  //  * @param {string} columnSequence - The column sequence
+  //  * @param {string} detailCode - The detail Code
+  //  * @param {number} detailSequence - The detail order number
+  //  * @param {Object} [options] - Other options for CaseDataDetail. See WIPAdd here: /{subdirectory}/apidocs/#/service-info/Pll/CaseDataDetail
+  //  * @return {Object} Returns Promise that represents an object describing CaDataDetailItemBase.
+  //  */
+  //  addDetail(caseDataDetailId: number, caDataGroupId: number, columnSequence: string, detailCode: string, detailSequence: number, options?: Object) {
+  //   return new Promise((resolve, reject) => {
+  //     var data_init = {
+  //       CaseDataDetailId: caseDataDetailId,
+  //       CaDataGroupId: caDataGroupId,
+  //       ColumnSequence: columnSequence,
+  //       DetailCode: detailCode,
+  //       DetailSequence: detailSequence
+  //     }
+  //     var data = _.merge(data_init, options)
+  //     this.cw.runRequest('Pll/CaseDataDetail/Add', data).then(r => {
+  //       resolve(r.Value)
+  //     }).catch(e => {
+  //       reject(e)
+  //     })
+  //   })
+  // }
 
   /**
    * Get groups by CaObjectId
@@ -146,6 +148,7 @@ export class CaseData {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaDataGroupId', 'CaseDataGroupId', 'GroupCode', 'GroupDesc', 'GroupSum', 'SumFlag']).length==0) {
         reject(new CWError(2, 'At least one of the attributes (CaDataGroupId, CaseDataGroupId, GroupCode, GroupDesc, GroupSum, SumFlag) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/CaseDataGroup/Search', data).then(r => {
@@ -177,6 +180,7 @@ export class CaseData {
         _.set(data, 'CaseDataGroupId', _.get(options, 'CaseDataGroupId'))
       } else {
         reject(new CWError(1, 'Either CaObjectId or CaseDataGroupId is required.', {'provided': options}))
+        return
       }
       if(_.has(options, 'CaseDataDetailId')) {
         _.set(data, 'CaseDataDetailId', _.get(options, 'CaseDataDetailId'))
@@ -320,6 +324,7 @@ export class CaseData {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaDataDetailId', 'CaDataGroupId', 'CalcRateFlag', 'CaseDataDetailId', 'CommentFlag', 'DateFlag', 'DetailCode', 'DetailDesc', 'ListValuesFlag', 'NumberFlag', 'TextFlag', 'ValueFlag', 'YesNoFlag']).length==0) {
         reject(new CWError(2, 'At least one of the attributes (CaDataDetailId, CaDataGroupId, CalcRateFlag, CaseDataDetailId, CommentFlag, DateFlag, DetailCode, DetailDesc, ListValuesFlag, NumberFlag, TextFlag, ValueFlag, YesNoFlag) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/CaseDataDetail/SearchObject', data).then(r => {
@@ -383,9 +388,10 @@ export class CaseData {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaDataDetailId', 'CaDataListId', 'ListValue']).length==0) {
         reject(new CWError(3, 'At least one of the attributes (CaDataDetailId, CaDataListId, ListValue) must be defined.'))
+        return
       }
       var data = filters
-      this.cw.runRequest('Pll/CaseDataGroup/Search', data).then(r => {
+      this.cw.runRequest('Pll/CaseDataListValues/Search', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -404,9 +410,10 @@ export class CaseData {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaDataDetailId', 'CaDataListId', 'ListValue', 'CaDataGroupId']).length==0) {
         reject(new CWError(4, 'At least one of the attributes (CaDataDetailId, CaDataListId, ListValue, CaDataGroupId) must be defined.'))
+        return
       }
       var data = filters
-      this.cw.runRequest('Pll/CaseDataGroup/SearchObject', data).then(r => {
+      this.cw.runRequest('Pll/CaseDataListValues/SearchObject', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -429,6 +436,7 @@ export class CaseData {
       this.searchForDetails({CaDataDetailId: dataDetailId}).then(r => {
         if(r.length==0) {
           reject(new CWError(1, 'No data detail found with CaDataDetailId '+dataDetailId))
+          return
         }
         var detail = r[0]
         var data = {}

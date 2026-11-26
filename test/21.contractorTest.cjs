@@ -1,175 +1,153 @@
 'use strict';
-require('dotenv').config({quiet: true, debug: false});
-const { shouldRunBefore } = require('./testGuard');
-const suiteName = 'contractor';
+// Mocked tests: no Cityworks instance is contacted.
+// Exercises the contractor workflows (add -> update/getById/search/keywords) against a small stateful in-memory fake.
 var assert = require('chai').assert;
 const cw21 = require('../dist/index.js');
-
-cw21.Cityworks.configure(process.env.cwdomain, {path: process.env.cwpath, version: process.env.cwversion});
-
-before(function(done) {
-  if (!shouldRunBefore(suiteName)) {
-    return done();
-  }
-
-  this.timeout(20000000);
-  cw21.Cityworks.authenticate(process.env.cwlogin, process.env.cwpassword).then(() => {
-    done();
-  }).catch(e => {
-    console.log(e, 'unexpected error');
-    done(e);
-  });
-});
+const { createMock } = require('./mockCityworks');
 
 describe('[Contractor (construct)] function test', () => {
-  it('should be a defined object', (done) => {
+  it('should be a defined object', () => {
     assert.isObject(cw21.contractor, 'Contractor is an object');
-    done();
   });
 });
 
-describe('[Contractor::all] function test', () => {
-  it('should return a list of contractors', (done) => {
-    cw21.contractor.all().then(resp => {
-      assert.isArray(resp);
-      done();
-    }).catch(e => {
-      done(e);
+describe('[Contractor] mocked workflow tests', () => {
+  const mock = createMock(cw21.Cityworks);
+  let store;
+  let keywords;
+
+  function installFake() {
+    store = {};
+    keywords = {};
+    let nextSid = 100;
+
+    mock.on('Ams/Contractor/Add', (data) => {
+      const rec = Object.assign({ContractorSid: nextSid++}, data);
+      store[rec.ContractorSid] = rec;
+      return rec;
     });
-  });
-});
-
-describe('[Contractor::add] function test', () => {
-  it('should create and return a new contractor record', (done) => {
-    var unique = Date.now().toString();
-    var contractor = {
-      ContractorName: 'Test Contractor ' + unique,
-      ContractorNumber: 'CN' + unique,
-      Viewable: true
-    };
-
-    cw21.contractor.add(contractor).then(resp => {
-      assert.property(resp, 'ContractorSid');
-      assert.equal(resp.ContractorName, contractor.ContractorName);
-      done();
-    }).catch(e => {
-      done(e);
+    mock.on('Ams/Contractor/Update', (data) => {
+      store[data.ContractorSid] = Object.assign(store[data.ContractorSid], data);
+      return store[data.ContractorSid];
     });
-  });
-});
-
-describe('[Contractor::update] function test', () => {
-  it('should update and return a contractor record', (done) => {
-    var unique = Date.now().toString();
-    var baseContractor = {
-      ContractorName: 'Update Contractor ' + unique,
-      ContractorNumber: 'UC' + unique,
-      Viewable: true
-    };
-
-    cw21.contractor.add(baseContractor).then(created => {
-      cw21.contractor.update(created.ContractorSid, {
-        ContractorName: created.ContractorName,
-        Description: 'Updated contractor description'
-      }).then(updated => {
-        assert.equal(updated.Description, 'Updated contractor description');
-        done();
-      }).catch(e => {
-        done(e);
+    mock.on('Ams/Contractor/All', (data) => Object.keys(store).map(k => store[k]).filter(c => !data.ViewableOnly || c.Viewable));
+    mock.on('Ams/Contractor/ById', (data) => store[data.ContractorSid]);
+    mock.on('Ams/Contractor/Search', (data) => data.ContractorSids.map(sid => store[sid]).filter(Boolean));
+    mock.on('Ams/Contractor/Keywords', (data) => data.ContractorSids.map(sid => ({ContractorSid: sid, Keywords: keywords[sid] || []})));
+    mock.on('Ams/Contractor/AddKeywords', (data) => {
+      data.ContractorSids.forEach(sid => {
+        keywords[sid] = (keywords[sid] || []).concat(data.Keywords);
       });
-    }).catch(e => {
-      done(e);
+      return true;
     });
-  });
-});
-
-describe('[Contractor::getById] function test', () => {
-  it('should retrieve contractor by ID', (done) => {
-    cw21.contractor.all().then(list => {
-      if (!Array.isArray(list) || list.length === 0 || !list[0].ContractorSid) {
-        done('No contractor records available to test getById');
-        return;
-      }
-
-      return cw21.contractor.getById(list[0].ContractorSid).then(resp => {
-        assert.isObject(resp);
-        assert.property(resp, 'ContractorSid');
-        done();
+    mock.on('Ams/Contractor/DeleteKeywords', (data) => {
+      data.ContractorSids.forEach(sid => {
+        keywords[sid] = data.All ? [] : (keywords[sid] || []).filter(k => data.Keywords.indexOf(k) < 0);
       });
-    }).catch(e => {
-      done(e);
+      return true;
     });
+  }
+
+  // Registered after createMock's beforeEach, so the mock is reset before the fake is installed.
+  beforeEach(installFake);
+
+  it('should add a contractor, then update and retrieve it by ID', async () => {
+    const created = await cw21.contractor.add({ContractorName: 'Test Contractor A', ContractorNumber: 'CNA', Viewable: true});
+    assert.property(created, 'ContractorSid');
+    assert.equal(created.ContractorName, 'Test Contractor A');
+
+    const updated = await cw21.contractor.update(created.ContractorSid, {
+      ContractorName: created.ContractorName,
+      Description: 'Updated contractor description'
+    });
+    assert.equal(updated.Description, 'Updated contractor description');
+    assert.deepEqual(mock.lastCall('Ams/Contractor/Update').data, {
+      ContractorSid: created.ContractorSid,
+      ContractorName: 'Test Contractor A',
+      Description: 'Updated contractor description'
+    });
+
+    const fetched = await cw21.contractor.getById(created.ContractorSid);
+    assert.deepEqual(fetched, updated);
+    assert.deepEqual(mock.lastCall('Ams/Contractor/ById').data, {ContractorSid: created.ContractorSid});
   });
-});
 
-describe('[Contractor::search] function test', () => {
-  it('should search for contractor by ContractorSid', (done) => {
-    cw21.contractor.all().then(list => {
-      if (!Array.isArray(list) || list.length === 0 || !list[0].ContractorSid) {
-        done('No contractor records available to test search');
-        return;
-      }
+  it('should list added contractors and filter by ViewableOnly', async () => {
+    await cw21.contractor.add({ContractorName: 'Visible', Viewable: true});
+    await cw21.contractor.add({ContractorName: 'Hidden', Viewable: false});
 
-      return cw21.contractor.search([list[0].ContractorSid]).then(resp => {
-        assert.isArray(resp);
-        done();
-      });
-    }).catch(e => {
-      done(e);
-    });
+    const everyone = await cw21.contractor.all();
+    assert.deepEqual(everyone.map(c => c.ContractorName), ['Visible', 'Hidden']);
+
+    const viewable = await cw21.contractor.all(true);
+    assert.deepEqual(viewable.map(c => c.ContractorName), ['Visible']);
   });
-});
 
-describe('[Contractor::keywords] function test', () => {
-  it('should retrieve contractor keywords for valid contractor IDs', (done) => {
-    cw21.contractor.all().then(list => {
-      if (!Array.isArray(list) || list.length === 0 || !list[0].ContractorSid) {
-        done('No contractor records available to test keywords');
-        return;
-      }
+  it('should use a listed contractor ID to getById and search', async () => {
+    await cw21.contractor.add({ContractorName: 'One'});
+    await cw21.contractor.add({ContractorName: 'Two'});
 
-      return cw21.contractor.keywords([list[0].ContractorSid]).then(resp => {
-        assert.isArray(resp);
-        done();
-      });
-    }).catch(e => {
-      done(e);
-    });
+    const list = await cw21.contractor.all();
+    const sid = list[1].ContractorSid;
+
+    const two = await cw21.contractor.getById(sid);
+    assert.equal(two.ContractorName, 'Two');
+
+    const found = await cw21.contractor.search([sid]);
+    assert.deepEqual(found, [two]);
+    assert.deepEqual(mock.lastCall('Ams/Contractor/Search').data, {ContractorSids: [sid]});
   });
-});
 
-describe('[Contractor::addKeywords] function test', () => {
-  it('should add keywords for valid contractor IDs', (done) => {
-    cw21.contractor.all().then(list => {
-      if (!Array.isArray(list) || list.length === 0 || !list[0].ContractorSid) {
-        done('No contractor records available to test addKeywords');
-        return;
-      }
+  it('should add, list, and delete keywords for a contractor', async () => {
+    const created = await cw21.contractor.add({ContractorName: 'Keyworded'});
+    const sid = created.ContractorSid;
 
-      return cw21.contractor.addKeywords([list[0].ContractorSid], ['test-keyword']).then(resp => {
-        assert.isNotNull(resp);
-        done();
-      });
-    }).catch(e => {
-      done(e);
+    await cw21.contractor.addKeywords([sid], ['test-keyword', 'other']);
+    assert.deepEqual(await cw21.contractor.keywords([sid]), [{ContractorSid: sid, Keywords: ['test-keyword', 'other']}]);
+
+    await cw21.contractor.deleteKeywords([sid], ['test-keyword']);
+    assert.deepEqual(mock.lastCall('Ams/Contractor/DeleteKeywords').data, {
+      ContractorSids: [sid],
+      Keywords: ['test-keyword'],
+      All: false
     });
+    assert.deepEqual(await cw21.contractor.keywords([sid]), [{ContractorSid: sid, Keywords: ['other']}]);
+
+    await cw21.contractor.deleteKeywords([sid], [], true);
+    assert.deepEqual(await cw21.contractor.keywords([sid]), [{ContractorSid: sid, Keywords: []}]);
   });
-});
 
-describe('[Contractor::deleteKeywords] function test', () => {
-  it('should delete keywords for valid contractor IDs', (done) => {
-    cw21.contractor.all().then(list => {
-      if (!Array.isArray(list) || list.length === 0 || !list[0].ContractorSid) {
-        done('No contractor records available to test deleteKeywords');
-        return;
-      }
+  it('should resolve undefined for keyword calls whose response has no Value', async () => {
+    mock.onRaw('Ams/Contractor/AddKeywords', {Status: 0});
+    mock.onRaw('Ams/Contractor/DeleteKeywords', {Status: 0});
+    assert.isUndefined(await cw21.contractor.addKeywords([1], ['k']));
+    assert.isUndefined(await cw21.contractor.deleteKeywords([1], ['k']));
+  });
 
-      return cw21.contractor.deleteKeywords([list[0].ContractorSid], ['test-keyword']).then(resp => {
-        assert.isNotNull(resp);
-        done();
-      });
-    }).catch(e => {
-      done(e);
-    });
+  it('should send only the ContractorSid when update is given empty properties', async () => {
+    const created = await cw21.contractor.add({ContractorName: 'Empty'});
+    await cw21.contractor.update(created.ContractorSid, {});
+    assert.deepEqual(mock.lastCall('Ams/Contractor/Update').data, {ContractorSid: created.ContractorSid});
+  });
+
+  it('should send the ContractorSid argument rather than one in the properties, without changing the properties object', async () => {
+    const props = {ContractorSid: 999, Description: 'x'};
+    await cw21.contractor.add({ContractorName: 'Strip'});
+    await cw21.contractor.update(100, props);
+    assert.deepEqual(mock.lastCall('Ams/Contractor/Update').data, {ContractorSid: 100, Description: 'x'});
+    assert.deepEqual(props, {ContractorSid: 999, Description: 'x'});
+  });
+
+  it('should reject a failing lookup and stop the chain', async () => {
+    mock.onError('Ams/Contractor/All', {Message: 'unavailable'});
+    let err;
+    try {
+      const list = await cw21.contractor.all();
+      await cw21.contractor.getById(list[0].ContractorSid);
+    } catch(e) {
+      err = e;
+    }
+    assert.equal(err.Message, 'unavailable');
+    assert.deepEqual(mock.paths(), ['Ams/Contractor/All']);
   });
 });

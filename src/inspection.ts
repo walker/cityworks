@@ -1,4 +1,9 @@
 import { CWError } from './error'
+import { InspectionAdmin } from './inspection_admin'
+import { InspectionCosts } from './inspection_costs'
+import { Attachments } from './attachments'
+import { AuditLogs } from './audit_logs'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 
 interface Coordinates {
@@ -11,37 +16,37 @@ export class Inspection {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * Inspection Administration methods
    */
-  admin?: any
+  admin: InspectionAdmin
 
   /**
    * Inspection Administration methods
    */
-  attachments?: any
+  attachments: Attachments
 
   /**
    * Inspection Costing methods
    */
-  costs: any
+  costs: InspectionCosts
 
   /**
    * Inspection audit log methods
    */
-  audit: any
+  audit: AuditLogs
 
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
-    this.admin
-    this.attachments
-    this.costs
-    this.audit
+    this.admin = new InspectionAdmin(cw)
+    this.costs = new InspectionCosts(cw)
+    this.attachments = new Attachments(cw, 'Inspection')
+    this.audit = new AuditLogs(cw, 'INSPECTION')
   }
 
   /**
@@ -162,17 +167,15 @@ export class Inspection {
    */
   update(insp_data: Object) {
     return new Promise((resolve, reject) => {
-      return new Promise((resolve, reject) => {
-        if(!_.has(insp_data, 'InspectionId')) {
-          reject(new CWError(1, 'InspectionId must be provided.', {'provided': insp_data}))
-        } else {
-          this.cw.runRequest('Ams/Inspection/Update', insp_data).then(r => {
-            resolve(r.Value)
-          }).catch(e => {
-            reject(e)
-          })
-        }
-      })
+      if(!_.has(insp_data, 'InspectionId')) {
+        reject(new CWError(1, 'InspectionId must be provided.', {'provided': insp_data}))
+      } else {
+        this.cw.runRequest('Ams/Inspection/Update', insp_data).then(r => {
+          resolve(r.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      }
     })
   }
 
@@ -457,7 +460,7 @@ export class Inspection {
   getAnswers(inspections: Array<number>) {
     return new Promise((resolve, reject) => {
       var data: {InspectionId?: number, InspectionIds?: Array<number>} = {}
-      if(inspections.length==0) {
+      if(inspections.length==1) {
         data.InspectionId = inspections[0]
       } else {
         data.InspectionIds = inspections
@@ -638,6 +641,7 @@ export class Inspection {
       if(!_.has(projection, 'WKID') && !_.has(projection, 'WKT')) {
         // Throw error
         reject(new CWError(3, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
+        return
       }
       var data_init = {
         InspectionId: inspectionId,

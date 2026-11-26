@@ -1,16 +1,17 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 
 export class CaseFinancial {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * @hidden
    */
-  constructor(cw: Object) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 
@@ -100,17 +101,24 @@ export class CaseFinancial {
       } else {
         _.set(data, 'CaPayer', {"Name":""})
       }
+      let invalidPayment = false
       _.forEach(payments, payment => {
         if(payment.length!=5) {
           reject(new CWError(301, `Payment must contain 5 elements: Payment Tender Type, Amount, Comment, Date Received, Reference String - ${JSON.stringify(payment)}`))
+          invalidPayment = true
+          return false
         }
         // Check that item 2 is a number
         else if(isNaN(parseFloat(payment[1]))) {
           reject(new CWError(302, `Payment Tender amount, second item in array (${payment[1]}), must be a curreny number provided as a string.`))
+          invalidPayment = true
+          return false
         }
         //Check that item 3 is a datetime
         else if(!_.isDate(payment[3]) && !_.isDate(new Date(payment[3]))) {
           reject(new CWError(303, `Payment Tender date, fourth item in array (${payment[3]}), must be a datetime provided as a string.`))
+          invalidPayment = true
+          return false
         } else {
           if(_.isDate(new Date(payment[3]))) {
             payment[3] = new Date(payment[3])
@@ -134,6 +142,9 @@ export class CaseFinancial {
           data.TenderTypes.push(payment)
         }
       })
+      if(invalidPayment) {
+        return
+      }
       this.cw.runRequest('Pll/CasePayment/MakePayment', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
@@ -721,6 +732,7 @@ export class CaseFinancial {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaFeeId', 'CaObjectId', 'FeeCode', 'FeeDesc']).length==0) {
         reject(new CWError(4, 'At least one of the attributes (CaFeeId, CaObjectId, FeeCode, FeeDesc) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/CaseFees/Search', data).then(r => {
@@ -742,6 +754,7 @@ export class CaseFinancial {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaPaymentId', 'CommentText', 'FeeAmount', 'FeeCode', 'FeeDesc', 'PaymentAccount', 'PaymentAmount', 'TenderType']).length==0) {
         reject(new CWError(5, 'At least one of the attributes (CaPaymentId, CommentText, FeeAmount, FeeCode, FeeDesc, PaymentAccount, PaymentAmount, TenderType) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/CasePayment/Search', data).then(r => {
@@ -763,6 +776,7 @@ export class CaseFinancial {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaPaymentId', 'CaPaymentRefundId', 'Comments', 'RefundAmount']).length==0) {
         reject(new CWError(6, 'At least one of the attributes (CaPaymentId, CaPaymentRefundId, Comments, RefundAmount) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/CasePayment/Search', data).then(r => {
@@ -867,6 +881,7 @@ export class CaseFinancial {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaDepositId', 'CaObjectId', 'DepositCode', 'DepositDesc']).length==0) {
         reject(new CWError(1, 'At least one of the arguments (CaDepositId, CaObjectId, DepositCode, DepositDesc) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/CaseDeposit/Search', data).then(r => {
@@ -905,6 +920,7 @@ export class CaseFinancial {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['FeeSetupId', 'FeeTypeId', 'FeeCode', 'FeeDesc', 'AccountCode']).length==0) {
         reject(new CWError(7, 'At least one of the arguments (FeeSetupId, FeeTypeId, FeeCode, FeeDesc, AccountCode) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/FeeSetup/Search', data).then(r => {
@@ -926,6 +942,7 @@ export class CaseFinancial {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['AddressLine1', 'Amount', 'CaInstrumentId', 'CityName', 'CommentText', 'Company', 'ContactEmail', 'ContactName', 'ContactPhone', 'CountryCode', 'InstTypeId', 'SerialNumber', 'StateCode', 'ZipCode']).length==0) {
         reject(new CWError(9, 'At least one of the arguments (AddressLine1, Amount, CaInstrumentId, CityName, CommentText, Company, ContactEmail, ContactName, ContactPhone, CountryCode, InstTypeId, SerialNumber, StateCode, ZipCode) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/CaseInstrument/Search', data).then(r => {
@@ -1023,6 +1040,7 @@ export class CaseFinancial {
       var data = filters
       if(_.intersectionBy(_.keysIn(filters), ['AmountReleased', 'CaInstReleasesId', 'CaInstrumentId', 'CommentText', 'PercentReleased', 'ReleasedBy']).length==0) {
         reject(new CWError(3, 'At least one of the attributes (AmountReleased, CaInstReleasesId, CaInstrumentId, CommentText, PercentReleased, ReleasedBy) must be defined.'))
+        return
       }
       this.cw.runRequest('Pll/CaseInstReleases/Search', data).then(r => {
         resolve(r.Value)
@@ -1059,6 +1077,7 @@ export class CaseFinancial {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['AccountCode', 'FeeCode', 'FeeDesc', 'FeeSetupId', 'FeeTypeId']).length==0) {
         reject(new CWError(8, 'At least one of the attributes (AccountCode, FeeCode, FeeDesc, FeeSetupId, FeeTypeId) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/FeeSetup/Search', data).then(r => {

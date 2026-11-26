@@ -1,16 +1,17 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 
 export class CasePeople {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * @hidden
    */
-  constructor(cw: Object) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 
@@ -30,7 +31,7 @@ export class CasePeople {
         Name: name
       }
       var data = _.merge(init_data, options);
-      this.cw.runRequest('Pll/CaseFees/Add', data).then(r => {
+      this.cw.runRequest('Pll/CasePeople/Add', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)

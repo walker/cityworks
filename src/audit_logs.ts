@@ -1,4 +1,5 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 
 export interface CWMetaData {
     CWId?: string
@@ -16,7 +17,7 @@ export class AuditLogs {
     /**
      * @hidden
      */
-    cw: any
+    cw: CityworksClient
 
     /**
      * Storage of the active table name context.
@@ -26,7 +27,7 @@ export class AuditLogs {
     /**
      * @hidden
      */
-    constructor(cw: any, tableName: string) {
+    constructor(cw: CityworksClient, tableName: string) {
         this.cw = cw
         this.currentTableName = tableName.toUpperCase()
         if (['INSPECTION', 'REQUEST', 'WORKORDER'].indexOf(this.currentTableName) === -1) {

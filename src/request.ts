@@ -1,6 +1,12 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
-import type { CustomerCallData, CustomerCallOptions } from './customer_call'
+import type { CustomerCall, CustomerCallData, CustomerCallOptions } from './customer_call'
+import { RequestAdmin } from './request_admin'
+import { RequestCosts } from './request_costs'
+import { Comments } from './comments'
+import { Attachments } from './attachments'
+import { AuditLogs } from './audit_logs'
 
 interface Coordinates {
   x: number;
@@ -12,48 +18,48 @@ export class Request {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * Request Administration methods
    */
-  admin?: any
+  admin: RequestAdmin
 
   /**
    * Request Costing methods
    */
-  costs: any
+  costs: RequestCosts
 
   /**
    * Request Comments methods
    */
-  comment: any
+  comment: Comments
 
   /**
    * Attachments methods
    */
-  attachments: any
+  attachments: Attachments
 
   /**
    * Request audit log methods
    */
-  audit: any
+  audit: AuditLogs
 
   /**
    * Customer call (caller) methods
    */
-  customerCall: any
+  customerCall?: CustomerCall
 
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
-    this.admin
-    this.comment
-    this.attachments
-    this.audit
-    this.customerCall
+    this.admin = new RequestAdmin(cw)
+    this.costs = new RequestCosts(cw)
+    this.comment = new Comments(cw, 'Request')
+    this.attachments = new Attachments(cw, 'Request')
+    this.audit = new AuditLogs(cw, 'REQUEST')
   }
 
   /**
@@ -66,10 +72,11 @@ export class Request {
     if(_.isNil(calls) || _.isEmpty(calls)) {
       return Promise.resolve(sr)
     }
-    if(_.isNil(this.customerCall)) {
+    const customerCall = this.customerCall
+    if(!customerCall) {
       return Promise.reject(new CWError(606, 'Customer calls are not available on this object.', {'RequestId': requestId, 'Request': sr}))
     }
-    return this.customerCall.applyToRequest(requestId, calls, options).then(created => {
+    return customerCall.applyToRequest(requestId, calls as CustomerCallData | Array<CustomerCallData>, options).then(created => {
       return _.assign({}, sr, {CustomerCalls: created})
     }).catch(e => {
       throw new CWError(607, 'The request was saved, but its customer call(s) were not: ' + _.get(e, 'Message', String(e)), {'RequestId': requestId, 'Request': sr, 'Cause': e})
@@ -142,6 +149,7 @@ export class Request {
       if(!_.has(projection, 'WKID') && !_.has(projection, 'WKT')) {
         // Throw error
         reject(new CWError(6, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
+        return
       }
       var base_data = {
         RequestId: requestId,
@@ -719,7 +727,7 @@ export class Request {
    getTemplatesById(problemSids: Array<number>, minimumDateModified?: Date, maximumDateModified?: Date) {
      return new Promise((resolve, reject) => {
        var data = {
-         ProblemSids: null
+         ProblemSids: problemSids
        }
        if(typeof minimumDateModified != 'undefined') {
          _.set(data, 'MinimumDateModified', minimumDateModified)
@@ -768,12 +776,20 @@ export class Request {
     *
     * @category Request Templates
     * @param {Array<number>} problemSids - An array list of problemSids to retrieve templates for
+    * @param {Date} [minimumDateModified] - Only return templates modified on or after this date
+    * @param {Date} [maximumDateModified] - Only return templates modified on or before this date
     * @return {Object} Returns Promise that represents a collection of ProblemQAs. See /{subdirectory}/apidocs/#/data-type-info;dataType=ProblemQA
     */
     getTemplateQAs(problemSids: Array<number>, minimumDateModified?: Date, maximumDateModified?: Date) {
       return new Promise((resolve, reject) => {
         var data = {
-          ProblemSids: null
+          ProblemSids: problemSids
+        }
+        if(typeof minimumDateModified != 'undefined') {
+          _.set(data, 'MinimumDateModified', minimumDateModified)
+        }
+        if(typeof maximumDateModified != 'undefined') {
+          _.set(data, 'MaximumDateModified', maximumDateModified)
         }
         this.cw.runRequest('Ams/ServiceRequestTemplate/QA', data).then(r => {
           resolve(r.Value)

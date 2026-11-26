@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import type { CityworksClient } from './client'
 
 export interface EquipmentReservationOptions {
   WorkOrderId?: string;
@@ -7,9 +8,9 @@ export interface EquipmentReservationOptions {
 }
 
 export class EquipmentReservation {
-  cw: any
+  cw: CityworksClient
 
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 

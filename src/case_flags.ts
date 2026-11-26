@@ -1,16 +1,17 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 
 export class CaseFlags {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 
@@ -118,6 +119,7 @@ export class CaseFlags {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaFlagId', 'Flag', 'FlagDesc']).length==0) {
         reject(new CWError(3, 'At least one of the attributes (CaFlagId, Flag, FlagDesc) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/CaseFlags/Search', data).then(r => {

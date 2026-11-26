@@ -1,4 +1,5 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import ReversibleMap from 'reversible-map'
 import _ from 'lodash'
 
@@ -6,7 +7,7 @@ export class InspectionCosts {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * Storage of object's active activityType
@@ -16,7 +17,7 @@ export class InspectionCosts {
   /**
    * @hidden
    */
-  constructor(cw:any) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
     this.currentActivityType = "Inspection"
   }

@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import { CWError } from './error'
+import type { CityworksClient } from './client'
 
 export interface ContractorTypeSearch {
   ContractorDesc?: string;
@@ -12,9 +14,9 @@ export interface ContractorPLLSearch {
 }
 
 export class ContractorType {
-  cw: any
+  cw: CityworksClient
 
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 
@@ -31,7 +33,7 @@ export class ContractorType {
   search(filters: ContractorTypeSearch) {
     return new Promise((resolve, reject) => {
       if(_.intersection(_.keysIn(filters), ['ContractorDesc', 'ContractorType', 'ContractorTypeId']).length === 0) {
-        reject(new Error('At least one of the attributes (ContractorDesc, ContractorType, ContractorTypeId) must be defined.'))
+        reject(new CWError(1, 'At least one of the attributes (ContractorDesc, ContractorType, ContractorTypeId) must be defined.'))
         return
       }
       this.cw.runRequest('Pll/ContractorType/Search', filters).then(r => {
@@ -45,7 +47,7 @@ export class ContractorType {
   searchObject(filters: ContractorTypeSearch) {
     return new Promise((resolve, reject) => {
       if(_.intersection(_.keysIn(filters), ['ContractorDesc', 'ContractorType', 'ContractorTypeId']).length === 0) {
-        reject(new Error('At least one of the attributes (ContractorDesc, ContractorType, ContractorTypeId) must be defined.'))
+        reject(new CWError(2, 'At least one of the attributes (ContractorDesc, ContractorType, ContractorTypeId) must be defined.'))
         return
       }
       this.cw.runRequest('Pll/ContractorType/SearchObject', filters).then(r => {
@@ -113,10 +115,10 @@ export interface ContractorBase {
 }
 
 export class Contractor {
-  cw: any
+  cw: CityworksClient
   type: ContractorType
 
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
     this.type = new ContractorType(cw)
   }
@@ -137,10 +139,7 @@ export class Contractor {
       var startingData = {
         ContractorSid: contractorSid
       }
-      if(typeof contractorProperties.ContractorSid !== 'undefined') {
-        delete contractorProperties.ContractorSid
-      }
-      var data = _.merge(startingData, contractorProperties)
+      var data = _.merge(startingData, _.omit(contractorProperties, 'ContractorSid'))
       this.cw.runRequest('Ams/Contractor/Update', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
@@ -190,7 +189,7 @@ export class Contractor {
       }
 
       if(_.intersection(_.keysIn(contractorSids), ['BusinessName', 'ContractorId']).length === 0) {
-        reject(new Error('At least one of the attributes (BusinessName, ContractorId) must be defined.'))
+        reject(new CWError(3, 'At least one of the attributes (BusinessName, ContractorId) must be defined.'))
         return
       }
 

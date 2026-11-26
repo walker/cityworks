@@ -1,8 +1,7 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 const querystring = require('querystring')
-import * as fs from 'fs'
-import * as https from 'https'
 
 import { CaseData } from './case_data'
 import { CaseFinancial } from './case_financial'
@@ -11,6 +10,8 @@ import { CaseAdmin } from './case_admin'
 import { Comments } from './comments'
 import { CaseAssets } from './case_assets'
 import { CaseFlags } from './case_flags'
+import { CasePeople } from './case_people'
+import { Attachments } from './attachments'
 
 export interface Briefcase {
   TempTableName: string
@@ -91,7 +92,7 @@ export class Briefcase {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * @hidden
@@ -101,45 +102,54 @@ export class Briefcase {
   /**
    * Data Detail methods
    */
-  data?: any
+  data: CaseData
   /**
    * Asset (Address) methods
    */
-  asset?: any
+  asset: CaseAssets
   /**
    * Flag methods
    */
-  flag?: any
+  flag: CaseFlags
   /**
    * Asset (Address) methods
    */
-  attachments?: any
+  attachments: Attachments
   /**
    * Workflow & task methods
    */
-  workflow?: any
+  workflow: CaseWorkflow
   /**
    * Payment, Receipt, & Fee methods
    */
-  financial?: any
+  financial: CaseFinancial
   /**
    * Commenting methods
    */
-  comment?: any
+  comment: Comments
   /**
    * Payment, Receipt, & Fee methods
    */
-  people?: any
+  people: CasePeople
   /**
    * PLL Administration methods
    */
-  admin?: any
+  admin: CaseAdmin
 
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
+    this.data = new CaseData(cw)
+    this.financial = new CaseFinancial(cw)
+    this.workflow = new CaseWorkflow(cw)
+    this.admin = new CaseAdmin(cw)
+    this.people = new CasePeople(cw)
+    this.comment = new Comments(cw, 'CaObject')
+    this.asset = new CaseAssets(cw)
+    this.flag = new CaseFlags(cw)
+    this.attachments = new Attachments(cw, 'Case')
   }
 
   // What is this?
@@ -182,7 +192,9 @@ export class Briefcase {
       }
       var data = _.merge(data_init, options)
       this.cw.runRequest('Pll/Case/Create', data).then(r => {
-        this.current_case = r.Value.CaObjectId
+        if(r.Value) {
+          this.current_case = r.Value.CaObjectId
+        }
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -207,7 +219,9 @@ export class Briefcase {
       }
       var data = _.merge(data_init, options)
       this.cw.runRequest('Pll/Case/CreateChild', data).then(r => {
-        this.current_case = r.Value.CaObjectId
+        if(r.Value) {
+          this.current_case = r.Value.CaObjectId
+        }
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -234,7 +248,9 @@ export class Briefcase {
       }
       var data = _.merge(data_init, options)
       this.cw.runRequest('Pll/CaseObject/CreateCaseFromServiceRequest', data).then(r => {
-        this.current_case = r.Value.CaObjectId
+        if(r.Value) {
+          this.current_case = r.Value.CaObjectId
+        }
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -257,7 +273,9 @@ export class Briefcase {
       }
       var data = _.merge(data_init, options)
       this.cw.runRequest('Pll/CaseObject/Update', data).then(r => {
-        this.current_case = r.Value.CaObjectId
+        if(r.Value) {
+          this.current_case = r.Value.CaObjectId
+        }
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -295,8 +313,8 @@ export class Briefcase {
         CaObjectIds: caObjectIds
       }
       this.cw.runRequest('Pll/CaseObject/ByIds', data).then(r => {
-        if(r.Value.length == 1) {
-          this.current_case = r.Value[0]
+        if(r.Value && r.Value.length == 1) {
+          this.current_case = r.Value[0].CaObjectId
         }
         resolve(r.Value)
       }).catch(e => {
@@ -316,7 +334,7 @@ export class Briefcase {
     return new Promise((resolve, reject) => {
       var data = filters
       this.cw.runRequest('Pll/CaseObject/Search', data).then(r => {
-        if(r.Value.length == 1) {
+        if(r.Value && r.Value.length == 1) {
           this.current_case = r.Value[0].CaObjectId
         }
         resolve(r.Value)
@@ -366,6 +384,7 @@ export class Briefcase {
       if(!_.has(projection, 'WKID') && !_.has(projection, 'WKT')) {
         // Throw error
         reject(new CWError(1, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
+        return
       }
       var data_init = {
         CaObjectId: caObjectId,
@@ -509,38 +528,26 @@ export class Briefcase {
    * Print Case
    *
    * @category Cases
-   * @param {number} caObjectId - The case object ID to delete the map layer fields for.
+   * @param {number} caObjectId - The case object ID to print.
    * @param {string} fileName - the filename of the report from the getPrintTemplates method, but w/out the extension
-   * @return {Object} Returns Promise that represents a collection of Objects describing the case object map layer fields deleted
+   * @return {Object} Returns Promise that represents the report: `{file: <pdf contents>, name: <fileName>.pdf}`. Rejects if Cityworks returns an error instead of a pdf.
    */
-  print(caObjectId: number, fileName: string, callback: any) {
+  print(caObjectId: number, fileName: string) {
     return new Promise((resolve, reject) => {
       var data = {
         CaObjectId: caObjectId,
         FileName: fileName
       }
-      var path = 'Pll/BusinessCaseReports/Download'
-      var options = this.cw.getRequestOptions(path, 'GET')
-      console.log(options)
-
-      var file_extension = `pdf`
-      console.log(__dirname + fileName + '.' + file_extension)
-      const file = fs.createWriteStream(__dirname.replace('/dist', '/downloads') + '/' + fileName + '.' + file_extension)
-
-      var request_url = 'https://'+options.hostname + options.path + '?data=' + JSON.stringify(data) + '&Token=' + this.cw.getToken()
-      // TODO: test the Filename to make sure it's in the File list from getPrintTemplates (or let the API just error?)
-      https.get(request_url, {timeout: 10000000}, (res) => {
-        res.on('data', (d) => {
-          file.write(d);
-        });
-  
-        res.on('end', () => {
-          file.close(callback('Success'))
-        })
-      }).on('error', (e) => {
-        file.close(callback('Failure'));
-        console.error(e);
-      });
+      this.cw.runRequest('Pll/BusinessCaseReports/Download', data).then(contents => {
+        try {
+          reject(JSON.parse(contents))
+        } catch (e) {
+          // not JSON, so it's the pdf
+          resolve({file: contents, name: fileName + '.pdf'})
+        }
+      }).catch(e => {
+        reject(e)
+      })
     })
   }
 

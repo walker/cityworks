@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import type { CityworksClient } from './client'
 import { EquipmentChangeout } from './equipment_changeout'
 import { EquipmentCost } from './equipment_cost'
 import { EquipmentReservation } from './equipment_reservation'
@@ -33,7 +34,7 @@ export class Equipment {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * Changeout operations for equipment
@@ -53,7 +54,7 @@ export class Equipment {
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
     this.changeout = new EquipmentChangeout(cw)
     this.cost = new EquipmentCost(cw)

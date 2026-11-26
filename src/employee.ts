@@ -1,4 +1,5 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash';
 
 export interface EmployeeBase {
@@ -49,12 +50,12 @@ export class Employee {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 

@@ -1,4 +1,5 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 
 /**
@@ -8,12 +9,12 @@ export class General {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 
@@ -70,13 +71,13 @@ export class General {
       let tables = ["INSPECTION", "REQUEST", "WORKORDER"]
       if(_.indexOf(tables, table)==-1) {
         reject(new CWError(2, 'TableName provided does not exist or is mispelled.', {'provided': table, 'available':tables}))
+        return
       }
       let data = {
         "Ids": ids,
         "TableName": table
       }
       this.cw.runRequest('General/CwMetaData/ByTableNameSids', data).then(r => {
-        console.log(r)
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -93,7 +94,6 @@ export class General {
     return new Promise((resolve, reject) => {
       let data = {}
       this.cw.runRequest('Ams/Search/RecentActivity', data).then(r => {
-        console.log(r)
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -137,7 +137,6 @@ export class General {
         "ObjectIds": object_ids
       }
       this.cw.runRequest('General/CostSummary/WorkOrderEntity', data).then(r => {
-        console.log(r)
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -157,7 +156,6 @@ export class General {
         "SearchId": search_id
       }
       this.cw.runRequest('General/CostSummary/WorkOrderEntitySearch', data).then(r => {
-        console.log(r)
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -216,8 +214,7 @@ export class General {
         "Description": description
       }
       this.cw.runRequest('General/Holidays/Add', data).then(r => {
-        console.log(r)
-        resolve(r.Value)
+        resolve(r === true ? true : r.Value)
       }).catch(e => {
         reject(e)
       })
@@ -236,8 +233,7 @@ export class General {
         "Holidays": holidays
       }
       this.cw.runRequest('General/Holidays/Delete', data).then(r => {
-        console.log(r)
-        resolve(r.Value)
+        resolve(r === true ? true : r.Value)
       }).catch(e => {
         reject(e)
       })

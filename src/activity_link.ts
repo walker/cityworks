@@ -1,4 +1,5 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import ReversibleMap from 'reversible-map'
 
 /**
@@ -8,7 +9,7 @@ import ReversibleMap from 'reversible-map'
 export interface ActivityLink {
   linkTypes: ReversibleMap<string, number>
   activityTypes: ReversibleMap<string, number>
-  cw: any
+  cw: CityworksClient
 }
 
 /**
@@ -27,12 +28,12 @@ export class ActivityLinks implements ActivityLink {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
     this.activityTypes = new ReversibleMap<string, number>()
     this.linkTypes = new ReversibleMap<string, number>()
@@ -175,7 +176,7 @@ export class ActivityLinks implements ActivityLink {
 
       this.runRequest(path, data)
         .then((response: any) => resolve(response))
-        .catch(reject(false))
+        .catch(() => reject(false))
     })
   }
 
@@ -206,7 +207,7 @@ export class ActivityLinks implements ActivityLink {
 
       this.runRequest(path, data)
         .then((response: any) => resolve(response))
-        .catch(reject(false))
+        .catch(() => reject(false))
     })
   }
 }

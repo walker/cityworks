@@ -1,4 +1,5 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 import { Comments } from './comments'
 
@@ -6,7 +7,7 @@ export class CaseWorkflow {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * Task sub-methods
@@ -16,7 +17,7 @@ export class CaseWorkflow {
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
     this.task = {
       comment: new Comments(cw, 'CaTask')
@@ -278,6 +279,7 @@ export class CaseWorkflow {
       }
       if(_.intersectionBy(_.keysIn(options), ['TaskCompleteDate', 'TaskCompletedBy']).length==0) {
         reject(new CWError(2, 'At least one of the attributes (TaskCompletedBy, TaskCompleteDate) must be defined.'))
+        return
       }
       if(typeof(options)!='undefined') {
         data = _.merge(data, options)
@@ -361,6 +363,7 @@ export class CaseWorkflow {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['ResponsibleUserId', 'TaskAvailable', 'TaskComplete', 'TaskType']).length==0) {
         reject(new CWError(1, 'At least one of the attributes (ResponsibleUserId, TaskAvailable, TaskComplete, TaskType) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/CaseTask/Search', data).then(r => {
@@ -450,7 +453,7 @@ export class CaseWorkflow {
       var data = {
         CaRelDocId: caRelDocId
       }
-      this.cw.runRequest('PLL/CaseRelDocs/Delete', data).then(r => {
+      this.cw.runRequest('Pll/CaseRelDocs/Delete', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)

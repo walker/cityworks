@@ -1,4 +1,5 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import ReversibleMap from 'reversible-map'
 import _ from 'lodash'
 
@@ -6,7 +7,7 @@ export class WorkOrderCosts {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * Storage of object's active activityType
@@ -16,7 +17,7 @@ export class WorkOrderCosts {
   /**
    * @hidden
    */
-  constructor(cw:any) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
     this.currentActivityType = "WorkOrder"
   }
@@ -232,17 +233,29 @@ export class WorkOrderCosts {
    * Get Material Costs for WorkOrder(s)
    *
    * @category WorkOrder Costs
-   * @param {number} workOrderSid - the work order to add the equipment costs to
+   * @param {number|string|Array<number|string>} workOrderSids - The work order(s) to get material costs for. Numbers are sent as WorkOrderSids, strings as WorkOrderIds; one or an array (which may mix both).
    * @param {boolean} estimated - true to get estimated costs. defaults to false and gets actuals.
-   * @return {Object} Returns Promise that represents an object describing
+   * @return {Object} Returns Promise that represents a collection describing the work order material costs
    */
-  getMaterial(workOrderSid: number, estimated: boolean = false) { // "WorkOrderId", "WorkOrderSid", "Estimated", "MaterialSids", "Units", "AcctNum", "Source", "TransDate", "ContractorSids", "ContractorMaterialId", "ContractorMaterialDescription", "ContractorMaterialCost", "TaskIds", "Entities", "CombineIssuesByMaterialSid"
+  getMaterial(workOrderSids: number|string|Array<number|string>, estimated: boolean = false) {
     return new Promise((resolve, reject) => {
-      var data = {
-        WorkOrderSid: workOrderSid,
+      const ids = _.castArray(workOrderSids)
+      const sids = _.filter(ids, _.isNumber) as Array<number>
+      const workOrderIds = _.filter(ids, _.isString) as Array<string>
+      if(sids.length === 0 && workOrderIds.length === 0) {
+        reject(new CWError(9, 'No workorder S/IDs were provided.', {'provided': workOrderSids}))
+        return
+      }
+      var data: {WorkOrderSids?: Array<number>, WorkOrderIds?: Array<string>, Estimated: boolean} = {
         Estimated: estimated
       }
-      this.cw.runRequest('Ams/MaterialCost/AddWorkOrderCosts', data).then((response: any) => {
+      if(sids.length > 0) {
+        data.WorkOrderSids = sids
+      }
+      if(workOrderIds.length > 0) {
+        data.WorkOrderIds = workOrderIds
+      }
+      this.cw.runRequest('Ams/MaterialCost/WorkOrderCostsByWorkOrder', data).then((response: any) => {
         resolve(response.Value)
       }).catch(e => {
         reject(e)
@@ -258,7 +271,7 @@ export class WorkOrderCosts {
    * @param {boolean} estimated - true to delete the estimated costs. defaults to false and deletes actuals.
    * @return {Object} Returns Promise that represents an object describing
    */
-  deleteMaterial(materialCostIds: number, estimated: boolean = false) {
+  deleteMaterial(materialCostIds: Array<number>, estimated: boolean = false) {
     return new Promise((resolve, reject) => {
       var data = {
         MaterialCostIds: materialCostIds,

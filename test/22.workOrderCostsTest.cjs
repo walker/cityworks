@@ -1,166 +1,87 @@
 'use strict';
-require('dotenv').config({quiet: true, debug: false});
-const { shouldRunBefore } = require('./testGuard');
-const suiteName = 'workordercosts';
-var assert = require('chai').assert;
+// Mocked tests: no Cityworks instance is contacted.
+const assert = require('chai').assert;
 const cw22 = require('../dist/index.js');
-
-cw22.Cityworks.configure(process.env.cwdomain, {path: process.env.cwpath, version: process.env.cwversion});
-
-before(function(done) {
-  if (!shouldRunBefore(suiteName)) {
-    return done();
-  }
-
-  this.timeout(20000000);
-  cw22.Cityworks.authenticate(process.env.cwlogin, process.env.cwpassword).then(() => {
-    done();
-  }).catch(e => {
-    console.log(e, 'unexpected error');
-    done(e);
-  });
-});
+const { createMock } = require('./mockCityworks');
 
 describe('[WorkOrderCosts (construct)] function test', () => {
-  it('should be a defined object', (done) => {
+  it('should be a defined object', () => {
     assert.isObject(cw22.workorder.costs, 'WorkOrderCosts is an object');
-    done();
   });
 
-  it('should have WorkOrder as currentActivityType', (done) => {
+  it('should have WorkOrder as currentActivityType', () => {
     assert.equal(cw22.workorder.costs.currentActivityType, 'WorkOrder');
-    done();
   });
 });
 
-describe('[WorkOrderCosts::getCodes] function test', () => {
-  it('should be callable with employee IDs', (done) => {
-    cw22.workorder.costs.getCodes([1], false).then(resp => {
-      assert.isNotNull(resp);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
+describe('[WorkOrderCosts] mocked request tests', () => {
+  const mock = createMock(cw22.Cityworks);
+  const costs = () => cw22.workorder.costs;
+
+  // [method, args, path, expected payload]
+  const cases = [
+    ['getCodes', [[1, 2], true], 'Ams/LaborCost/CostCodes', {EmployeeSids: [1, 2], CommonCodesOnly: true}],
+    ['getCodes', [[1]], 'Ams/LaborCost/CostCodes', {EmployeeSids: [1], CommonCodesOnly: false}],
+    ['getJobCodes', [], 'Ams/LaborCost/JobCodes', null],
+    ['addLabor', [1, 2.5, {Estimated: true}], 'Ams/LaborCost/AddWorkOrderCosts', {WorkOrderSid: 1, Hours: 2.5, Estimated: true}],
+    ['addLabor', [1, 2.5], 'Ams/LaborCost/AddWorkOrderCosts', {WorkOrderSid: 1, Hours: 2.5}],
+    ['getLabor', [[1, 2], true], 'Ams/LaborCost/WorkOrderCostsByWorkOrder', {Estimated: true, WorkOrderSids: [1, 2]}],
+    ['getLabor', [[1]], 'Ams/LaborCost/WorkOrderCostsByWorkOrder', {Estimated: false, WorkOrderSids: [1]}],
+    ['deleteLabor', [[3, 4], true], 'Ams/LaborCost/DeleteWorkOrderCosts', {LaborCostIds: [3, 4], Estimated: true}],
+    ['deleteLabor', [[3]], 'Ams/LaborCost/DeleteWorkOrderCosts', {LaborCostIds: [3], Estimated: false}],
+    ['addEquipment', [1, {Estimated: true, Hours: 1, Units: 1}], 'Ams/EquipmentCost/AddWorkOrderCosts', {WorkOrderSid: 1, Estimated: true, Hours: 1, Units: 1}],
+    ['addEquipment', [1], 'Ams/EquipmentCost/AddWorkOrderCosts', {WorkOrderSid: 1}],
+    ['getEquipment', [1, true], 'Ams/EquipmentCost/WorkOrderCostsByWorkOrder', {WorkOrderSid: 1, Estimated: true}],
+    ['getEquipment', [1], 'Ams/EquipmentCost/WorkOrderCostsByWorkOrder', {WorkOrderSid: 1, Estimated: false}],
+    ['deleteEquipment', [[5, 6], true], 'Ams/EquipmentCost/DeleteWorkOrderCosts', {EquipmentCostIds: [5, 6], Estimated: true}],
+    ['deleteEquipment', [[5]], 'Ams/EquipmentCost/DeleteWorkOrderCosts', {EquipmentCostIds: [5], Estimated: false}],
+    ['addMaterial', [1, 3, {Estimated: true, MaterialSids: [1]}, false], 'Ams/MaterialCost/AddWorkOrderCosts', {Units: 3, WorkOrderSid: 1, CombineIssuesByMaterialSid: false, Estimated: true, MaterialSids: [1]}],
+    ['addMaterial', [1, 3], 'Ams/MaterialCost/AddWorkOrderCosts', {Units: 3, WorkOrderSid: 1, CombineIssuesByMaterialSid: true}],
+    ['addMaterial', [1, 3, {Estimated: true}], 'Ams/MaterialCost/AddWorkOrderCosts', {Units: 3, WorkOrderSid: 1, CombineIssuesByMaterialSid: true, Estimated: true}],
+    ['getMaterial', [1, true], 'Ams/MaterialCost/WorkOrderCostsByWorkOrder', {WorkOrderSids: [1], Estimated: true}],
+    ['getMaterial', [1], 'Ams/MaterialCost/WorkOrderCostsByWorkOrder', {WorkOrderSids: [1], Estimated: false}],
+    ['getMaterial', [[1, 2]], 'Ams/MaterialCost/WorkOrderCostsByWorkOrder', {WorkOrderSids: [1, 2], Estimated: false}],
+    ['getMaterial', ['WO-1'], 'Ams/MaterialCost/WorkOrderCostsByWorkOrder', {WorkOrderIds: ['WO-1'], Estimated: false}],
+    ['getMaterial', [['WO-1', 'WO-2'], true], 'Ams/MaterialCost/WorkOrderCostsByWorkOrder', {WorkOrderIds: ['WO-1', 'WO-2'], Estimated: true}],
+    ['getMaterial', [[1, 'WO-2']], 'Ams/MaterialCost/WorkOrderCostsByWorkOrder', {WorkOrderSids: [1], WorkOrderIds: ['WO-2'], Estimated: false}],
+    ['deleteMaterial', [[7], true], 'Ams/MaterialCost/DeleteWorkOrderCosts', {MaterialCostIds: [7], Estimated: true}],
+    ['deleteMaterial', [[7, 8]], 'Ams/MaterialCost/DeleteWorkOrderCosts', {MaterialCostIds: [7, 8], Estimated: false}]
+  ];
+
+  cases.forEach(([method, args, path, payload]) => {
+    const label = `${method}(${JSON.stringify(args)})`;
+
+    it(`${label} should call ${path} and resolve the response value`, async () => {
+      const value = [{CostId: 1, Cost: 12.5}];
+      mock.on(path, value);
+      const resp = await costs()[method](...args);
+      assert.deepEqual(resp, value);
+      assert.equal(mock.callsTo(path).length, 1);
+      assert.deepEqual(mock.lastCall(path).data, payload);
+    });
+
+    it(`${label} should reject with the API error`, async () => {
+      mock.onError(path, {Code: 12, Message: 'costs failed'});
+      try {
+        await costs()[method](...args);
+        assert.fail('should have rejected');
+      } catch (e) {
+        assert.equal(e.Code, 12);
+        assert.equal(e.Message, 'costs failed');
+      }
+      assert.deepEqual(mock.paths(), [path]);
     });
   });
-});
 
-describe('[WorkOrderCosts::getJobCodes] function test', () => {
-  it('should be callable', (done) => {
-    cw22.workorder.costs.getJobCodes().then(resp => {
-      assert.isNotNull(resp);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-});
-
-describe('[WorkOrderCosts::addLabor] function test', () => {
-  it('should be callable with work order labor inputs', (done) => {
-    cw22.workorder.costs.addLabor(1, 1, { Estimated: true }).then(resp => {
-      assert.isNotNull(resp);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-});
-
-describe('[WorkOrderCosts::getLabor] function test', () => {
-  it('should be callable with work order IDs', (done) => {
-    cw22.workorder.costs.getLabor([1], true).then(resp => {
-      assert.isNotNull(resp);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-});
-
-describe('[WorkOrderCosts::deleteLabor] function test', () => {
-  it('should be callable with labor cost IDs', (done) => {
-    cw22.workorder.costs.deleteLabor([1], true).then(resp => {
-      assert.isNotNull(resp);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-});
-
-describe('[WorkOrderCosts::addEquipment] function test', () => {
-  it('should be callable with equipment cost inputs', (done) => {
-    cw22.workorder.costs.addEquipment(1, { Estimated: true, Hours: 1, Units: 1 }).then(resp => {
-      assert.isNotNull(resp);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-});
-
-describe('[WorkOrderCosts::getEquipment] function test', () => {
-  it('should be callable with work order ID', (done) => {
-    cw22.workorder.costs.getEquipment(1, true).then(resp => {
-      assert.isNotNull(resp);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-});
-
-describe('[WorkOrderCosts::deleteEquipment] function test', () => {
-  it('should be callable with equipment cost IDs', (done) => {
-    cw22.workorder.costs.deleteEquipment([1], true).then(resp => {
-      assert.isNotNull(resp);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-});
-
-describe('[WorkOrderCosts::addMaterial] function test', () => {
-  it('should be callable with material cost inputs', (done) => {
-    cw22.workorder.costs.addMaterial(1, 1, { Estimated: true, MaterialSids: [1] }, true).then(resp => {
-      assert.isNotNull(resp);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-});
-
-describe('[WorkOrderCosts::getMaterial] function test', () => {
-  it('should be callable with work order ID', (done) => {
-    cw22.workorder.costs.getMaterial(1, true).then(resp => {
-      assert.isNotNull(resp);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
-  });
-});
-
-describe('[WorkOrderCosts::deleteMaterial] function test', () => {
-  it('should be callable with material cost IDs', (done) => {
-    cw22.workorder.costs.deleteMaterial(1, true).then(resp => {
-      assert.isNotNull(resp);
-      done();
-    }).catch(e => {
-      assert.isObject(e);
-      done();
-    });
+  it('getMaterial should reject without calling the API when no work orders are given', async () => {
+    for (const bad of [[], undefined, null]) {
+      try {
+        await costs().getMaterial(bad);
+        assert.fail('should have rejected');
+      } catch (e) {
+        assert.equal(e.Code, 9);
+      }
+    }
+    assert.deepEqual(mock.paths(), []);
   });
 });

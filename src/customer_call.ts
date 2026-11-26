@@ -1,4 +1,5 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import { Request } from './request'
 import _ from 'lodash'
 
@@ -76,7 +77,7 @@ export class CustomerCall extends Request {
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     super(cw)
     // so inherited request create/update pass-through to callers also works when called on this object
     this.customerCall = this

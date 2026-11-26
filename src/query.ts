@@ -1,4 +1,4 @@
-import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 
 
@@ -11,16 +11,29 @@ interface DynamicResponseDefinition {
 }
 
 
+/**
+ * A number, or a string containing only digits, is a saved query's id; anything else is query text
+ */
+function asQueryId(query: number|string): number|undefined {
+  if(typeof(query)==='number' && !isNaN(query)) {
+    return query
+  }
+  if(typeof(query)==='string' && /^\s*\d+\s*$/.test(query)) {
+    return Number(query)
+  }
+  return undefined
+}
+
 export class Query {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 
@@ -37,12 +50,11 @@ export class Query {
     return new Promise((resolve, reject) => {
       var data = {
       }
-      if(isNaN(+query)) {
+      const queryId = asQueryId(query)
+      if(typeof(queryId)==='undefined') {
         _.set(data, "QueryValue", query)
-      } else if(!isNaN(+query)) {
-        _.set(data, "QueryId", query)
       } else {
-        // throw error
+        _.set(data, "QueryId", queryId)
       }
       data = _.merge(data, options)
       if(typeof(domainId)!=='undefined') {
@@ -187,17 +199,14 @@ export class Query {
     return new Promise((resolve, reject) => {
       var data = {}
       var api_path: string = 'General/Query/Query';
-      if(isNaN(+query)) {
+      const queryId = asQueryId(query)
+      if(typeof(queryId)==='undefined') {
         _.set(data, "QueryValue", query)
-        if(typeof(options.QueryValue)!=='undefined') {
-          _.unset(options, 'QueryValue')
-        }
-      } else if(!isNaN(+query) || _.isNumber(query)) {
-        _.set(data, "QueryId", query)
-        var api_path = 'General/Query/RunById'
+        // the query text is the QueryValue, so one in the options must not replace it
+        options = _.omit(options, 'QueryValue')
       } else {
-        // throw error
-        reject(new CWError(501, 'Invalid query type', {'provided': query}))
+        _.set(data, "QueryId", queryId)
+        api_path = 'General/Query/RunById'
       }
       data = _.merge(data, options)
       this.cw.runRequest(api_path, data).then(r => {
@@ -227,7 +236,7 @@ export class Query {
         "IncludeQuery": includeQuery
       }
       if(queryTypes.length==1) {
-        _.set(data, "QueryType", queryTypes.pop())
+        _.set(data, "QueryType", queryTypes[0])
       } else if(queryTypes.length>1) {
         _.set(data, "QueryTypes", queryTypes)
       }

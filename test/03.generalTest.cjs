@@ -1,290 +1,236 @@
 'use strict';
-require('dotenv').config({quiet: true, debug: false});
-const { shouldRunBefore } = require('./testGuard');
-const suiteName = 'general';
-var chai = require('chai');
-var expect = require('chai').expect;
-var assert = require('chai').assert;
-var chaiAsPromised = require("chai-as-promised");
-// chai.use(chaiAsPromised);
+// Mocked tests: no Cityworks instance is contacted.
+const assert = require('chai').assert;
 const cw3 = require('../dist/index.js');
-cw3.Cityworks.configure(process.env.cwdomain, {path: process.env.cwpath, version: process.env.cwversion});
+const { createMock } = require('./mockCityworks');
 
-before(function(done) {
-  if (!shouldRunBefore(suiteName)) {
-    return done();
+async function rejection(promise) {
+  try {
+    await promise;
+  } catch (e) {
+    return e;
   }
-
-  this.timeout(20000000);
-  cw3.Cityworks.authenticate(process.env.cwlogin, process.env.cwpassword).then(resp => {
-    done();
-  }).catch(e => {
-    console.log(e, 'unexpected error')
-    done();
-  });
-});
+  assert.fail('should have rejected');
+}
 
 describe('[General::notifications] function test', () => {
-  it('should resolve a collection', (done) => {
-    cw3.general.notifications().then(resp => {
-      assert.isArray(resp);
-      done();
-    });
+  const mock = createMock(cw3.Cityworks);
+  const p = 'General/ActivityNotification/User';
+
+  it('should resolve the collection with an empty payload', async () => {
+    mock.on(p, [{ActivityId: 1}]);
+    assert.deepEqual(await cw3.general.notifications(), [{ActivityId: 1}]);
+    assert.deepEqual(mock.lastCall(p).data, {});
+  });
+
+  it('should propagate API errors', async () => {
+    mock.onError(p, {Message: 'nope'});
+    assert.equal((await rejection(cw3.general.notifications())).Message, 'nope');
   });
 });
 
 describe('[General::amIWatching] function test', () => {
-  it('should reject with an error if the activity type is not available or does not exist', (done) => {
-    cw3.general.amIWatching('request', 42015).then(r => {
-    }).catch(e => {
-      assert.equal(e.Message, 'Activity type provided does not exist.');
-      done();
-    });
-  });
-  it('should resolve a boolean', (done) => {
-    cw3.general.amIWatching('case', 42015).then(r => {
-      assert.isBoolean(r);
-      done();
-    });
-  });
-  it('should resolve with false if id does not exist', (done) => {
-    cw3.general.amIWatching('case', 200042015).then(r => {
-      assert.isFalse(r);
-      done();
-    }).catch(e => {
-      done();
-    });
-  });
-  it('should reject with an error if the activity id is too large', (done) => {
-    cw3.general.amIWatching('case', 10000000000).then(response => {
-    }).catch(e => {
-      assert.equal(e.Message, 'Unknown error.');
-      done();
-    });
-  });
-});
+  const mock = createMock(cw3.Cityworks);
+  const p = 'General/ActivityNotification/UserWatching';
 
-describe('[General::quickSearch] function test', () => {
-  it('should resolve results', (done) => {
-    cw3.general.quickSearch('256460').then(r => {
-      assert.property(r, 'Permits');
-      done();
-    });
+  it('should reject with an error if the activity type is not available or does not exist', async () => {
+    const e = await rejection(cw3.general.amIWatching('request', 42015));
+    assert.equal(e.Code, 1);
+    assert.equal(e.Message, 'Activity type provided does not exist.');
+    assert.deepEqual(mock.paths(), []);
   });
 
-  it('should resolve (empty) results even when the string is not found', (done) => {
-    cw3.general.quickSearch('SomethingSidewalk').then(r => {
-      assert.property(r, 'Permits');
-      done();
-    });
-  });
-});
-
-describe('[General::getHolidays] function test', () => {
-  it('should resolve a collection', (done) => {
-    cw3.general.getHolidays().then(resp => {
-      assert.isNotEmpty(resp, 'No holidays were returned, but at least one was expected');
-      assert.isArray(resp, `Expected response to be an array, but got ${typeof resp}`);
-      done();
-    });
-  });
-  it('should not return holidays before the provided start date', (done) => {
-    let startDate = new Date('2026-01-01');
-    cw3.general.getHolidays(startDate).then(resp => {
-      assert.isNotEmpty(resp, 'No holidays were returned, but at least one was expected');
-      resp.forEach(holiday => {
-        let holidayDate = new Date(holiday.Holiday);
-        assert.isAtLeast(holidayDate.getTime(), startDate.getTime(), `Holiday ${holiday.Description} (${holiday.Holiday}) is before ${startDate.toISOString()}`);
-      });
-      done();
-    });
-  });
-  it('should not return holidays after the provided end date', (done) => {
-    let endDate = new Date('2025-12-31');
-    cw3.general.getHolidays(undefined, endDate).then(resp => {
-      assert.isNotEmpty(resp, 'No holidays were returned, but at least one was expected');
-      resp.forEach(holiday => {
-        let holidayDate = new Date(holiday.Holiday);
-        assert.isAtMost(holidayDate.getTime(), endDate.getTime(), `Holiday ${holiday.Description} (${holiday.Holiday}) is after ${endDate.toISOString()}`);
-      });
-      done();
-    });
-  });
-  it('should return only holidays within the provided window', (done) => {
-    let startDate = new Date('2026-01-01');
-    let endDate = new Date('2026-12-31');
-    cw3.general.getHolidays(startDate, endDate).then(resp => {
-      assert.isNotEmpty(resp, 'No holidays were returned, but at least one was expected');
-      resp.forEach(holiday => {
-        let holidayDate = new Date(holiday.Holiday);
-        assert.isAtLeast(holidayDate.getTime(), startDate.getTime(), `Holiday ${holiday.Description} (${holiday.Holiday}) is before ${startDate.toISOString()}`);
-        assert.isAtMost(holidayDate.getTime(), endDate.getTime(), `Holiday ${holiday.Description} (${holiday.Holiday}) is after ${endDate.toISOString()}`);
-      });
-      done();
-    });
-  });
-});
-
-describe('[General::addHoliday] function test', () => {
-  it('should add a holiday and make it available in holiday results', (done) => {
-    let holiday = new Date();
-    holiday.setHours(0, 0, 0, 0);
-    holiday.setDate(holiday.getDate() + 365);
-    let nextDay = new Date(holiday.getTime() + 24 * 60 * 60 * 1000);
-    let description = `addHoliday test ${Date.now()}`;
-
-    cw3.general.addHoliday(holiday, description).then(resp => {
-      assert.isDefined(resp);
-      return cw3.general.getHolidays(holiday, nextDay);
-    }).then(resp => {
-      let hasHoliday = resp.some(h => {
-        let holidayDate = new Date(h.HolidayDate);
-        return holidayDate.getTime() === holiday.getTime() && h.Description === description;
-      });
-      assert.isTrue(hasHoliday, `Holiday ${description} on ${holiday.toISOString()} was not returned by getHolidays`);
-      return cw3.general.deleteHolidays([holiday]);
-    }).then(() => {
-      done();
-    }).catch(e => {
-      done(e);
-    });
-  });
-});
-
-describe('[General::deleteHolidays] function test', () => {
-  it('should delete a holiday and remove it from holiday results', (done) => {
-    let holiday = new Date();
-    holiday.setHours(0, 0, 0, 0);
-    holiday.setDate(holiday.getDate() + 366);
-    let nextDay = new Date(holiday.getTime() + 24 * 60 * 60 * 1000);
-    let description = `deleteHolidays test ${Date.now()}`;
-
-    cw3.general.addHoliday(holiday, description).then(() => {
-      return cw3.general.deleteHolidays([holiday]);
-    }).then(resp => {
-      assert.isDefined(resp);
-      return cw3.general.getHolidays(holiday, nextDay);
-    }).then(resp => {
-      let hasHoliday = resp.some(h => {
-        let holidayDate = new Date(h.HolidayDate);
-        return holidayDate.getTime() === holiday.getTime() && h.Description === description;
-      });
-      assert.isFalse(hasHoliday, `Holiday ${description} on ${holiday.toISOString()} was still returned by getHolidays after deletion`);
-      done();
-    }).catch(e => {
-      done(e);
-    });
+  it('should map the activity type to its number and resolve a boolean', async () => {
+    mock.on(p, true);
+    assert.isTrue(await cw3.general.amIWatching('case', 42015));
+    assert.deepEqual(mock.lastCall(p).data, {ActivityType: 1, ActivityId: 42015});
+    await cw3.general.amIWatching('task', 7);
+    assert.deepEqual(mock.lastCall(p).data, {ActivityType: 2, ActivityId: 7});
   });
 
-  it('should delete multiple holidays in a single request', (done) => {
-    let holiday1 = new Date();
-    holiday1.setHours(0, 0, 0, 0);
-    holiday1.setDate(holiday1.getDate() + 367);
-
-    let holiday2 = new Date(holiday1.getTime() + 24 * 60 * 60 * 1000);
-    let endDate = new Date(holiday2.getTime() + 24 * 60 * 60 * 1000);
-
-    let description1 = `deleteHolidays multi test 1 ${Date.now()}`;
-    let description2 = `deleteHolidays multi test 2 ${Date.now()}`;
-
-    Promise.all([
-      cw3.general.addHoliday(holiday1, description1),
-      cw3.general.addHoliday(holiday2, description2)
-    ]).then(() => {
-      return cw3.general.deleteHolidays([holiday1, holiday2]);
-    }).then(resp => {
-      assert.isDefined(resp);
-      return cw3.general.getHolidays(holiday1, endDate);
-    }).then(resp => {
-      let hasHoliday1 = resp.some(h => {
-        let holidayDate = new Date(h.HolidayDate);
-        return holidayDate.getTime() === holiday1.getTime() && h.Description === description1;
-      });
-      let hasHoliday2 = resp.some(h => {
-        let holidayDate = new Date(h.HolidayDate);
-        return holidayDate.getTime() === holiday2.getTime() && h.Description === description2;
-      });
-
-      assert.isFalse(hasHoliday1, `Holiday ${description1} on ${holiday1.toISOString()} was still returned by getHolidays after deletion`);
-      assert.isFalse(hasHoliday2, `Holiday ${description2} on ${holiday2.toISOString()} was still returned by getHolidays after deletion`);
-      done();
-    }).catch(e => {
-      done(e);
-    });
-  });
-});
-
-describe('[General::batchExecute] function test', () => {
-  it('should execute a single batch request with auto-generated id', (done) => {
-    cw3.general.batchExecute({
-          Request: {
-            EntityType: 'EASEMENT_TREES',
-            EntityUid: '{26AABDD2-77FC-4F17-851B-9CD2AC0EEC40}'
-          },
-          Method: 'ams/entity/workActivityHistory'
-    }).then(resp => {
-      assert.isDefined(resp);
-      assert.isNotEmpty(resp[0].Response.Value);
-      done();
-    }).catch(e => {
-      done(e);
-    });
+  it('should resolve with false if the API says the item is not watched', async () => {
+    mock.on(p, false);
+    assert.isFalse(await cw3.general.amIWatching('case', 200042015));
   });
 
-  it('should execute a multi-request batch payload with auto-generated ids', (done) => {
-    cw3.general.batchExecute([
-        {
-          Request: {
-            EntityType: 'EASEMENT_TREES',
-            EntityUid: '{26AABDD2-77FC-4F17-851B-9CD2AC0EEC40}'
-          },
-          Method: 'ams/entity/workActivityHistory'
-        },
-        {
-          Request: {
-            QueryValue: 'CaseObject(, Address(FeatureClass = "EASEMENT_TREES" AND FeatureAssetId = "{26AABDD2-77FC-4F17-851B-9CD2AC0EEC40}"))',
-            ResponseFields: {
-              BusCaseDesc: true,
-              CaObjectId: true,
-              CaseName: true,
-              CaseNumber: true,
-              CaseStatus: true,
-              CaseTypeDesc: true,
-              DateCreated: true,
-              DateIssued: true,
-              StatusCode: true,
-              SubTypeDesc: true
-            }
-          },
-          Method: 'general/query/query'
-        },
-        {
-          Request: {
-            EntityType: 'EASEMENT_TREES',
-            EntityUids: ['{26AABDD2-77FC-4F17-851B-9CD2AC0EEC40}']
-          },
-          Method: 'ams/entity/assetCostHistory'
-        }
-    ]).then(resp => {
-      assert.isDefined(resp);
-      assert.isNotEmpty(resp[0].Response.Value);
-      assert.isNotEmpty(resp[1].Response.Value);
-      assert.isNotEmpty(resp[2].Response.Value);
-      done();
-    }).catch(e => {
-      done(e);
-    });
+  it('should propagate API errors', async () => {
+    mock.onError(p, {Message: 'Unknown error.'});
+    assert.equal((await rejection(cw3.general.amIWatching('case', 10000000000))).Message, 'Unknown error.');
   });
 });
 
 describe('[General::getActivityMetadataByIds] function test', () => {
-  it('should resolve an activity based on the metadata ids');
+  const mock = createMock(cw3.Cityworks);
+  const p = 'General/CwMetaData/ByTableNameSids';
+
+  it('should send the ids and table name and resolve the metadata', async () => {
+    mock.on(p, [{Id: 1}]);
+    assert.deepEqual(await cw3.general.getActivityMetadataByIds([1, 2], 'REQUEST'), [{Id: 1}]);
+    assert.deepEqual(mock.lastCall(p).data, {Ids: [1, 2], TableName: 'REQUEST'});
+  });
+
+  it('should reject (code 2) for an unknown table name', async () => {
+    mock.on(p, []);
+    const e = await rejection(cw3.general.getActivityMetadataByIds([1], 'NOPE'));
+    assert.equal(e.Code, 2);
+  });
+
+  it('should propagate API errors', async () => {
+    mock.onError(p, {Message: 'nope'});
+    assert.equal((await rejection(cw3.general.getActivityMetadataByIds([1], 'WORKORDER'))).Message, 'nope');
+  });
+});
+
+describe('[General::getHistory] function test', () => {
+  const mock = createMock(cw3.Cityworks);
+  const p = 'Ams/Search/RecentActivity';
+
+  it('should resolve the recent activity', async () => {
+    mock.on(p, [{Activity: 'x'}]);
+    assert.deepEqual(await cw3.general.getHistory(), [{Activity: 'x'}]);
+    assert.deepEqual(mock.lastCall(p).data, {});
+  });
+
+  it('should propagate API errors', async () => {
+    mock.onError(p, {Message: 'nope'});
+    assert.equal((await rejection(cw3.general.getHistory())).Message, 'nope');
+  });
+});
+
+describe('[General::getHolidays] function test', () => {
+  const mock = createMock(cw3.Cityworks);
+  const p = 'Ams/Designer/Holidays';
+  const holidays = [
+    {Holiday: '2025-12-25T00:00:00', Description: 'Christmas 2025'},
+    {Holiday: '2026-01-01T00:00:00', Description: 'New Year 2026'},
+    {Holiday: '2026-07-04T00:00:00', Description: 'July 4th 2026'},
+    {Holiday: '2026-12-25T00:00:00', Description: 'Christmas 2026'}
+  ];
+  const names = (list) => list.map(h => h.Description);
+
+  beforeEach(() => {
+    mock.on(p, holidays);
+  });
+
+  it('should resolve all holidays when no dates are given (and send no filters to the API)', async () => {
+    const r = await cw3.general.getHolidays();
+    assert.lengthOf(r, 4);
+    assert.deepEqual(mock.lastCall(p).data, {});
+  });
+
+  it('should not return holidays before the provided start date', async () => {
+    const r = await cw3.general.getHolidays(new Date('2026-01-01T00:00:00'));
+    assert.deepEqual(names(r), ['New Year 2026', 'July 4th 2026', 'Christmas 2026']);
+  });
+
+  it('should not return holidays on or after the provided end date', async () => {
+    const r = await cw3.general.getHolidays(undefined, new Date('2026-01-01T00:00:00'));
+    assert.deepEqual(names(r), ['Christmas 2025']);
+  });
+
+  it('should return only holidays within the provided window', async () => {
+    const r = await cw3.general.getHolidays(new Date('2026-01-01T00:00:00'), new Date('2026-12-31T00:00:00'));
+    assert.deepEqual(names(r), ['New Year 2026', 'July 4th 2026', 'Christmas 2026']);
+  });
+
+  it('should propagate API errors', async () => {
+    mock.onError(p, {Message: 'nope'});
+    assert.equal((await rejection(cw3.general.getHolidays())).Message, 'nope');
+  });
+});
+
+describe('[General::addHoliday] function test', () => {
+  const mock = createMock(cw3.Cityworks);
+  const p = 'General/Holidays/Add';
+
+  it('should send the holiday and description and resolve the Value', async () => {
+    const holiday = new Date('2027-01-01T00:00:00.000Z');
+    mock.on(p, {Added: true});
+    assert.deepEqual(await cw3.general.addHoliday(holiday, 'addHoliday test'), {Added: true});
+    assert.deepEqual(mock.lastCall(p).data, {Holiday: holiday.toISOString(), Description: 'addHoliday test'});
+  });
+
+  it('should propagate API errors', async () => {
+    mock.onError(p, {Message: 'nope'});
+    assert.equal((await rejection(cw3.general.addHoliday(new Date(), 'x'))).Message, 'nope');
+  });
+});
+
+describe('[General::deleteHolidays] function test', () => {
+  const mock = createMock(cw3.Cityworks);
+  const p = 'General/Holidays/Delete';
+
+  it('should delete multiple holidays in a single request', async () => {
+    const h1 = new Date('2027-01-01T00:00:00.000Z');
+    const h2 = new Date('2027-01-02T00:00:00.000Z');
+    mock.on(p, {Deleted: 2});
+    assert.deepEqual(await cw3.general.deleteHolidays([h1, h2]), {Deleted: 2});
+    assert.lengthOf(mock.callsTo(p), 1);
+    assert.deepEqual(mock.lastCall(p).data, {Holidays: [h1.toISOString(), h2.toISOString()]});
+  });
+
+  it('should propagate API errors', async () => {
+    mock.onError(p, {Message: 'nope'});
+    assert.equal((await rejection(cw3.general.deleteHolidays([new Date()]))).Message, 'nope');
+  });
+});
+
+describe('[General::batchExecute] function test', () => {
+  const mock = createMock(cw3.Cityworks);
+  const p = 'General/Batch/Execute';
+  const history = {Request: {EntityType: 'EASEMENT_TREES', EntityUid: '{DUMMY}'}, Method: 'ams/entity/workActivityHistory'};
+  const query = {Request: {QueryValue: 'CaseObject()'}, Method: 'general/query/query'};
+  const costs = {Request: {EntityType: 'EASEMENT_TREES', EntityUids: ['{DUMMY}']}, Method: 'ams/entity/assetCostHistory'};
+
+  it('should wrap a single request with an auto-generated id', async () => {
+    mock.on(p, [{Response: {Value: [1]}}]);
+    const r = await cw3.general.batchExecute(history);
+    assert.deepEqual(r, [{Response: {Value: [1]}}]);
+    assert.deepEqual(mock.lastCall(p).data, {Requests: [Object.assign({Id: 0}, history)]});
+  });
+
+  it('should number a multi-request batch 0, -1, -2 in order', async () => {
+    mock.on(p, []);
+    await cw3.general.batchExecute([history, query, costs]);
+    const sent = mock.lastCall(p).data.Requests;
+    assert.deepEqual(sent.map(r => r.Id), [0, -1, -2]);
+    assert.deepEqual(sent.map(r => r.Method), [history.Method, query.Method, costs.Method]);
+  });
+
+  it('should propagate API errors', async () => {
+    mock.onError(p, {Message: 'nope'});
+    assert.equal((await rejection(cw3.general.batchExecute(history))).Message, 'nope');
+  });
 });
 
 describe('[General::getWOEntityCostSummary] function test', () => {
-  it('should get an Entity\'s cost summary');
+  const mock = createMock(cw3.Cityworks);
+  const p = 'General/CostSummary/WorkOrderEntity';
+
+  it("should get an Entity's cost summary", async () => {
+    mock.on(p, [{Cost: 5}]);
+    assert.deepEqual(await cw3.general.getWOEntityCostSummary([1, 2]), [{Cost: 5}]);
+    assert.deepEqual(mock.lastCall(p).data, {ObjectIds: [1, 2]});
+  });
+
+  it('should propagate API errors', async () => {
+    mock.onError(p, {Message: 'nope'});
+    assert.equal((await rejection(cw3.general.getWOEntityCostSummary([1]))).Message, 'nope');
+  });
 });
 
 describe('[General::searchWOEntityCostSummary] function test', () => {
-  it('should resolve reults of a search for cost summary of an entity');
+  const mock = createMock(cw3.Cityworks);
+  const p = 'General/CostSummary/WorkOrderEntitySearch';
+
+  it('should resolve the results of a search for the cost summary of an entity', async () => {
+    mock.on(p, [{Cost: 9}]);
+    assert.deepEqual(await cw3.general.searchWOEntityCostSummary(12), [{Cost: 9}]);
+    assert.deepEqual(mock.lastCall(p).data, {SearchId: 12});
+  });
+
+  it('should propagate API errors', async () => {
+    mock.onError(p, {Message: 'nope'});
+    assert.equal((await rejection(cw3.general.searchWOEntityCostSummary(1))).Message, 'nope');
+  });
 });

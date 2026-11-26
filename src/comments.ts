@@ -1,4 +1,5 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import ReversibleMap from 'reversible-map'
 import _ from 'lodash'
 
@@ -10,7 +11,7 @@ export class Comments {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * Storage of all potential activity types which comments can be attached to: Unknown, Request, WorkOrder, CaTask, CaObject, CaCorrection, Project, Contract
@@ -25,7 +26,7 @@ export class Comments {
   /**
    * @hidden
    */
-  constructor(cw: any, activityType: string) {
+  constructor(cw: CityworksClient, activityType: string) {
     this.cw = cw
     this.activityTypes = new ReversibleMap<string, number>()
     this.activityTypes.set("Unknown", 0)
@@ -106,7 +107,11 @@ export class Comments {
           } else {
             resolve(response.Value)
           }
+        }).catch(e => {
+          reject(e)
         })
+      } else {
+        reject(new CWError(2, 'At least one activity S/ID must be provided.', {'provided': sids}))
       }
     })
   }

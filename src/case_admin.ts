@@ -1,16 +1,17 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash'
 
 export class CaseAdmin {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * @hidden
    */
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 
@@ -108,7 +109,7 @@ export class CaseAdmin {
         CaseTypeId: caseTypeId
       }
       var data = _.merge(data_init, options)
-      this.cw.runRequest('Pll/CaseType/GetList', data).then(r => {
+      this.cw.runRequest('Pll/CaseType/Update', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -143,7 +144,8 @@ export class CaseAdmin {
   searchCaseTypeIDs(filters: Object) {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaseType', 'CaseTypeDesc', 'CaseTypeId']).length==0) {
-        reject(new CWError(2, 'At least one of the attributes (CaFeeId, CaObjectId, FeeCode, FeeDesc) must be defined.'))
+        reject(new CWError(2, 'At least one of the attributes (CaseType, CaseTypeDesc, CaseTypeId) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/CaseType/Search', data).then(r => {
@@ -165,6 +167,7 @@ export class CaseAdmin {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaseType', 'CaseTypeDesc', 'CaseTypeId']).length==0) {
         reject(new CWError(3, 'At least one of the attributes (CaseType, CaseTypeDesc, CaseTypeId) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/CaseType/SearchObject', data).then(r => {
@@ -265,6 +268,7 @@ export class CaseAdmin {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['AccountCode', 'FeeCode', 'FeeDesc', 'FeeSetupId', 'FeeTypeId']).length==0) {
         reject(new CWError(4, 'At least one of the attributes (AccountCode, FeeCode, FeeDesc, FeeSetupId, FeeTypeId) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/FeeSetup/Search', data).then(r => {
@@ -303,6 +307,7 @@ export class CaseAdmin {
     return new Promise((resolve, reject) => {
       if(!_.has(options, 'OrgId') || !_.has(options, 'ExpirationTypeDesc')) {
         reject(new CWError(5, 'OrgId and ExpirationTypeDesc must both be defined.'))
+        return
       }
       var data = options
       this.cw.runRequest('Pll/ExpirationType/Add', data).then(r => {
@@ -340,6 +345,7 @@ export class CaseAdmin {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['AccountCode', 'DepositCode', 'DepositDesc', 'DepositId', 'DepositTypeId']).length==0) {
         reject(new CWError(4, 'At least one of the attributes (AccountCode, DepositCode, DepositDesc, DepositId, DepositTypeId) must be defined.'))
+        return
       }
       var data = filters
       this.cw.runRequest('Pll/Deposit/Search', data).then(r => {
@@ -635,7 +641,7 @@ export class CaseAdmin {
         RoleCode: roleCode
       }
       var data = _.merge(options, data_init)
-      this.cw.runRequest('Pll/People/Add', data).then(r => {
+      this.cw.runRequest('Pll/PeopleRole/Add', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -692,7 +698,7 @@ export class CaseAdmin {
         ResultDetailId: resultDetailId
       }
       var data = _.merge(options, data_init)
-      this.cw.runRequest('Pll/TaskResultDetail/Add', data).then(r => {
+      this.cw.runRequest('Pll/TaskResultDetail/Update', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)

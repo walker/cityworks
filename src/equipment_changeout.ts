@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import type { CityworksClient } from './client'
 
 export interface EquipmentReadData {
   Id?: number;
@@ -62,9 +63,9 @@ export interface EquipmentChangeoutOperation {
 }
 
 export class EquipmentChangeout {
-  cw: any
+  cw: CityworksClient
 
-  constructor(cw) {
+  constructor(cw: CityworksClient) {
     this.cw = cw
   }
 

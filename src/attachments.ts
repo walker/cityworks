@@ -1,4 +1,5 @@
 import { CWError } from './error'
+import type { CityworksClient } from './client'
 import _ from 'lodash';
 
 
@@ -6,7 +7,7 @@ export class Attachments {
   /**
    * @hidden
    */
-  cw: any
+  cw: CityworksClient
 
   /**
    * Storage of object's active activityType
@@ -16,7 +17,7 @@ export class Attachments {
   /**
    * @hidden
    */
-  constructor(cw, current_type) {
+  constructor(cw: CityworksClient, current_type) {
     this.cw = cw
     this.currentActivityType = current_type;
   }
@@ -84,6 +85,7 @@ export class Attachments {
           break;
         default:
           reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+          return
       }
       this.cw.runRequest(endpoint, data, the_file).then(r => {
         resolve(r.Value)
@@ -137,6 +139,7 @@ export class Attachments {
           break;
         default:
           reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+          return
       }
       this.cw.runRequest(endpoint, data).then(r => {
         resolve(r.Value)
@@ -180,6 +183,7 @@ export class Attachments {
           break;
         default:
           reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+          return
       }
       this.cw.runRequest(endpoint, data).then(r => {
         resolve(r)
@@ -227,6 +231,7 @@ export class Attachments {
           break;
         default:
           reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+          return
       }
       this.cw.runRequest(endpoint, data).then(r => {
         resolve(r)
@@ -253,7 +258,7 @@ export class Attachments {
           // _.set(data, 'CaRelDocId', attachmentId)
           // endpoint = 'Pll/CaseRelDocs/ById'
           reject(new CWError(133, 'Get CaRelDoc by RelDocId not documented or found'))
-          break;
+          return
         case 'Inspection':
           _.set(data, 'AttachmentId', attachmentId)
           endpoint = 'Ams/Attachments/InspectionAttachmentById'
@@ -268,6 +273,7 @@ export class Attachments {
           break;
         default:
           reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+          return
       }
       this.cw.runRequest(endpoint, data).then(r => {
         resolve(r.Value)
@@ -337,6 +343,7 @@ export class Attachments {
           break;
         default:
           reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+          return
       }
       this.cw.runRequest(endpoint, data).then(r => {
         resolve(r.Value)
@@ -365,7 +372,10 @@ export class Attachments {
 
   private syncTags(attachmentId: number, tags: {tagid: number, tagtext: string}[]) {
     return new Promise((resolve, reject) => {
-      var data = {}
+      var data = {
+        AttachmentId: attachmentId,
+        Tags: tags
+      }
       switch(this.currentActivityType) {
         case 'Case':
           this.cw.runRequest('Pll/AttachmentActivityTags/SyncTags', data).then(r => {
@@ -373,13 +383,10 @@ export class Attachments {
           }).catch(e => {
             reject(e)
           })
-        }
-    })
-  }
-
-  private async loopSyncTags(attachmentId: number, tags: {tagid: number, tagtext: string}[], callback: Function) {
-    this.syncTags(attachmentId, tags).then(r => {
-      callback(r)
+          break;
+        default:
+          reject(new CWError(132, 'Tags can only be set on Case attachments.', {'provided': this.currentActivityType}))
+      }
     })
   }
 
@@ -405,19 +412,10 @@ export class Attachments {
    * @category Attachments
    * @param {Array<number>|number} attachmentIds - An array of attachment IDs to add tags to.
    * @param {Array<{tagid: number, tagtext: string}>} tags - An array of tag objects to add to the attachments
-   * @param {string} activityType - The type of activity to which the attachments belong
    * @return {Object} Returns Promise that represents a collection of documents which have had their tags set
    */
   setTagsOnMany(attachmentIds: number[], tags: {tagid: number, tagtext: string}[]) {
-    return new Promise((resolve, reject) => {
-      var returnData:Array<any> = []
-      attachmentIds.forEach((attachmentId) => {
-        this.loopSyncTags(attachmentId, tags, (r:any) => {
-          returnData.push(r)
-        })
-      })
-      resolve(returnData)
-    })
+    return Promise.all(attachmentIds.map(attachmentId => this.syncTags(attachmentId, tags)))
   }
 
   /**
