@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-28T13:20:43.575Z",
+  "generated": "2026-11-28T13:55:18.657Z",
   "endpoints": {
     "General/Authentication/Authenticate": [
       {
@@ -3525,9 +3525,9 @@
     ],
     "Ams/WorkOrder/Delete": [
       {
-        "signature": "WorkOrderIds",
+        "signature": "WorkOrderSids",
         "payload": {
-          "WorkOrderIds": [
+          "WorkOrderSids": [
             1
           ]
         },
@@ -3537,7 +3537,8 @@
         },
         "tests": [
           "[WorkOrder::combine/close/delete/...] Status handling function test should reject with a CWError when the response Status is non-zero",
-          "[WorkOrder] simple endpoint function tests delete([[1]]) should post {\"WorkOrderIds\":[1]} to Ams/WorkOrder/Delete and resolve the Value"
+          "[WorkOrder::delete] SID-based deletion should send numeric SIDs directly, never as displayed IDs",
+          "[WorkOrder::delete] SID-based deletion should resolve displayed string IDs to SIDs before deletion"
         ]
       }
     ],
@@ -3714,6 +3715,28 @@
         ]
       }
     ],
+    "Ams/WorkOrder/ByIds": [
+      {
+        "signature": "WorkOrderIds",
+        "payload": {
+          "WorkOrderIds": [
+            "105981"
+          ]
+        },
+        "expected": {
+          "type": "array",
+          "keys": [
+            "WorkOrderId",
+            "WorkOrderSid"
+          ]
+        },
+        "tests": [
+          "[WorkOrder::delete] SID-based deletion should resolve displayed string IDs to SIDs before deletion",
+          "[WorkOrder::delete] SID-based deletion should reject mixed IDs and incomplete or malformed ownership lookups without deleting",
+          "[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEntities function test should choose the endpoint and key from the type of the first id"
+        ]
+      }
+    ],
     "Ams/WorkOrder/Move": [
       {
         "signature": "WKID,WorkOrderId,X,Y",
@@ -3803,24 +3826,6 @@
           "[WorkOrder::getById] function test should use BySid for a numeric id",
           "[Inspection::create] function test should have an attached work order when specified",
           "[Inspection::create] function test should reject a missing or unresolvable work order before creating an inspection"
-        ]
-      }
-    ],
-    "Ams/WorkOrder/ByIds": [
-      {
-        "signature": "WorkOrderIds",
-        "payload": {
-          "WorkOrderIds": [
-            "A",
-            "B"
-          ]
-        },
-        "expected": {
-          "type": "array",
-          "keys": []
-        },
-        "tests": [
-          "[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEntities function test should choose the endpoint and key from the type of the first id"
         ]
       }
     ],
@@ -8873,11 +8878,14 @@
         "expected": {
           "type": "object",
           "keys": [
-            "AttachmentId"
+            "Id",
+            "RequestId"
           ]
         },
         "tests": [
-          "[Attachments] mocked function tests getById should call getById for request attachments"
+          "[Attachments] mocked function tests getById should call getById for request attachments",
+          "[Attachments] mocked function tests update should call update for request attachments",
+          "[Attachments] mocked function tests update should propagate API errors and reject unknown types"
         ]
       }
     ],
@@ -8889,10 +8897,15 @@
         },
         "expected": {
           "type": "object",
-          "keys": []
+          "keys": [
+            "Id",
+            "InspectionId"
+          ]
         },
         "tests": [
-          "[Attachments] mocked function tests getById should call the inspection and workorder endpoints"
+          "[Attachments] mocked function tests getById should call the inspection and workorder endpoints",
+          "[Attachments] mocked function tests update should call the inspection and workorder endpoints",
+          "[Attachments] mocked function tests update should reject missing or invalid inspection/workorder owners and metadata failures before updating"
         ]
       }
     ],
@@ -8904,25 +8917,33 @@
         },
         "expected": {
           "type": "object",
-          "keys": []
+          "keys": [
+            "Id",
+            "WorkOrderId",
+            "WorkOrderSid"
+          ]
         },
         "tests": [
-          "[Attachments] mocked function tests getById should call the inspection and workorder endpoints"
+          "[Attachments] mocked function tests getById should call the inspection and workorder endpoints",
+          "[Attachments] mocked function tests update should call the inspection and workorder endpoints",
+          "[Attachments] mocked function tests update should reject missing or invalid inspection/workorder owners and metadata failures before updating"
         ]
       }
     ],
     "Ams/Attachments/UpdateRequestAttachment": [
       {
-        "signature": "AttachmentId,Description,Title",
+        "signature": "AttachmentId,Description,RequestId,Title",
         "payload": {
           "Title": "Updated Title",
           "Description": "Updated Description",
-          "AttachmentId": 1
+          "AttachmentId": 1,
+          "RequestId": 5
         },
         "expected": {
           "type": "object",
           "keys": [
-            "AttachmentId",
+            "Id",
+            "RequestId",
             "Title"
           ]
         },
@@ -8933,14 +8954,19 @@
     ],
     "Ams/Attachments/UpdateInspectionAttachment": [
       {
-        "signature": "AttachmentId,Title",
+        "signature": "AttachmentId,InspectionId,Title",
         "payload": {
           "Title": "T",
-          "AttachmentId": 2
+          "AttachmentId": 2,
+          "InspectionId": 6
         },
         "expected": {
           "type": "object",
-          "keys": []
+          "keys": [
+            "Id",
+            "InspectionId",
+            "Title"
+          ]
         },
         "tests": [
           "[Attachments] mocked function tests update should call the inspection and workorder endpoints"
@@ -8949,14 +8975,20 @@
     ],
     "Ams/Attachments/UpdateWorkOrderAttachment": [
       {
-        "signature": "AttachmentId,Description",
+        "signature": "AttachmentId,Description,WorkOrderSid",
         "payload": {
           "Description": "D",
-          "AttachmentId": 3
+          "AttachmentId": 3,
+          "WorkOrderSid": 7
         },
         "expected": {
           "type": "object",
-          "keys": []
+          "keys": [
+            "Description",
+            "Id",
+            "WorkOrderId",
+            "WorkOrderSid"
+          ]
         },
         "tests": [
           "[Attachments] mocked function tests update should call the inspection and workorder endpoints"

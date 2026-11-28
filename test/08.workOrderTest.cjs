@@ -178,6 +178,48 @@ describe('[WorkOrder::combine/close/delete/...] Status handling function test', 
   });
 });
 
+describe('[WorkOrder::delete] SID-based deletion', () => {
+  const mock = createMock(cw8.Cityworks);
+
+  it('should send numeric SIDs directly, never as displayed IDs', async () => {
+    mock.on('Ams/WorkOrder/Delete', [105879]);
+    assert.deepEqual(await cw8.workorder.delete([105879]), [105879]);
+    assert.deepEqual(mock.lastCall('Ams/WorkOrder/Delete').data, {WorkOrderSids: [105879]});
+    assert.deepEqual(mock.paths(), ['Ams/WorkOrder/Delete']);
+  });
+
+  it('should resolve displayed string IDs to SIDs before deletion', async () => {
+    mock.on('Ams/WorkOrder/ByIds', [{WorkOrderId: '105981', WorkOrderSid: 105879}]);
+    mock.on('Ams/WorkOrder/Delete', [105879]);
+    assert.deepEqual(await cw8.workorder.delete(['105981']), [105879]);
+    assert.deepEqual(mock.lastCall('Ams/WorkOrder/ByIds').data, {WorkOrderIds: ['105981']});
+    assert.deepEqual(mock.lastCall('Ams/WorkOrder/Delete').data, {WorkOrderSids: [105879]});
+  });
+
+  it('should reject mixed IDs and incomplete or malformed ownership lookups without deleting', async () => {
+    assert.equal((await rejection(cw8.workorder.delete(['105981', 105879]))).category, 'validation');
+    assert.deepEqual(mock.calls, []);
+    for(const result of [null, [], [{WorkOrderId: 'other', WorkOrderSid: 105879}],
+      [{WorkOrderId: '105981', WorkOrderSid: '105879'}],
+      [{WorkOrderId: '105981', WorkOrderSid: 0}]]) {
+      mock.on('Ams/WorkOrder/ByIds', result);
+      const error = await rejection(cw8.workorder.delete(['105981']));
+      assert.equal(error.Code, 14);
+      assert.equal(error.category, 'response');
+      assert.lengthOf(mock.callsTo('Ams/WorkOrder/Delete'), 0);
+    }
+    mock.on('Ams/WorkOrder/ByIds', [{WorkOrderId: '105981', WorkOrderSid: 105879}]);
+    assert.equal((await rejection(cw8.workorder.delete(['105981', 'missing']))).Code, 14);
+    assert.lengthOf(mock.callsTo('Ams/WorkOrder/Delete'), 0);
+  });
+
+  it('should propagate lookup errors without deleting', async () => {
+    mock.onError('Ams/WorkOrder/ByIds', {Message: 'lookup denied'});
+    assert.equal((await rejection(cw8.workorder.delete(['105981']))).Message, 'lookup denied');
+    assert.lengthOf(mock.callsTo('Ams/WorkOrder/Delete'), 0);
+  });
+});
+
 describe('[WorkOrder::move] function test', () => {
   const mock = createMock(cw8.Cityworks);
 
@@ -345,7 +387,7 @@ describe('[WorkOrder] simple endpoint function tests', () => {
     ['uncancel', [[1]], 'Ams/WorkOrder/Uncancel', {WorkOrderIds: [1]}],
     ['close', [[1]], 'Ams/WorkOrder/Close', {WorkOrderIds: [1]}],
     ['reopen', [[1]], 'Ams/WorkOrder/ReOpen', {WorkOrderIds: [1]}],
-    ['delete', [[1]], 'Ams/WorkOrder/Delete', {WorkOrderIds: [1]}],
+    ['delete', [[1]], 'Ams/WorkOrder/Delete', {WorkOrderSids: [1]}],
     ['getSearchList', ['WO-1'], 'Ams/WorkOrder/SearchObject', {WorkOrderId: 'WO-1'}],
     ['getStatuses', [], 'Ams/WorkOrder/Statuses', {}],
     ['getCategories', [], 'Ams/WorkOrder/Categories', {}],

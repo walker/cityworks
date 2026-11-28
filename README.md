@@ -170,6 +170,10 @@ For any object in Cityworks which has attachments, (including cases as CaRelDocs
 
 Multipart uploads use the same authentication token as other requests and reject Cityworks error statuses. AMS attachment uploads return a record with `Id`; case uploads return an array of related documents with `ReldocsId`. Case `attachments.download(id)` requests the original file; pass `true` as the second argument to request its thumbnail.
 
+AMS attachment updates resolve the owning `RequestId`, `InspectionId`, or `WorkOrderSid` through attachment metadata before sending the update; the live API requires the parent identifier. Existing `attachments.update(attachmentId, title, description)` calls do not change.
+
+Work-order deletion sends `WorkOrderSids`: pass numeric SIDs directly, or displayed IDs as strings to resolve them to SIDs first. Mixed numeric/string arrays and unresolved displayed IDs are rejected before deletion. The live API silently ignores `WorkOrderIds` on this endpoint.
+
 ## Build and tests
 
 `npm run build` produces Node.js CommonJS and ES module bundles. The package does not provide a browser UMD bundle.
@@ -197,6 +201,30 @@ To verify multipart attachment uploads, designate records and explicitly enable 
 This uploads a uniquely labelled text file to each designated record, checks listing and download contents, and prints the created attachment IDs. Attachments are retained; only the temporary local file is removed. Omit record types you do not want to test.
 
 To recheck an existing test upload without creating more attachments, set `CW_LIVE_ATTACHMENT_FILENAME` to the printed test filename instead of enabling writes.
+
+For service-request writes, explicitly enable a scratch-request run:
+
+    CW_LIVE_REQUEST_WRITE=1 CW_LIVE_REQUEST_SOURCE_ID=123 CW_LIVE_REQUEST_ALTERNATE_PROBLEM=309 CW_LIVE_REQUEST_ALTERNATE_CATEGORY=10 CW_LIVE_REQUEST_CLOSE_PROBLEM=347 npm run test:live:requests
+
+The source request is read only. Supply an active alternate problem in the same domain, a different valid custom-field category, and an active close-test problem without incomplete required fields. The suite creates labelled scratch requests and verifies core writes, caller matching and movement, comments, and attachment writes by reading back persisted data. Closure temporarily uses the close-test problem, then restores the original problem and category. The main request and its test records are retained; deletion tests use disposable records. Permission-denied request deletion is explicitly reported as blocked.
+
+Set `CW_LIVE_REQUEST_ID` to reuse a labelled scratch request. Targeted retries can also specify `CW_LIVE_CALL_ID`, `CW_LIVE_ATTACHMENT_ID`, and `CW_LIVE_REQUEST_DISPOSABLE_ID`; ownership and scratch labels are checked before use. Costs and saved-search writes are not included.
+
+For inspection and work-order writes, explicitly enable a scratch-activity run:
+
+    CW_LIVE_ACTIVITY_WRITE=1 CW_LIVE_INSPECTION_SOURCE_ID=161455 CW_LIVE_WORKORDER_SOURCE_SID=105879 CW_LIVE_INSPECTION_TEMPLATE_ID=11 CW_LIVE_WORKORDER_TEMPLATE_ID=56 npm run test:live:activities
+
+Source records stay read only. Select live templates for the source inspection's entity type and each source's domain, with creation rights and no asset required for closure. The values above are staging fixtures, not portable defaults. The suite verifies create, editable-field update, projected movement, cancel/uncancel, close/reopen, attachment upload/update/download/delete, and private work-order comment add/update through persisted readbacks. Work-order `Description` is template-derived on the verified API; the update test uses editable `Resolution` instead.
+
+Work orders default to the source inspection's entity type. Set `CW_LIVE_WORKORDER_ENTITY_TYPE` when the selected work-order template supports a different type; it is validated against the live template list. For a targeted staging close/reopen check using template 279:
+
+    CW_LIVE_ACTIVITY_WRITE=1 CW_LIVE_INSPECTION_SOURCE_ID=161455 CW_LIVE_WORKORDER_SOURCE_SID=105879 CW_LIVE_INSPECTION_TEMPLATE_ID=11 CW_LIVE_WORKORDER_TEMPLATE_ID=279 CW_LIVE_WORKORDER_ENTITY_TYPE='PROPOSED SPEED CONTROLS' npm run test:live:activities -- --grep 'workorder.*closes and reopens'
+
+This creates a new retained scratch work order unless `CW_LIVE_WORKORDER_SID` identifies a labelled, open scratch record using the selected template. It does not change an existing work order's template.
+
+Main scratch records, comments, and attachments are retained without automatic cleanup. Explicit record-deletion tests use separate labelled disposable records. Permission-denied deletion is reported as blocked; work-order closure and consequent reopening are reported as blocked when live validation requires completed tasks or required custom fields. A pending test is not a successful write verification.
+
+Use `CW_LIVE_INSPECTION_ID` and `CW_LIVE_WORKORDER_SID` to reuse labelled main scratch records. Retries can also set `CW_LIVE_INSPECTION_DISPOSABLE_ID`, `CW_LIVE_WORKORDER_DISPOSABLE_SID`, `CW_LIVE_INSPECTION_ATTACHMENT_ID`, `CW_LIVE_WORKORDER_ATTACHMENT_ID`, and `CW_LIVE_WORKORDER_COMMENT_ID`; scratch labels and ownership are checked before writing. Work orders use SIDs where supported; move/cancel/uncancel/close/reopen use the displayed ID resolved from the scratch record. Costs, saved searches, admin configuration changes, asset writes, tasks, and work-order combination are excluded.
 
 For populated, read-only case checks (including case data, assets, people, flags, workflow and templates), designate a readable case:
 

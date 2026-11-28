@@ -610,15 +610,31 @@ export class WorkOrder {
    * Delete WorkOrders
    *
    * @category WorkOrders
-   * @param {Array<string|number>} workOrderIds - An array of the IDs to delete the matched WorkOrders
+   * @param {Array<string|number>} workOrderIds - Numeric SIDs or displayed string IDs to delete. String IDs are resolved to SIDs first; do not mix the two.
    * @return {Object} Returns object that represents a collection of WorkOrder Ids which have been deleted
    */
    delete(workOrderIds: Array<string|number>) {
      return new Promise((resolve, reject) => {
-       var data = {
-         WorkOrderIds: workOrderIds
+       const resolveSids = () => {
+         if(workOrderIds.every(id => typeof id === 'number')) return Promise.resolve(workOrderIds)
+         if(!workOrderIds.every(id => typeof id === 'string')) {
+           return Promise.reject(CWError.validation(9, 'Do not mix WorkOrderIds and WorkOrderSids.', {workOrderIds}))
+         }
+         return this.getByIds(workOrderIds).then(records => {
+           if(!Array.isArray(records)) {
+             throw new CWError(14, 'Could not resolve WorkOrderSids for all provided WorkOrderIds.', {workOrderIds}, {category: 'response'})
+           }
+           return workOrderIds.map(id => {
+             const record: unknown = records.find(record => _.get(record, 'WorkOrderId') === id)
+             const sid: unknown = _.get(record, 'WorkOrderSid')
+             if(typeof sid !== 'number' || !Number.isSafeInteger(sid) || sid <= 0) {
+               throw new CWError(14, 'Could not resolve WorkOrderSids for all provided WorkOrderIds.', {workOrderIds}, {category: 'response'})
+             }
+             return sid
+           })
+         })
        }
-       this.cw.runRequest('Ams/WorkOrder/Delete', data).then(r => {
+       resolveSids().then(sids => this.cw.runRequest('Ams/WorkOrder/Delete', {WorkOrderSids: sids})).then(r => {
          if(r.Status>0) {
            reject(new CWError(4, r.Message, {'response': r}, {category: 'api'}))
          } else {

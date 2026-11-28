@@ -96,10 +96,10 @@ export class Attachments {
   }
 
   /**
-   * Update attachment
+   * Update attachment. AMS updates resolve the owning parent from attachment metadata.
    *
    * @category Attachments
-   * @param {number} id - The ID of the node to add the attachment to (CA_OBJECT_ID, REQUESTID, WORKORDERSID, WORKORDERID, INSPECTIONID). If WORKORDERID, you _must_ feed in as a string.
+   * @param {number} attachment_id - Attachment record ID, not the parent activity ID.
    * @param {string} [title] - The filename for the attachment
    * @param {string} [description] - The filename for the attachment
    * @param {string} [label] - The label to apply to the  (PLL only)
@@ -141,11 +141,23 @@ export class Attachments {
           reject(CWError.validation(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
           return
       }
-      this.cw.runRequest(endpoint, data).then(r => {
+      const send = () => this.cw.runRequest(endpoint, data).then(r => {
         resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
+      }).catch(reject)
+      if(this.currentActivityType !== 'Case') {
+        const parentKey = this.currentActivityType === 'Request' ? 'RequestId'
+          : this.currentActivityType === 'Inspection' ? 'InspectionId' : 'WorkOrderSid'
+        this.getById(attachment_id).then(metadata => {
+          const parentId: unknown = _.get(metadata, parentKey)
+          if(typeof parentId !== 'number' || !Number.isSafeInteger(parentId) || parentId <= 0) {
+            throw new CWError(134, this.currentActivityType + ' attachment metadata does not contain a valid ' + parentKey + '.', {AttachmentId: attachment_id}, {category: 'response'})
+          }
+          _.set(data, parentKey, parentId)
+          return send()
+        }).catch(reject)
+      } else {
+        send()
+      }
     })
   }
 

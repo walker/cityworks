@@ -162,15 +162,15 @@ describe('[Attachments] mocked function tests', () => {
 
   describe('getById', () => {
     it('should call getById for request attachments', async () => {
-      mock.on('Ams/Attachments/RequestAttachmentById', () => ({AttachmentId: 1}));
+      mock.on('Ams/Attachments/RequestAttachmentById', () => ({Id: 1, RequestId: 5}));
       const r = await cw24.request.attachments.getById(1);
-      assert.deepEqual(r, {AttachmentId: 1});
+      assert.deepEqual(r, {Id: 1, RequestId: 5});
       assert.deepEqual(mock.lastCall('Ams/Attachments/RequestAttachmentById').data, {AttachmentId: 1});
     });
 
     it('should call the inspection and workorder endpoints', async () => {
-      mock.on('Ams/Attachments/InspectionAttachmentById', () => ({}));
-      mock.on('Ams/Attachments/WorkOrderAttachmentById', () => ({}));
+      mock.on('Ams/Attachments/InspectionAttachmentById', {Id: 2, InspectionId: 6});
+      mock.on('Ams/Attachments/WorkOrderAttachmentById', {Id: 3, WorkOrderSid: 7, WorkOrderId: 'WO-99'});
       await cw24.inspection.attachments.getById(2);
       await cw24.workorder.attachments.getById(3);
       assert.deepEqual(mock.lastCall('Ams/Attachments/InspectionAttachmentById').data, {AttachmentId: 2});
@@ -191,19 +191,22 @@ describe('[Attachments] mocked function tests', () => {
 
   describe('update', () => {
     it('should call update for request attachments', async () => {
-      mock.on('Ams/Attachments/UpdateRequestAttachment', () => ({AttachmentId: 1, Title: 'Updated Title'}));
+      mock.on('Ams/Attachments/RequestAttachmentById', {Id: 1, RequestId: 5});
+      mock.on('Ams/Attachments/UpdateRequestAttachment', () => ({Id: 1, RequestId: 5, Title: 'Updated Title'}));
       const r = await cw24.request.attachments.update(1, 'Updated Title', 'Updated Description');
       assert.equal(r.Title, 'Updated Title');
-      assert.deepEqual(mock.lastCall('Ams/Attachments/UpdateRequestAttachment').data, {Title: 'Updated Title', Description: 'Updated Description', AttachmentId: 1});
+      assert.deepEqual(mock.lastCall('Ams/Attachments/UpdateRequestAttachment').data, {Title: 'Updated Title', Description: 'Updated Description', AttachmentId: 1, RequestId: 5});
     });
 
     it('should call the inspection and workorder endpoints', async () => {
-      mock.on('Ams/Attachments/UpdateInspectionAttachment', () => ({}));
-      mock.on('Ams/Attachments/UpdateWorkOrderAttachment', () => ({}));
+      mock.on('Ams/Attachments/InspectionAttachmentById', {Id: 2, InspectionId: 6});
+      mock.on('Ams/Attachments/WorkOrderAttachmentById', {Id: 3, WorkOrderSid: 7, WorkOrderId: 'WO-99'});
+      mock.on('Ams/Attachments/UpdateInspectionAttachment', {Id: 2, InspectionId: 6, Title: 'T'});
+      mock.on('Ams/Attachments/UpdateWorkOrderAttachment', {Id: 3, WorkOrderSid: 7, WorkOrderId: 'WO-99', Description: 'D'});
       await cw24.inspection.attachments.update(2, 'T');
       await cw24.workorder.attachments.update(3, undefined, 'D');
-      assert.deepEqual(mock.lastCall('Ams/Attachments/UpdateInspectionAttachment').data, {Title: 'T', AttachmentId: 2});
-      assert.deepEqual(mock.lastCall('Ams/Attachments/UpdateWorkOrderAttachment').data, {Description: 'D', AttachmentId: 3});
+      assert.deepEqual(mock.lastCall('Ams/Attachments/UpdateInspectionAttachment').data, {Title: 'T', AttachmentId: 2, InspectionId: 6});
+      assert.deepEqual(mock.lastCall('Ams/Attachments/UpdateWorkOrderAttachment').data, {Description: 'D', AttachmentId: 3, WorkOrderSid: 7});
     });
 
     it('should use CaRelDocId and LabelText for case attachments', async () => {
@@ -213,11 +216,37 @@ describe('[Attachments] mocked function tests', () => {
     });
 
     it('should propagate API errors and reject unknown types', async () => {
+      mock.on('Ams/Attachments/RequestAttachmentById', {Id: 1, RequestId: 5});
       mock.onError('Ams/Attachments/UpdateRequestAttachment', {Message: 'nope'});
       const e = await expectReject(cw24.request.attachments.update(1, 'T'));
       assert.equal(e.Message, 'nope');
       const e2 = await expectReject(unknownType().update(1, 'T'));
       assert.equal(e2.Code, 132);
+    });
+
+    it('should not update when the request attachment owner cannot be resolved', async () => {
+      mock.on('Ams/Attachments/RequestAttachmentById', {Id: 1});
+      const e = await expectReject(cw24.request.attachments.update(1, 'T'));
+      assert.equal(e.Code, 134);
+      assert.equal(e.category, 'response');
+      assert.lengthOf(mock.callsTo('Ams/Attachments/UpdateRequestAttachment'), 0);
+    });
+
+    it('should reject missing or invalid inspection/workorder owners and metadata failures before updating', async () => {
+      for(const [activity, type, key] of [['inspection', 'Inspection', 'InspectionId'], ['workorder', 'WorkOrder', 'WorkOrderSid']]) {
+        const lookup = 'Ams/Attachments/' + type + 'AttachmentById';
+        const update = 'Ams/Attachments/Update' + type + 'Attachment';
+        for(const owner of [undefined, null, '7', 0, -1, 1.5]) {
+          mock.on(lookup, {Id: 1, [key]: owner});
+          const error = await expectReject(cw24[activity].attachments.update(1, 'T'));
+          assert.equal(error.Code, 134);
+          assert.equal(error.category, 'response');
+          assert.lengthOf(mock.callsTo(update), 0);
+        }
+        mock.onError(lookup, {Message: 'metadata unavailable'});
+        assert.equal((await expectReject(cw24[activity].attachments.update(1, 'T'))).Message, 'metadata unavailable');
+        assert.lengthOf(mock.callsTo(update), 0);
+      }
     });
   });
 
