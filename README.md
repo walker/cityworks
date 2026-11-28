@@ -45,6 +45,17 @@ The package exports `CWError`, which extends `Error`. Existing `Name`, `Code`, `
 
 ## Main method calls
 
+For custom endpoints, TypeScript callers can opt into `Cityworks.runRequest<T>(path, data)`, where `T` is the response's `Value` type. Its result is `CityworksResponse<T> | true | string`: an API envelope, `true` for a successful response without `Value`, or a download string. Narrow the result before accessing `Value`:
+
+```typescript
+const result = await cw.Cityworks.runRequest<{RequestId: number}>('Ams/ServiceRequest/ById', {RequestId: 123})
+if(typeof result === 'object' && result.Value) {
+  console.log(result.Value.RequestId)
+}
+```
+
+Calls without a type argument retain their legacy untyped return for compatibility. JSON responses are checked for an object envelope with an integer `Status` and an optional string or null `Message`; malformed envelopes reject with `CWError`. The supplied `T` describes `Value` but does not validate it at runtime.
+
 Access the primary AMS ([Inspection](https://walker.github.io/cityworks/classes/inspection.Inspection.html), [WorkOrder](https://walker.github.io/cityworks/classes/workorder.WorkOrder.html), & [Service Request](https://walker.github.io/cityworks/classes/request.Request.html)) & [PLL](https://walker.github.io/cityworks/classes/case.Briefcase.html) object libraries like so:
 
       cw.inspection.methodHere().then(resp => {})
@@ -149,14 +160,15 @@ You can also pass customer call data straight through `request.create` and `requ
 
 For any object in Cityworks which has attachments, (including cases as CaRelDocs), use the [Attachments class](https://walker.github.io/cityworks/modules/attachments.html) via the class the attachment is to be made on:
 
-      cw.briefcase.attachment.add(CaObjectIdGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
+      cw.briefcase.attachments.add(CaObjectIdGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
 
-      cw.workorder.attachment.add(WorkOrderSIDGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
+      cw.workorder.attachments.add(WorkOrderSIDGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
 
-      cw.request.attachment.add(RequestIDGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
+      cw.request.attachments.add(RequestIDGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
 
-      cw.inspection.attachment.add(InspectionIDGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
+      cw.inspection.attachments.add(InspectionIDGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
 
+Multipart uploads use the same authentication token as other requests and reject Cityworks error statuses. AMS attachment uploads return a record with `Id`; case uploads return an array of related documents with `ReldocsId`. Case `attachments.download(id)` requests the original file; pass `true` as the second argument to request its thumbnail.
 
 ## Build and tests
 
@@ -177,6 +189,14 @@ To check comments end to end (service requests, work orders, cases) through the 
     CW_LIVE_COMMENTS='{"request":123,"workorder":456,"case":789}' npm run test:live:comments
 
 Reading comments is always safe. Add `CW_LIVE_COMMENT_WRITE=1` to also add and edit a labelled comment on each designated record (comments can't be deleted through the wrapper, so use scratch records). Inspections don't support comments in the wrapper yet; the check reports that.
+
+To verify multipart attachment uploads, designate records and explicitly enable writes:
+
+    CW_LIVE_ATTACHMENTS='{"request":123,"workorder":456,"inspection":789,"case":101}' CW_LIVE_ATTACHMENT_WRITE=1 npm run test:live:attachments
+
+This uploads a uniquely labelled text file to each designated record, checks listing and download contents, and prints the created attachment IDs. Attachments are retained; only the temporary local file is removed. Omit record types you do not want to test.
+
+To recheck an existing test upload without creating more attachments, set `CW_LIVE_ATTACHMENT_FILENAME` to the printed test filename instead of enabling writes.
 
 For populated, read-only case checks (including case data, assets, people, flags, workflow and templates), designate a readable case:
 

@@ -32,6 +32,8 @@ import { Contractor } from './contractor'
 import { RecentActivity } from './recent_activity'
 import { GeneralAdmin } from './general_admin'
 import { AuditLogs } from './audit_logs'
+import type { CityworksResponse, CityworksRequestResult } from './client'
+import { isCityworksResponse } from './client'
 
 import * as https from 'https'
 import * as querystring from 'querystring'
@@ -41,14 +43,18 @@ import * as fs from 'fs'
 import * as path from 'path'
 import axios from 'axios'
 
-interface postData {
+type postData = {
   data?: string
   token?: string
-  file?: any
-  [key: string]: any
 }
 
 interface Citywork {
+}
+
+function apiResponseError(response: CityworksResponse, servicePath: string, statusCode?: number): CWError | undefined {
+  if(response.Status !== 1 && response.Status !== 2 && response.Status !== 3) return undefined
+  const messages = {1: 'Error', 2: 'Unauthorized', 3: 'InvalidCredentials'}
+  return new CWError(response.Status, messages[response.Status], response, {category: 'api', servicePath, statusCode})
 }
 
 /**
@@ -184,13 +190,15 @@ class Cityworks implements Citywork {
      * `cityworks.runRequest(service_path, post_data)`
      *
      * @param {string} service_path - The path to the particular endpoint
-     * @param {any} post_data - The data object to be sent to the Cityworks API
+     * @param {unknown} post_data - The data object to be sent to the Cityworks API
      * @param {string} post_file - The path of the file to send to the Cityworks API
      * @return {Object} Returns Promise object that represents the json object returned from the Cityworks API
      */
-  runRequest(service_path: string, post_data?: any, post_file?: string) {
-    return new Promise((resolve, reject) => {
-      let pd = {} as postData
+  runRequest(service_path: string, post_data?: unknown, post_file?: string): Promise<any>
+  runRequest<T>(service_path: string, post_data?: unknown, post_file?: string): Promise<CityworksRequestResult<T>>
+  runRequest(service_path: string, post_data?: unknown, post_file?: string): Promise<CityworksRequestResult> {
+    return new Promise<CityworksRequestResult>((resolve, reject) => {
+      let pd: postData = {}
       var file_name = ''
       var file_type = ''
 
@@ -200,11 +208,6 @@ class Cityworks implements Citywork {
 
       if(this.settings.version<23 && typeof(this.Token) !== 'undefined' && this.Token != '' && service_path!='General/Authentication/CityworksOnlineAuthenticate' && service_path!='General/Authentication/Authenticate') {
         pd.token = this.Token
-      }
-
-      let obj: {
-        Status: number,
-        Message: string
       }
 
       let options = {
@@ -239,10 +242,20 @@ class Cityworks implements Citywork {
         const formData = new FormData()
         formData.append('data', JSON.stringify(post_data))
         formData.append('file', fs.createReadStream(post_file))
-        axios.post(cw_url, formData, {
-          headers: formData.getHeaders()
+        axios.post<unknown>(cw_url, formData, {
+          headers: formData.getHeaders(options.headers)
         }).then((r) => {
-          resolve(r.data)
+          if(isCityworksResponse(r.data)) {
+            const error = apiResponseError(r.data, service_path, r.status)
+            if(error) reject(error)
+            else resolve(r.data)
+          } else if(r.data === true || typeof r.data === 'string') {
+            resolve(r.data)
+          } else {
+            reject(new CWError(7, 'Invalid response from Cityworks API.', {response: r.data, statusCode: r.status}, {
+              category: 'response', servicePath: service_path, statusCode: r.status
+            }))
+          }
         }).catch((e) => {
           reject(new CWError(17, 'Error sending the file to the Cityworks API.', e, {
             category: axios.isAxiosError(e) ? (e.response ? 'http' : e.request ? 'network' : 'unknown') : 'unknown',
@@ -298,7 +311,7 @@ class Cityworks implements Citywork {
                 reject(new CWError(5, "Error parsing JSON. Cityworks returned HTML.", {response: str, statusCode: response.statusCode}, responseErrorOptions))
                 return
               }
-              let obj
+              let obj: unknown
               try {
                 obj = JSON.parse(str)
               } catch (e) {
@@ -309,27 +322,13 @@ class Cityworks implements Citywork {
                 reject(new CWError(10, 'No response received from Cityworks API.', undefined, responseErrorOptions))
               } else if(obj === null) {
                 reject(new CWError(7, "Error parsing JSON.", {error: 'Cityworks returned null', response: str, statusCode: response.statusCode}, responseErrorOptions))
+              } else if(!isCityworksResponse(obj)) {
+                reject(new CWError(7, 'Invalid response from Cityworks API.', {response: str, statusCode: response.statusCode}, responseErrorOptions))
               } else {
-                const apiErrorOptions = {category: 'api' as const, servicePath: service_path, statusCode: response.statusCode}
-                switch(obj.Status) {
-                  case 1:
-                    reject(new CWError(1, 'Error', obj, apiErrorOptions))
-                    break;
-                  case 2:
-                    reject(new CWError(2, 'Unauthorized', obj, apiErrorOptions))
-                    break;
-                  case 3:
-                    reject(new CWError(3, 'InvalidCredentials', obj, apiErrorOptions))
-                    break;
-                  case 0:
-                  default:
-                    if(typeof(obj.Value)=='undefined' && obj.Status==0) {
-                      resolve(true);
-                    } else {
-                      resolve(obj);
-                    }
-                    break;
-                }
+                const error = apiResponseError(obj, service_path, response.statusCode)
+                if(error) reject(error)
+                else if(typeof(obj.Value)=='undefined' && obj.Status==0) resolve(true)
+                else resolve(obj)
               }
             }
           })
@@ -879,3 +878,4 @@ Object.defineProperty(cw, 'contractor', {get: () => contractor, configurable: tr
 
 export { CWError, cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report, employee, equipment, contractor, recent_activity, general_admin }
 export type { CWErrorCategory, CWErrorOptions, CWErrorMsgs, CWErrorInt } from './error'
+export type { CityworksResponse, CityworksRequestResult, CityworksClient } from './client'

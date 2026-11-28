@@ -534,9 +534,10 @@ describe('[Request::attachments] mocked function test', () => {
   });
 
   it('should add a request attachment, sending the file and payload', async () => {
-    mock.on('Ams/Attachments/AddRequestAttachment', {Id: 3, Attachment: {Filename: 'test.pdf'}});
+    mock.on('Ams/Attachments/AddRequestAttachment', {Id: 3, RequestId: 5, Attachment: 'test.pdf'});
     const r = await cw4.request.attachments.add(5, file, 'test.pdf');
-    assert.isDefined(r.Attachment);
+    assert.equal(r.Id, 3);
+    assert.equal(r.Attachment, 'test.pdf');
     const call = mock.lastCall('Ams/Attachments/AddRequestAttachment');
     assert.deepEqual(call.data, {Filename: 'test.pdf', RequestId: 5});
     assert.equal(call.file, file);

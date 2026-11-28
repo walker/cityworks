@@ -205,9 +205,10 @@ export class Attachments {
    *
    * @category Attachments
    * @param {number} attachmentId - ID of an attachment to download
+   * @param {boolean} [thumbnail] - For case attachments, return the thumbnail instead of the original file. Defaults to false.
    * @return {Object} Returns object that represents a file stream
    */
-  download(attachmentId: number) {
+  download(attachmentId: number, thumbnail: boolean = false) {
     return new Promise((resolve, reject) => {
       var data = {}
       var endpoint = ''
@@ -215,6 +216,7 @@ export class Attachments {
       switch(this.currentActivityType) {
         case 'Case':
           _.set(data, 'CaRelDocsId', attachmentId)
+          _.set(data, 'Thumbnail', thumbnail)
           endpoint = Attachments.downloadUrls()['case']
           break;
         case 'Inspection':

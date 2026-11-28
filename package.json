@@ -25,6 +25,7 @@
     "contracts": "CW_RECORD_CONTRACTS=1 mocha -R dot --recursive ./test/",
     "test:live": "mocha -R spec ./live/liveContract.cjs",
     "test:live:comments": "mocha -R spec ./live/liveComments.cjs",
+    "test:live:attachments": "mocha -R spec ./live/liveAttachments.cjs",
     "test:live:case": "mocha -R spec ./live/liveCase.cjs",
     "test:live:query": "mocha -R spec ./live/liveQuery.cjs",
     "test:live:inspection-links": "mocha -R spec ./live/liveInspectionRelationships.cjs",

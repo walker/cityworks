@@ -228,6 +228,28 @@ describe('[Cityworks::runRequest] function test', () => {
     assert.deepEqual(e.Error_messages, [{Service: null}]);
   });
 
+  it('should reject JSON that is not a valid Cityworks response envelope', async () => {
+    for(const value of [false, true, 42, 'text', [], {}, {Status: '0'}, {Status: 0.5}, {Status: 0, Message: {text: 'invalid'}}]) {
+      respondWith(JSON.stringify(value));
+      const e = await rejection(new CW('cw.example.test').runRequest('Ams/Thing/Get', {}));
+      assert.instanceOf(e, cw1.CWError);
+      assert.equal(e.Code, 7);
+      assert.equal(e.category, 'response');
+      assert.equal(e.servicePath, 'Ams/Thing/Get');
+    }
+  });
+
+  it('should preserve null values, optional messages, and extra response fields', async () => {
+    const response = {Status: 0, Message: null, Value: null, Extra: {A: 1}};
+    respondWith(JSON.stringify(response));
+    assert.deepEqual(await new CW('cw.example.test').runRequest('Ams/Thing/Get', {}), response);
+  });
+
+  it('should preserve download responses as strings', async () => {
+    respondWith('report contents');
+    assert.equal(await new CW('cw.example.test').runRequest('Ams/Reports/DownloadSrReport', {}), 'report contents');
+  });
+
   it('should retain a network failure as the cause', async () => {
     const cause = new Error('connection failed');
     https.request = () => {
@@ -257,6 +279,69 @@ describe('[Cityworks::runRequest] function test', () => {
       assert.strictEqual(e.cause, test.cause);
       assert.equal(e.statusCode, test.status);
       assert.equal(e.servicePath, 'Ams/Thing/Upload');
+    }
+  });
+
+  it('should validate upload envelopes without changing supported upload results', async () => {
+    fs.createReadStream = () => Readable.from(['file']);
+    const cw = new CW('cw.example.test');
+    for(const data of [{Status: 0, Value: {Id: 1}}, true, 'uploaded']) {
+      axios.post = () => Promise.resolve({data, status: 200});
+      assert.deepEqual(await cw.runRequest('Ams/Thing/Upload', {}, 'file.txt'), data);
+    }
+    axios.post = () => Promise.resolve({data: {Status: '0'}, status: 200});
+    const e = await rejection(cw.runRequest('Ams/Thing/Upload', {}, 'file.txt'));
+    assert.equal(e.Code, 7);
+    assert.equal(e.category, 'response');
+    assert.equal(e.statusCode, 200);
+    assert.equal(e.servicePath, 'Ams/Thing/Upload');
+  });
+
+  it('should authenticate multipart uploads and serialize their metadata', async () => {
+    fs.createReadStream = () => Readable.from(['file']);
+    for(const version of [15, 23]) {
+      let seenUpload;
+      axios.post = (url, form, options) => {
+        seenUpload = {url, form, options};
+        return Promise.resolve({data: {Status: 0, Value: {AttachmentId: 1}}, status: 200});
+      };
+      const cw = new CW('cw.example.test', {path: 'cw', version});
+      cw.setToken('dummy');
+      await cw.runRequest('Ams/Attachments/AddRequestAttachment', {RequestId: 7}, 'file.txt');
+      assert.match(seenUpload.options.headers['content-type'], /^multipart\/form-data; boundary=/);
+      if(version >= 23) {
+        assert.equal(seenUpload.options.headers.authorization, 'cityworks dummy');
+        assert.notInclude(seenUpload.url, 'token=');
+      } else {
+        assert.include(seenUpload.url, '?token=dummy');
+        assert.isUndefined(seenUpload.options.headers.authorization);
+      }
+      const chunks = [];
+      await new Promise((resolve, reject) => {
+        seenUpload.form.on('data', chunk => chunks.push(Buffer.from(chunk)));
+        seenUpload.form.on('end', resolve);
+        seenUpload.form.on('error', reject);
+        seenUpload.form.resume();
+      });
+      const body = Buffer.concat(chunks).toString();
+      assert.include(body, 'name="data"');
+      assert.include(body, '{"RequestId":7}');
+      assert.include(body, 'name="file"');
+      assert.include(body, 'file');
+    }
+  });
+
+  it('should reject multipart API errors with their original category and message', async () => {
+    fs.createReadStream = () => Readable.from(['file']);
+    for(const status of [1, 2, 3]) {
+      axios.post = () => Promise.resolve({data: {Status: status, Message: 'Upload failed'}, status: 200});
+      const e = await rejection(new CW('cw.example.test').runRequest('Ams/Attachments/AddRequestAttachment', {}, 'file.txt'));
+      assert.instanceOf(e, cw1.CWError);
+      assert.equal(e.Code, status);
+      assert.equal(e.category, 'api');
+      assert.equal(e.Message, 'Upload failed');
+      assert.equal(e.servicePath, 'Ams/Attachments/AddRequestAttachment');
+      assert.equal(e.statusCode, 200);
     }
   });
 

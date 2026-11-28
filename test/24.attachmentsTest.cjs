@@ -103,18 +103,18 @@ describe('[Attachments] mocked function tests', () => {
 
   describe('add', () => {
     it('should add request attachment', async () => {
-      mock.on('Ams/Attachments/AddRequestAttachment', () => ({AttachmentId: 11}));
+      mock.on('Ams/Attachments/AddRequestAttachment', () => ({Id: 11}));
       const r = await cw24.request.attachments.add(500, TEST_FILE, 'test.pdf');
-      assert.deepEqual(r, {AttachmentId: 11});
+      assert.deepEqual(r, {Id: 11});
       const c = mock.lastCall('Ams/Attachments/AddRequestAttachment');
       assert.deepEqual(c.data, {Filename: 'test.pdf', RequestId: 500});
       assert.equal(c.file, TEST_FILE);
     });
 
     it('should add workorder attachment by workorder ID string', async () => {
-      mock.on('Ams/Attachments/AddWorkOrderAttachment', () => ({AttachmentId: 12}));
+      mock.on('Ams/Attachments/AddWorkOrderAttachment', () => ({Id: 12}));
       const r = await cw24.workorder.attachments.add('WO-100', TEST_FILE, 'test.pdf', 'attachment', 4, 'a comment');
-      assert.deepEqual(r, {AttachmentId: 12});
+      assert.deepEqual(r, {Id: 12});
       const c = mock.lastCall('Ams/Attachments/AddWorkOrderAttachment');
       assert.deepEqual(c.data, {Filename: 'test.pdf', Comments: 'a comment', WorkOrderId: 'WO-100', TaskId: 4, AttachmentType: 0});
       assert.equal(c.file, TEST_FILE);
@@ -127,17 +127,18 @@ describe('[Attachments] mocked function tests', () => {
     });
 
     it('should add inspection attachment with attachment type', async () => {
-      mock.on('Ams/Attachments/AddInspectionAttachment', () => ({AttachmentId: 13}));
+      mock.on('Ams/Attachments/AddInspectionAttachment', () => ({Id: 13}));
       const r = await cw24.inspection.attachments.add(144882, TEST_FILE, 'test.pdf', 'signature');
-      assert.deepEqual(r, {AttachmentId: 13});
+      assert.deepEqual(r, {Id: 13});
       const c = mock.lastCall('Ams/Attachments/AddInspectionAttachment');
       assert.deepEqual(c.data, {Filename: 'test.pdf', InspectionId: 144882, AttachmentType: 1});
       assert.equal(c.file, TEST_FILE);
     });
 
     it('should add case attachment with label text', async () => {
-      mock.on('Pll/CaseRelDocs/Add', () => ({CaRelDocId: 14}));
-      await cw24.briefcase.attachments.add(100, TEST_FILE, 'test.pdf', 'attachment', undefined, 'note', 'Label');
+      mock.on('Pll/CaseRelDocs/Add', () => ([{ReldocsId: 14, Name: 'test.pdf'}]));
+      const r = await cw24.briefcase.attachments.add(100, TEST_FILE, 'test.pdf', 'attachment', undefined, 'note', 'Label');
+      assert.deepEqual(r, [{ReldocsId: 14, Name: 'test.pdf'}]);
       assert.deepEqual(mock.lastCall('Pll/CaseRelDocs/Add').data, {Filename: 'test.pdf', Comments: 'note', LabelText: 'Label', CaObjectId: 100});
     });
 
@@ -268,9 +269,15 @@ describe('[Attachments] mocked function tests', () => {
       assert.equal(await cw24.briefcase.attachments.download(1), 'c');
       assert.equal(await cw24.inspection.attachments.download(2), 'i');
       assert.equal(await cw24.workorder.attachments.download(3), 'w');
-      assert.deepEqual(mock.lastCall('Pll/CaseRelDocs/DownloadCaRelDocs').data, {CaRelDocsId: 1});
+      assert.deepEqual(mock.lastCall('Pll/CaseRelDocs/DownloadCaRelDocs').data, {CaRelDocsId: 1, Thumbnail: false});
       assert.deepEqual(mock.lastCall('Ams/Attachments/DownloadInspectionAttachment').data, {AttachmentId: 2});
       assert.deepEqual(mock.lastCall('Ams/Attachments/DownloadWorkOrderAttachment').data, {AttachmentId: 3});
+    });
+
+    it('should allow explicit case thumbnail downloads', async () => {
+      mock.onRaw('Pll/CaseRelDocs/DownloadCaRelDocs', () => 'thumbnail');
+      assert.equal(await cw24.briefcase.attachments.download(1, true), 'thumbnail');
+      assert.deepEqual(mock.lastCall('Pll/CaseRelDocs/DownloadCaRelDocs').data, {CaRelDocsId: 1, Thumbnail: true});
     });
 
     it('should propagate API errors and reject unknown types', async () => {

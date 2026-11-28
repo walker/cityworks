@@ -393,17 +393,18 @@ describe('[Inspection::addAttachment] function test', () => {
   });
 
   it('should return an attachment if attached', async () => {
-    mock.on('Ams/Attachments/AddInspectionAttachment', (d) => ({Attachment: {AttachmentId: 1, InspectionId: d.InspectionId}}));
+    mock.on('Ams/Attachments/AddInspectionAttachment', (d) => ({Id: 1, InspectionId: d.InspectionId, Attachment: 'test.pdf'}));
     const r = await cw10.inspection.attachments.add(144882, PDF, 'test.pdf');
-    assert.isDefined(r.Attachment);
-    assert.equal(r.Attachment.InspectionId, 144882);
+    assert.equal(r.Id, 1);
+    assert.equal(r.Attachment, 'test.pdf');
+    assert.equal(r.InspectionId, 144882);
     const call = mock.lastCall('Ams/Attachments/AddInspectionAttachment');
     assert.deepEqual(call.data, {Filename: 'test.pdf', InspectionId: 144882, AttachmentType: 0});
     assert.equal(call.file, PDF);
   });
 
   it('should map the attachment type and pass comments', async () => {
-    mock.on('Ams/Attachments/AddInspectionAttachment', () => ({}));
+    mock.on('Ams/Attachments/AddInspectionAttachment', () => ({Id: 2}));
     await cw10.inspection.attachments.add(5, PDF, 'sig.pdf', 'signature', undefined, 'signed');
     assert.deepEqual(mock.lastCall('Ams/Attachments/AddInspectionAttachment').data, {Filename: 'sig.pdf', Comments: 'signed', InspectionId: 5, AttachmentType: 1});
   });

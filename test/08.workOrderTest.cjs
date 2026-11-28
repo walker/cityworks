@@ -456,7 +456,7 @@ describe('[WorkOrder::addAttachment] function test', () => {
   });
 
   it('should return an attachment if attached by workorderid string', async () => {
-    mock.on(p, (d) => ({WorkOrderId: d.WorkOrderId}));
+    mock.on(p, (d) => ({Id: 1, WorkOrderId: d.WorkOrderId}));
     const r = await cw8.workorder.attachments.add('100196', PDF, 'test.pdf');
     assert.equal(r.WorkOrderId, '100196');
     const call = mock.lastCall(p);
@@ -465,14 +465,14 @@ describe('[WorkOrder::addAttachment] function test', () => {
   });
 
   it('should return an attachment if attached by workordersid number', async () => {
-    mock.on(p, (d) => ({WorkOrderSid: d.WorkOrderSid}));
+    mock.on(p, (d) => ({Id: 2, WorkOrderSid: d.WorkOrderSid}));
     const r = await cw8.workorder.attachments.add(100196, PDF, 'test.pdf');
     assert.equal(r.WorkOrderSid, 100196);
     assert.deepEqual(mock.lastCall(p).data, {Filename: 'test.pdf', WorkOrderSid: 100196, AttachmentType: 0});
   });
 
   it('should pass the task id, comments and attachment type', async () => {
-    mock.on(p, () => ({}));
+    mock.on(p, () => ({Id: 3}));
     await cw8.workorder.attachments.add(5, PDF, 'sig.pdf', 'signature', 33, 'signed');
     assert.deepEqual(mock.lastCall(p).data, {Filename: 'sig.pdf', Comments: 'signed', WorkOrderSid: 5, TaskId: 33, AttachmentType: 1});
   });

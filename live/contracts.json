@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-28T05:02:59.116Z",
+  "generated": "2026-11-28T13:20:43.575Z",
   "endpoints": {
     "General/Authentication/Authenticate": [
       {
@@ -1475,7 +1475,8 @@
           "type": "object",
           "keys": [
             "Attachment",
-            "Id"
+            "Id",
+            "RequestId"
           ]
         },
         "tests": [
@@ -4346,6 +4347,7 @@
         "expected": {
           "type": "object",
           "keys": [
+            "Id",
             "WorkOrderId"
           ]
         },
@@ -4363,6 +4365,7 @@
         "expected": {
           "type": "object",
           "keys": [
+            "Id",
             "WorkOrderSid"
           ]
         },
@@ -4381,7 +4384,9 @@
         },
         "expected": {
           "type": "object",
-          "keys": []
+          "keys": [
+            "Id"
+          ]
         },
         "tests": [
           "[WorkOrder::addAttachment] function test should pass the task id, comments and attachment type"
@@ -5366,7 +5371,9 @@
         "expected": {
           "type": "object",
           "keys": [
-            "Attachment"
+            "Attachment",
+            "Id",
+            "InspectionId"
           ]
         },
         "tests": [
@@ -5384,7 +5391,9 @@
         },
         "expected": {
           "type": "object",
-          "keys": []
+          "keys": [
+            "Id"
+          ]
         },
         "tests": [
           "[Inspection::addAttachment] function test should map the attachment type and pass comments"
@@ -8844,9 +8853,10 @@
           "CaObjectId": 100
         },
         "expected": {
-          "type": "object",
+          "type": "array",
           "keys": [
-            "CaRelDocId"
+            "Name",
+            "ReldocsId"
           ]
         },
         "tests": [
@@ -9029,16 +9039,18 @@
     ],
     "Pll/CaseRelDocs/DownloadCaRelDocs": [
       {
-        "signature": "CaRelDocsId",
+        "signature": "CaRelDocsId,Thumbnail",
         "payload": {
-          "CaRelDocsId": 1
+          "CaRelDocsId": 1,
+          "Thumbnail": false
         },
         "expected": {
           "type": "string",
           "keys": []
         },
         "tests": [
-          "[Attachments] mocked function tests download should use the matching endpoint and id key per activity type"
+          "[Attachments] mocked function tests download should use the matching endpoint and id key per activity type",
+          "[Attachments] mocked function tests download should allow explicit case thumbnail downloads"
         ]
       }
     ],
