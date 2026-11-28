@@ -99,10 +99,10 @@ describe('[CasePeople] mocked function tests', () => {
   });
 
   describe('delete', () => {
-    it('should delete by CaPeopleId and resolve true', async () => {
-      mock.on('Pll/CasePeople/Delete', () => undefined);
+    it('should delete by CaPeopleId and return the deleted person', async () => {
+      mock.on('Pll/CasePeople/Delete', () => ({CaPeopleId: 1, CaObjectId: 100}));
       const r = await people().delete(1);
-      assert.isUndefined(r);
+      assert.deepEqual(r, {CaPeopleId: 1, CaObjectId: 100});
       assert.deepEqual(mock.lastCall('Pll/CasePeople/Delete').data, {CaPeopleId: 1});
     });
 

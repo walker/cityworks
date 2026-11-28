@@ -31,6 +31,42 @@ describe('[WorkOrder (construct)] function test', () => {
   });
 });
 
+describe('[WorkOrderAdmin::getTemplateActivity] function test', () => {
+  const mock = createMock(cw8.Cityworks);
+  const endpoint = 'Ams/Designer/WOTemplateActivityService';
+
+  it('should retrieve each template activity in input order', async () => {
+    mock.on(endpoint, d => ({ActivityId: d.WOTemplateId}));
+    assert.deepEqual(await cw8.workorder.admin.getTemplateActivity([18, 19]), [{ActivityId: 18}, {ActivityId: 19}]);
+    assert.deepEqual(mock.callsTo(endpoint).map(c => c.data), [{WOTemplateId: 18}, {WOTemplateId: 19}]);
+    assert.deepEqual(await cw8.workorder.admin.getTemplateActivity([]), []);
+    assert.lengthOf(mock.callsTo(endpoint), 2);
+  });
+
+  it('should propagate a failure from the API', async () => {
+    mock.onError(endpoint, {Code: 1, Message: 'activity failed'});
+    assert.equal((await rejection(cw8.workorder.admin.getTemplateActivity([18]))).Message, 'activity failed');
+  });
+});
+
+describe('[WorkOrderAdmin] entity types and group rights', () => {
+  const mock = createMock(cw8.Cityworks);
+
+  it('should retrieve entity types for the selected groups', async () => {
+    const types = [{Code: 'ASSET', Module: 'WATER'}];
+    mock.on('Ams/Entity/Types', types);
+    assert.deepEqual(await cw8.workorder.admin.getEntityTypes(['WATER']), types);
+    assert.deepEqual(mock.lastCall('Ams/Entity/Types').data, {EntityGroups: ['WATER']});
+  });
+
+  it('should retrieve group rights keyed by template ID', async () => {
+    const rights = {'18': [{WOTemplateId: 18, CanView: true}]};
+    mock.on('Ams/Designer/WOTemplateGroupRights', rights);
+    assert.deepEqual(await cw8.workorder.admin.getTemplateGroupRights([18]), rights);
+    assert.deepEqual(mock.lastCall('Ams/Designer/WOTemplateGroupRights').data, {WOTemplateIds: [18]});
+  });
+});
+
 describe('[WorkOrder::create] function test', () => {
   const mock = createMock(cw8.Cityworks);
 
@@ -197,8 +233,9 @@ describe('[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEnt
       ['getEntities', [1], 'Ams/WorkOrder/Entities', {GetGisData: true, WorkOrderSids: [1]}]
     ];
     for (const [fn, ids, p, expected] of table) {
-      mock.on(p, () => ({fn: fn}));
-      assert.deepEqual(await cw8.workorder[fn](ids), {fn: fn});
+      const value = ['getByIds', 'getEntities'].includes(fn) ? [] : {};
+      mock.on(p, () => value);
+      assert.deepEqual(await cw8.workorder[fn](ids), value);
       assert.deepEqual(mock.lastCall(p).data, expected, fn);
     }
     mock.on('Ams/WorkOrder/Entities', () => []);
@@ -215,6 +252,7 @@ describe('[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEnt
     assert.equal(e.Code, 11);
     assert.deepEqual(mock.callsTo('Ams/WorkOrder/ByIds'), []);
     assert.deepEqual(mock.callsTo('Ams/WorkOrder/InstructionsByWorkOrderIds'), []);
+    assert.deepEqual(mock.callsTo('Ams/WorkOrder/Entities'), []);
   });
 
   it('should reject ids that are neither strings nor numbers', async () => {
@@ -226,6 +264,7 @@ describe('[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEnt
       assert.equal((await rejection(cw8.workorder[fn]([{}]))).Code, 9, fn);
     }
     assert.equal((await rejection(cw8.workorder.getEntities([{}]))).Code, 12);
+    assert.deepEqual(mock.callsTo('Ams/WorkOrder/Entities'), []);
   });
 
   it('should propagate API errors', async () => {
@@ -322,8 +361,9 @@ describe('[WorkOrder] simple endpoint function tests', () => {
 
   cases.forEach(([fn, args, p, expected]) => {
     it(`${fn}(${JSON.stringify(args)}) should post ${JSON.stringify(expected)} to ${p} and resolve the Value`, async () => {
-      mock.on(p, () => ({Result: fn}));
-      assert.deepEqual(await cw8.workorder[fn](...args), {Result: fn});
+      const value = ['getStatuses', 'getCategories', 'getPriorities'].includes(fn) ? [] : {Result: fn};
+      mock.on(p, () => value);
+      assert.deepEqual(await cw8.workorder[fn](...args), value);
       assert.deepEqual(mock.paths(), [p]);
       assert.deepEqual(mock.lastCall(p).data, expected);
     });
@@ -386,7 +426,7 @@ describe('[WorkOrder::updateMLFs] function test', () => {
   const mock = createMock(cw8.Cityworks);
 
   it('should use the by-work-order endpoint without a template id', async () => {
-    const p = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayersByWorkOrderId';
+    const p = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayers';
     mock.on(p, () => ({Ok: 1}));
     assert.deepEqual(await cw8.workorder.updateMLFs('WO-1', {x: 1, y: 2}), {Ok: 1});
     assert.deepEqual(mock.lastCall(p).data, {x: 1, y: 2, WorkOrderId: 'WO-1'});
@@ -402,7 +442,7 @@ describe('[WorkOrder::updateMLFs] function test', () => {
   });
 
   it('should reject when the id is neither a string nor a number', async () => {
-    mock.on('Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayersByWorkOrderId', () => true);
+    mock.on('Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayers', () => true);
     assert.equal((await rejection(cw8.workorder.updateMLFs(null, {x: 1, y: 2}))).Code, 9);
   });
 });

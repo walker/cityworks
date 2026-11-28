@@ -44,7 +44,9 @@ describe('[CaseAdmin::list/get methods] function test', () => {
 
   getters.forEach(([method, path]) => {
     it('should call ' + method + ' with an empty payload and resolve the Value', async () => {
-      const items = [{Id: 1, Name: 'Dummy A'}, {Id: 2, Name: 'Dummy B'}];
+      const items = method === 'getBusinessCaseTemplates'
+        ? [{BusCaseId: 1, CaseTypeId: 2, SubTypeId: 3}]
+        : [{Id: 1, Name: 'Dummy A'}, {Id: 2, Name: 'Dummy B'}];
       mock.on(path, items);
       const r = await cw26.briefcase.admin[method]();
       assert.deepEqual(r, items);

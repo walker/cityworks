@@ -429,8 +429,8 @@ describe('[CaseFinancial] mocked pass-through methods', () => {
     ['addPayment', [5, {Amount: 3}], 'Pll/CasePayment/Add', {CaObjectId: 5, Amount: 3}],
     ['addRefund', [6, 2.5, 'oops'], 'Pll/CasePaymentRefund/Add', {CaPaymentId: 6, RefundAmount: 2.5, Comments: 'oops'}],
     ['addDepositPayment', [7, {Amount: 1}], 'Pll/CasePayment/AddDeposit', {CaDepositId: 7, Amount: 1}],
-    ['addDeposit', [5, 8], 'CaseDeposit/Add', {CaObjectId: 5, DepositId: 8}],
-    ['addDeposit', [5, 8, 20, 'note'], 'CaseDeposit/Add', {CaObjectId: 5, DepositId: 8, Amount: 20, CommentText: 'note'}],
+    ['addDeposit', [5, 8], 'Pll/CaseDeposit/Add', {CaObjectId: 5, DepositId: 8}],
+    ['addDeposit', [5, 8, 20, 'note'], 'Pll/CaseDeposit/Add', {CaObjectId: 5, DepositId: 8, Amount: 20, CommentText: 'note'}],
     ['addInstrument', [5, 9, 100, '2026-01-01T00:00:00.000Z', {Company: 'Acme'}], 'Pll/CaseInstrument/Add', {CaObjectId: 5, InstTypeId: 9, Amount: 100, DateExpire: '2026-01-01T00:00:00.000Z', Company: 'Acme'}],
     ['voidRefund', [3, 'Y'], 'Pll/CasePaymentRefund/Update', {CaPaymentRefundId: 3, Voided: 'Y'}],
     ['addDefaultDeposits', [5, 6], 'Pll/CaseDeposit/AddDefault', {CaObjectId: 5, BusCaseId: 6}],
@@ -455,13 +455,17 @@ describe('[CaseFinancial] mocked pass-through methods', () => {
     ['searchDeposits', [{DepositCode: 'D'}], 'Pll/CaseDeposit/Search', {DepositCode: 'D'}]
   ];
 
+  // These return collections on the live API, so mock them as collections
+  const collections = ['getDeposits', 'getEscrowFees', 'searchFees', 'searchPayments', 'searchRefunds', 'searchDeposits'];
+
   cases.forEach(([method, args, path, payload]) => {
     it(`${method}(${JSON.stringify(args)}) should call ${path} and resolve the response value`, async () => {
-      mock.on(path, {Result: method});
+      const value = collections.indexOf(method) > -1 ? [{Result: method}] : {Result: method};
+      mock.on(path, value);
       const r = await fin[method](...args);
       assert.deepEqual(mock.paths(), [path]);
       assert.deepEqual(mock.lastCall(path).data, payload);
-      assert.deepEqual(r, {Result: method});
+      assert.deepEqual(r, value);
     });
 
     it(`${method} should propagate API errors`, async () => {

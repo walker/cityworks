@@ -167,18 +167,33 @@ describe('[Case::getByIds] function test', () => {
 describe('[Case::search] function test', () => {
   const mock = createMock(cw5.Cityworks);
 
-  it('should resolve a collection of case objects meeting the search criteria', async () => {
-    mock.on('Pll/CaseObject/Search', () => [{CaObjectId: 1}, {CaObjectId: 2}]);
+  it('should resolve case IDs meeting the search criteria', async () => {
+    mock.on('Pll/CaseObject/Search', () => [1, 2]);
     const rez = await cw5.briefcase.search({CaseStatus: 'OPEN'});
-    assert.isArray(rez);
-    assert.lengthOf(rez, 2);
+    assert.deepEqual(rez, [1, 2]);
     assert.deepEqual(mock.lastCall('Pll/CaseObject/Search').data, {CaseStatus: 'OPEN'});
   });
 
   it('should remember the case when exactly one is found', async () => {
-    mock.on('Pll/CaseObject/Search', () => [{CaObjectId: 77}]);
+    mock.on('Pll/CaseObject/Search', () => [77]);
+    assert.deepEqual(await cw5.briefcase.search({CaseStatus: 'OPEN'}), [77]);
+    assert.equal(cw5.briefcase.current_case, 77);
+  });
+
+  it('should preserve the remembered case when no or multiple IDs are found', async () => {
+    cw5.briefcase.current_case = 77;
+    mock.on('Pll/CaseObject/Search', () => []);
     await cw5.briefcase.search({CaseStatus: 'OPEN'});
     assert.equal(cw5.briefcase.current_case, 77);
+    mock.on('Pll/CaseObject/Search', () => [1, 2]);
+    await cw5.briefcase.search({CaseStatus: 'OPEN'});
+    assert.equal(cw5.briefcase.current_case, 77);
+  });
+
+  it('should continue to remember an object-shaped single result', async () => {
+    mock.on('Pll/CaseObject/Search', () => [{CaObjectId: 78}]);
+    await cw5.briefcase.search({CaseStatus: 'OPEN'});
+    assert.equal(cw5.briefcase.current_case, 78);
   });
 
   it('should propagate API errors', async () => {
@@ -277,7 +292,7 @@ describe('[Case::MapLayerFields methods] function test', () => {
   });
 
   it('should call deleteMLFs', async () => {
-    const p = 'Ams/TemplateMapLayer/DeleteCaseInstanceMapLayersByCaObjectId';
+    const p = 'Ams/TemplateMapLayer/DeleteCaseInstancesByCaObjectId';
     mock.on(p, () => ({Deleted: 1}));
     assert.deepEqual(await cw5.briefcase.deleteMLFs(107138), {Deleted: 1});
     assert.deepEqual(mock.lastCall(p).data, {CaObjectId: 107138});
@@ -286,7 +301,7 @@ describe('[Case::MapLayerFields methods] function test', () => {
   it('should propagate API errors', async () => {
     mock.onError('Ams/TemplateMapLayer/CaseInstanceMapLayersByCaObjectId', {Code: 4, Message: 'denied'});
     mock.onError('Ams/TemplateMapLayer/UpdateCaseInstanceMapLayers', {Code: 5, Message: 'denied'});
-    mock.onError('Ams/TemplateMapLayer/DeleteCaseInstanceMapLayersByCaObjectId', {Code: 6, Message: 'denied'});
+    mock.onError('Ams/TemplateMapLayer/DeleteCaseInstancesByCaObjectId', {Code: 6, Message: 'denied'});
     assert.equal((await rejection(cw5.briefcase.getMLFs(1))).Code, 4);
     assert.equal((await rejection(cw5.briefcase.updateMLFs(1, 1, 1))).Code, 5);
     assert.equal((await rejection(cw5.briefcase.deleteMLFs(1))).Code, 6);

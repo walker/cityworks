@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-26T05:06:53.969Z",
+  "generated": "2026-11-28T05:02:59.116Z",
   "endpoints": {
     "General/Authentication/Authenticate": [
       {
@@ -77,7 +77,8 @@
         },
         "tests": [
           "[ActivityLink] mocked function tests [ActivityLink::get] function test should return collection with the types mapped to numbers",
-          "[ActivityLink] mocked function tests [ActivityLink::get] function test should return an empty collection when there are no links"
+          "[ActivityLink] mocked function tests [ActivityLink::get] function test should return an empty collection when there are no links",
+          "[Inspection::create] function test should have an attached work order when specified"
         ]
       }
     ],
@@ -785,10 +786,9 @@
           ]
         },
         "expected": {
-          "type": "array",
+          "type": "object",
           "keys": [
-            "Fields",
-            "RequestId"
+            "5"
           ]
         },
         "tests": [
@@ -902,7 +902,9 @@
       {
         "signature": "Keywords",
         "payload": {
-          "Keywords": "pothole"
+          "Keywords": [
+            "pothole"
+          ]
         },
         "expected": {
           "type": "array",
@@ -919,11 +921,15 @@
       {
         "signature": "ProblemSids",
         "payload": {
-          "ProblemSids": 309
+          "ProblemSids": [
+            309
+          ]
         },
         "expected": {
-          "type": "array",
-          "keys": []
+          "type": "object",
+          "keys": [
+            "309"
+          ]
         },
         "tests": [
           "[Request] mocked service request tests [Request] problem option getters should get priorities, custom field templates, Q&A and the problem leaf by ProblemSid"
@@ -987,8 +993,11 @@
           ]
         },
         "expected": {
-          "type": "array",
-          "keys": []
+          "type": "object",
+          "keys": [
+            "1",
+            "2"
+          ]
         },
         "tests": [
           "[Request] mocked service request tests [Request] problem option getters should get default statuses for domains"
@@ -1324,7 +1333,31 @@
         },
         "tests": [
           "[Request::comment] mocked function test should add a comment using the Request activity type",
-          "[CaseWorkflow] mocked function tests task comments (Comments helper) should add a comment with the CaTask activity type"
+          "[CaseWorkflow] mocked function tests task comments (Comments helper) should add a comment with the CaTask activity type",
+          "[Comments] Service Request comments add should send the activity type, SID and text and resolve the comment record"
+        ]
+      },
+      {
+        "signature": "ActivitySid,ActivityType,Comments,IsPublic",
+        "payload": {
+          "ActivityType": 1,
+          "ActivitySid": 1234,
+          "Comments": "Public note",
+          "IsPublic": true
+        },
+        "expected": {
+          "type": "object",
+          "keys": [
+            "ActivitySid",
+            "ActivityType",
+            "Comments",
+            "IsPublic"
+          ]
+        },
+        "tests": [
+          "[Comments] Service Request comments add and update should send IsPublic when it is given",
+          "[Comments] Work Order comments add and update should send IsPublic when it is given",
+          "[Comments] (Brief)Case comments add should send the activity type, SID and text and resolve the comment record"
         ]
       }
     ],
@@ -1343,7 +1376,32 @@
           ]
         },
         "tests": [
-          "[Request::comment] mocked function test should update a comment"
+          "[Request::comment] mocked function test should update a comment",
+          "[Comments] Service Request comments update should send the activity type, comment id and new text and leave visibility to Cityworks",
+          "[Comments] Work Order comments update should send the activity type, comment id and new text and leave visibility to Cityworks"
+        ]
+      },
+      {
+        "signature": "ActivityType,CommentId,Comments,IsPublic",
+        "payload": {
+          "ActivityType": 1,
+          "CommentId": 9,
+          "Comments": "Public note",
+          "IsPublic": true
+        },
+        "expected": {
+          "type": "object",
+          "keys": [
+            "ActivityType",
+            "CommentId",
+            "Comments",
+            "IsPublic"
+          ]
+        },
+        "tests": [
+          "[Comments] Service Request comments add and update should send IsPublic when it is given",
+          "[Comments] Work Order comments add and update should send IsPublic when it is given",
+          "[Comments] (Brief)Case comments update should keep a public comment public and a private one private when given the case it belongs to"
         ]
       }
     ],
@@ -1364,7 +1422,8 @@
         },
         "tests": [
           "[Request::comment] mocked function test should return the comments for a single request unwrapped",
-          "[Request::comment] mocked function test should return the comments keyed by request for several requests"
+          "[Request::comment] mocked function test should return the comments keyed by request for several requests",
+          "[Comments] Service Request comments get should unwrap the comments for a single SID"
         ]
       }
     ],
@@ -1382,7 +1441,9 @@
           ]
         },
         "tests": [
-          "[Request::comment] mocked function test should return predefined comments for an activity type with the default ProblemSid"
+          "[Request::comment] mocked function test should return predefined comments for an activity type with the default ProblemSid",
+          "[Comments] Service Request comments getPredefined should default the ProblemSid to 0 and send the activity type",
+          "[Comments] Work Order comments getPredefined should default the ProblemSid to 0 and send the activity type"
         ]
       },
       {
@@ -1397,7 +1458,9 @@
           "keys": []
         },
         "tests": [
-          "[Request::comment] mocked function test should send the category for predefined Request comments"
+          "[Request::comment] mocked function test should send the category for predefined Request comments",
+          "[Comments] Service Request comments getPredefined should send the category",
+          "[Comments] Work Order comments getPredefined should send the category"
         ]
       }
     ],
@@ -1618,13 +1681,12 @@
         },
         "expected": {
           "type": "array",
-          "keys": [
-            "CaObjectId"
-          ]
+          "keys": []
         },
         "tests": [
-          "[Case::search] function test should resolve a collection of case objects meeting the search criteria",
-          "[Case::search] function test should remember the case when exactly one is found"
+          "[Case::search] function test should resolve case IDs meeting the search criteria",
+          "[Case::search] function test should remember the case when exactly one is found",
+          "[Case::search] function test should preserve the remembered case when no or multiple IDs are found"
         ]
       }
     ],
@@ -1758,7 +1820,7 @@
         ]
       }
     ],
-    "Ams/TemplateMapLayer/DeleteCaseInstanceMapLayersByCaObjectId": [
+    "Ams/TemplateMapLayer/DeleteCaseInstancesByCaObjectId": [
       {
         "signature": "CaObjectId",
         "payload": {
@@ -2463,7 +2525,7 @@
         ]
       }
     ],
-    "CaseDeposit/Add": [
+    "Pll/CaseDeposit/Add": [
       {
         "signature": "CaObjectId,DepositId",
         "payload": {
@@ -2477,7 +2539,7 @@
           ]
         },
         "tests": [
-          "[CaseFinancial] mocked pass-through methods addDeposit([5,8]) should call CaseDeposit/Add and resolve the response value"
+          "[CaseFinancial] mocked pass-through methods addDeposit([5,8]) should call Pll/CaseDeposit/Add and resolve the response value"
         ]
       },
       {
@@ -2495,7 +2557,7 @@
           ]
         },
         "tests": [
-          "[CaseFinancial] mocked pass-through methods addDeposit([5,8,20,\"note\"]) should call CaseDeposit/Add and resolve the response value"
+          "[CaseFinancial] mocked pass-through methods addDeposit([5,8,20,\"note\"]) should call Pll/CaseDeposit/Add and resolve the response value"
         ]
       }
     ],
@@ -2563,7 +2625,7 @@
           "CaObjectId": 5
         },
         "expected": {
-          "type": "object",
+          "type": "array",
           "keys": [
             "Result"
           ]
@@ -2767,7 +2829,7 @@
           "BusCaseId": 5
         },
         "expected": {
-          "type": "object",
+          "type": "array",
           "keys": [
             "Result"
           ]
@@ -2822,7 +2884,7 @@
           "FeeCode": "F-"
         },
         "expected": {
-          "type": "object",
+          "type": "array",
           "keys": [
             "Result"
           ]
@@ -2839,7 +2901,7 @@
           "TenderType": "CASH"
         },
         "expected": {
-          "type": "object",
+          "type": "array",
           "keys": [
             "Result"
           ]
@@ -2854,7 +2916,7 @@
           "RefundAmount": 1
         },
         "expected": {
-          "type": "object",
+          "type": "array",
           "keys": [
             "Result"
           ]
@@ -2871,7 +2933,7 @@
           "DepositCode": "D"
         },
         "expected": {
-          "type": "object",
+          "type": "array",
           "keys": [
             "Result"
           ]
@@ -3251,6 +3313,62 @@
         ]
       }
     ],
+    "Ams/Designer/WOTemplateActivityService": [
+      {
+        "signature": "WOTemplateId",
+        "payload": {
+          "WOTemplateId": 18
+        },
+        "expected": {
+          "type": "object",
+          "keys": [
+            "ActivityId"
+          ]
+        },
+        "tests": [
+          "[WorkOrderAdmin::getTemplateActivity] function test should retrieve each template activity in input order"
+        ]
+      }
+    ],
+    "Ams/Entity/Types": [
+      {
+        "signature": "EntityGroups",
+        "payload": {
+          "EntityGroups": [
+            "WATER"
+          ]
+        },
+        "expected": {
+          "type": "array",
+          "keys": [
+            "Code",
+            "Module"
+          ]
+        },
+        "tests": [
+          "[WorkOrderAdmin] entity types and group rights should retrieve entity types for the selected groups"
+        ]
+      }
+    ],
+    "Ams/Designer/WOTemplateGroupRights": [
+      {
+        "signature": "WOTemplateIds",
+        "payload": {
+          "WOTemplateIds": [
+            18
+          ]
+        },
+        "expected": {
+          "type": "object",
+          "keys": [
+            "18"
+          ]
+        },
+        "tests": [
+          "[WorkOrderAdmin] entity types and group rights should retrieve group rights keyed by template ID"
+        ]
+      }
+    ],
     "Ams/WorkOrder/Create": [
       {
         "signature": "EntityType,WOTemplateId",
@@ -3449,26 +3567,11 @@
           ]
         },
         "expected": {
-          "type": "object",
-          "keys": [
-            "fn"
-          ]
-        },
-        "tests": [
-          "[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEntities function test should choose the endpoint and key from the type of the first id"
-        ]
-      },
-      {
-        "signature": "GetGisData",
-        "payload": {
-          "GetGisData": true
-        },
-        "expected": {
           "type": "array",
           "keys": []
         },
         "tests": [
-          "[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEntities function test should reject ids that are neither strings nor numbers"
+          "[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEntities function test should choose the endpoint and key from the type of the first id"
         ]
       }
     ],
@@ -3697,8 +3800,8 @@
         },
         "tests": [
           "[WorkOrder::getById] function test should use BySid for a numeric id",
-          "[Report::WOPrint] (Work Order Print) function test should reject with an error if the work order type does not have a print report available and a report filename is not provided",
-          "[Report::WOPrint] (Work Order Print) function test should reject with an error if the Work Order print template file could not be found."
+          "[Inspection::create] function test should have an attached work order when specified",
+          "[Inspection::create] function test should reject a missing or unresolvable work order before creating an inspection"
         ]
       }
     ],
@@ -3712,10 +3815,8 @@
           ]
         },
         "expected": {
-          "type": "object",
-          "keys": [
-            "fn"
-          ]
+          "type": "array",
+          "keys": []
         },
         "tests": [
           "[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEntities function test should choose the endpoint and key from the type of the first id"
@@ -3732,10 +3833,8 @@
           ]
         },
         "expected": {
-          "type": "object",
-          "keys": [
-            "fn"
-          ]
+          "type": "array",
+          "keys": []
         },
         "tests": [
           "[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEntities function test should choose the endpoint and key from the type of the first id"
@@ -3752,9 +3851,7 @@
         },
         "expected": {
           "type": "object",
-          "keys": [
-            "fn"
-          ]
+          "keys": []
         },
         "tests": [
           "[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEntities function test should choose the endpoint and key from the type of the first id"
@@ -3771,9 +3868,7 @@
         },
         "expected": {
           "type": "object",
-          "keys": [
-            "fn"
-          ]
+          "keys": []
         },
         "tests": [
           "[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEntities function test should choose the endpoint and key from the type of the first id"
@@ -3790,9 +3885,7 @@
         },
         "expected": {
           "type": "object",
-          "keys": [
-            "fn"
-          ]
+          "keys": []
         },
         "tests": [
           "[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEntities function test should choose the endpoint and key from the type of the first id"
@@ -3809,9 +3902,7 @@
         },
         "expected": {
           "type": "object",
-          "keys": [
-            "fn"
-          ]
+          "keys": []
         },
         "tests": [
           "[WorkOrder] getByIds / getInstructions / getCustomFieldValues / getEntities function test should choose the endpoint and key from the type of the first id"
@@ -3971,10 +4062,8 @@
         "signature": "",
         "payload": {},
         "expected": {
-          "type": "object",
-          "keys": [
-            "Result"
-          ]
+          "type": "array",
+          "keys": []
         },
         "tests": [
           "[WorkOrder] simple endpoint function tests getStatuses([]) should post {} to Ams/WorkOrder/Statuses and resolve the Value"
@@ -3986,10 +4075,8 @@
         "signature": "",
         "payload": {},
         "expected": {
-          "type": "object",
-          "keys": [
-            "Result"
-          ]
+          "type": "array",
+          "keys": []
         },
         "tests": [
           "[WorkOrder] simple endpoint function tests getCategories([]) should post {} to Ams/WorkOrder/Categories and resolve the Value"
@@ -4001,10 +4088,8 @@
         "signature": "",
         "payload": {},
         "expected": {
-          "type": "object",
-          "keys": [
-            "Result"
-          ]
+          "type": "array",
+          "keys": []
         },
         "tests": [
           "[WorkOrder] simple endpoint function tests getPriorities([]) should post {} to Ams/WorkOrder/Priorities and resolve the Value"
@@ -4192,7 +4277,7 @@
         ]
       }
     ],
-    "Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayersByWorkOrderId": [
+    "Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayers": [
       {
         "signature": "WorkOrderId,x,y",
         "payload": {
@@ -4472,32 +4557,52 @@
           "EntityType": "MAINTENANCE_CATEGORIZATION"
         },
         "expected": {
-          "type": "array",
+          "type": "object",
           "keys": [
             "InspectionId"
           ]
         },
         "tests": [
-          "[Inspection::create] function test should resolve collection of Inspections and send the payload untouched",
+          "[Inspection::create] function test should resolve the Inspection and send the payload untouched",
           "[Inspection::create] function test should post each create variant to its own endpoint and resolve the Value"
         ]
       }
     ],
-    "Ams/Inspection/CreateFromEntities": [
+    "Ams/Inspection/CreateFromWorkOrder": [
       {
-        "signature": "EntityType,InspTemplateId",
+        "signature": "EntityType,InspTemplateId,WorkOrderId,WorkOrderSid",
         "payload": {
           "EntityType": "X",
-          "InspTemplateId": 5
+          "InspTemplateId": 5,
+          "WorkOrderSid": 31,
+          "WorkOrderId": "WO-31"
         },
         "expected": {
-          "type": "array",
+          "type": "object",
           "keys": [
-            "From",
             "InspectionId"
           ]
         },
         "tests": [
+          "[Inspection::create] function test should have an attached work order when specified",
+          "[Inspection::create] function test should pass through both work order identifiers without a lookup"
+        ]
+      },
+      {
+        "signature": "EntityType,InspTemplateId,WorkOrderId",
+        "payload": {
+          "EntityType": "X",
+          "InspTemplateId": 5,
+          "WorkOrderId": "WO-31"
+        },
+        "expected": {
+          "type": "object",
+          "keys": [
+            "InspectionId"
+          ]
+        },
+        "tests": [
+          "[Inspection::create] function test should create from a work order ID without a SID lookup",
           "[Inspection::create] function test should post each create variant to its own endpoint and resolve the Value"
         ]
       }
@@ -4508,16 +4613,17 @@
         "payload": {
           "EntityType": "X",
           "InspTemplateId": 5,
-          "InspectionId": 3
+          "InspectionId": 32
         },
         "expected": {
-          "type": "array",
+          "type": "object",
           "keys": [
-            "From",
-            "InspectionId"
+            "InspectionId",
+            "ParentInspId"
           ]
         },
         "tests": [
+          "[Inspection::create] function test should have an attached parent inspection when specified",
           "[Inspection::create] function test should post each create variant to its own endpoint and resolve the Value"
         ]
       }
@@ -4528,27 +4634,26 @@
         "payload": {
           "EntityType": "X",
           "InspTemplateId": 5,
-          "RequestId": 3
+          "RequestId": 33
         },
         "expected": {
-          "type": "array",
+          "type": "object",
           "keys": [
-            "From",
             "InspectionId"
           ]
         },
         "tests": [
+          "[Inspection::create] function test should have an attached service request when specified",
           "[Inspection::create] function test should post each create variant to its own endpoint and resolve the Value"
         ]
       }
     ],
-    "Ams/Inspection/CreateFromWorkOrder": [
+    "Ams/Inspection/CreateFromEntities": [
       {
-        "signature": "EntityType,InspTemplateId,WorkOrderSid",
+        "signature": "EntityType,InspTemplateId",
         "payload": {
           "EntityType": "X",
-          "InspTemplateId": 5,
-          "WorkOrderSid": 3
+          "InspTemplateId": 5
         },
         "expected": {
           "type": "array",
@@ -5290,12 +5395,13 @@
       {
         "signature": "QueryValue",
         "payload": {
-          "QueryValue": "Status = \"OPEN\""
+          "QueryValue": "ServiceRequest()"
         },
         "expected": {
           "type": "object",
           "keys": [
-            "Query"
+            "CommandText",
+            "SchemaName"
           ]
         },
         "tests": [
@@ -5309,8 +5415,11 @@
           "QueryId": 42
         },
         "expected": {
-          "type": "array",
-          "keys": []
+          "type": "object",
+          "keys": [
+            "CommandText",
+            "SchemaName"
+          ]
         },
         "tests": [
           "[Query] function test build should send a number as QueryId",
@@ -5321,19 +5430,22 @@
       {
         "signature": "DomainId,Page,PageSize,QueryValue,SortDescending,SortField,Variables",
         "payload": {
-          "QueryValue": "x = 1",
+          "QueryValue": "ServiceRequest(RequestId = $target)",
           "Page": 2,
           "PageSize": 10,
           "SortDescending": true,
           "SortField": "RequestId",
           "Variables": {
-            "a": 1
+            "target": 1
           },
           "DomainId": 3
         },
         "expected": {
-          "type": "array",
-          "keys": []
+          "type": "object",
+          "keys": [
+            "CommandText",
+            "SchemaName"
+          ]
         },
         "tests": [
           "[Query] function test build should merge options and add DomainId"
@@ -5355,15 +5467,17 @@
     ],
     "General/Query/QueryTypeInformation": [
       {
-        "signature": "IncludeDefaultSchemasInclude,IncludeGisSchemas",
+        "signature": "IncludeDefaultSchemas,IncludeGisSchemas",
         "payload": {
-          "IncludeDefaultSchemasInclude": true,
+          "IncludeDefaultSchemas": true,
           "IncludeGisSchemas": true
         },
         "expected": {
           "type": "array",
           "keys": [
-            "Name"
+            "DisplayName",
+            "QueryType",
+            "SchemaName"
           ]
         },
         "tests": [
@@ -5371,9 +5485,9 @@
         ]
       },
       {
-        "signature": "DomainId,IncludeDefaultSchemasInclude,IncludeGisSchemas",
+        "signature": "DomainId,IncludeDefaultSchemas,IncludeGisSchemas",
         "payload": {
-          "IncludeDefaultSchemasInclude": false,
+          "IncludeDefaultSchemas": false,
           "IncludeGisSchemas": false,
           "DomainId": 5
         },
@@ -5390,16 +5504,14 @@
       {
         "signature": "Query,Variables",
         "payload": {
-          "Query": "Status = @s",
+          "Query": "ServiceRequest(RequestId = $target)",
           "Variables": {
-            "s": "OPEN"
+            "target": 1
           }
         },
         "expected": {
-          "type": "object",
-          "keys": [
-            "IsValid"
-          ]
+          "type": "array",
+          "keys": []
         },
         "tests": [
           "[Query] function test validateQuery should send Query and Variables and resolve the Value",
@@ -5414,10 +5526,8 @@
           "DomainId": 4
         },
         "expected": {
-          "type": "object",
-          "keys": [
-            "IsValid"
-          ]
+          "type": "array",
+          "keys": []
         },
         "tests": [
           "[Query] function test validateQuery should add DomainId when provided"
@@ -5428,33 +5538,30 @@
       {
         "signature": "QueryType,ResponseDefinition",
         "payload": {
-          "QueryType": "ServiceRequest",
+          "QueryType": "Service Request",
           "ResponseDefinition": {
-            "Fields": [
-              "RequestId",
-              "Status"
-            ]
+            "RequestId": true,
+            "Status": true
           }
         },
         "expected": {
-          "type": "object",
-          "keys": [
-            "IsValid"
-          ]
+          "type": "array",
+          "keys": []
         },
         "tests": [
-          "[Query] function test validateResponseDefinition should send QueryType and ResponseDefinition"
+          "[Query] function test validateResponseDefinition should send QueryType and ResponseDefinition",
+          "[Query] function test validateResponseDefinition should return validation errors for an unknown response field"
         ]
       },
       {
         "signature": "DomainId,QueryType,ResponseDefinition",
         "payload": {
-          "QueryType": "WorkOrder",
+          "QueryType": "Work Order",
           "ResponseDefinition": {},
           "DomainId": 8
         },
         "expected": {
-          "type": "object",
+          "type": "array",
           "keys": []
         },
         "tests": [
@@ -5466,12 +5573,16 @@
       {
         "signature": "QueryType",
         "payload": {
-          "QueryType": "ServiceRequest"
+          "QueryType": "Service Request"
         },
         "expected": {
           "type": "object",
           "keys": [
-            "Fields"
+            "DisplayName",
+            "Name",
+            "PrimarySearchFieldName",
+            "Response",
+            "Search"
           ]
         },
         "tests": [
@@ -5481,7 +5592,7 @@
       {
         "signature": "DomainId,QueryType",
         "payload": {
-          "QueryType": "WorkOrder",
+          "QueryType": "Work Order",
           "DomainId": 6
         },
         "expected": {
@@ -5495,14 +5606,18 @@
     ],
     "General/Query/Query": [
       {
-        "signature": "QueryValue",
+        "signature": "PageSize,QueryValue",
         "payload": {
-          "QueryValue": "Status = \"OPEN\""
+          "QueryValue": "ServiceRequest()",
+          "PageSize": 1
         },
         "expected": {
-          "type": "array",
+          "type": "object",
           "keys": [
-            "RequestId"
+            "HasMore",
+            "Page",
+            "Results",
+            "TotalRecordCount"
           ]
         },
         "tests": [
@@ -5512,21 +5627,27 @@
       {
         "signature": "Page,PageSize,QueryValue,ResponseFields,SortDescending,SortField,Variables",
         "payload": {
-          "QueryValue": "x = @v",
+          "QueryValue": "ServiceRequest(RequestId = $target)",
           "Page": 1,
           "PageSize": 25,
           "SortField": "RequestId",
           "SortDescending": false,
           "ResponseFields": {
-            "A": 1
+            "RequestId": true,
+            "Status": true
           },
           "Variables": {
-            "v": 2
+            "target": 2
           }
         },
         "expected": {
-          "type": "array",
-          "keys": []
+          "type": "object",
+          "keys": [
+            "HasMore",
+            "Page",
+            "Results",
+            "TotalRecordCount"
+          ]
         },
         "tests": [
           "[Query] function test run should merge options into the request"
@@ -5539,8 +5660,13 @@
           "Page": 3
         },
         "expected": {
-          "type": "array",
-          "keys": []
+          "type": "object",
+          "keys": [
+            "HasMore",
+            "Page",
+            "Results",
+            "TotalRecordCount"
+          ]
         },
         "tests": [
           "[Query] function test run should drop options.QueryValue when the query is a string",
@@ -5550,30 +5676,59 @@
     ],
     "General/Query/RunById": [
       {
+        "signature": "PageSize,QueryId",
+        "payload": {
+          "QueryId": 12,
+          "PageSize": 1
+        },
+        "expected": {
+          "type": "object",
+          "keys": [
+            "HasMore",
+            "Page",
+            "Results",
+            "TotalRecordCount"
+          ]
+        },
+        "tests": [
+          "[Query] function test run should run a numeric query via General/Query/RunById with QueryId"
+        ]
+      },
+      {
         "signature": "QueryId",
         "payload": {
           "QueryId": 12
         },
         "expected": {
-          "type": "array",
+          "type": "object",
           "keys": [
-            "RequestId"
+            "HasMore",
+            "Page",
+            "Results",
+            "TotalRecordCount"
           ]
         },
         "tests": [
-          "[Query] function test run should run a numeric query via General/Query/RunById with QueryId",
           "[Query] function test run should treat a numeric string as a saved query id"
         ]
       },
       {
-        "signature": "QueryId,QueryValue",
+        "signature": "QueryId,QueryValue,Variables",
         "payload": {
           "QueryId": 7,
-          "QueryValue": "Status = \"OPEN\""
+          "QueryValue": "ServiceRequest(RequestId = $target)",
+          "Variables": {
+            "target": 1
+          }
         },
         "expected": {
-          "type": "array",
-          "keys": []
+          "type": "object",
+          "keys": [
+            "HasMore",
+            "Page",
+            "Results",
+            "TotalRecordCount"
+          ]
         },
         "tests": [
           "[Query] function test run should append options.QueryValue to a saved query run by id"
@@ -5590,7 +5745,9 @@
         "expected": {
           "type": "array",
           "keys": [
-            "QueryId"
+            "Id",
+            "QueryType",
+            "VisibleToMobile"
           ]
         },
         "tests": [
@@ -5598,19 +5755,19 @@
         ]
       },
       {
-        "signature": "CreatedOnly,IncludeQuery,QueryType",
+        "signature": "CreatedOnly,IncludeQuery,QueryType,VisibleToMobile",
         "payload": {
           "CreatedOnly": false,
           "IncludeQuery": true,
-          "QueryType": "WorkOrder"
+          "QueryType": "Work Order",
+          "VisibleToMobile": false
         },
         "expected": {
           "type": "array",
           "keys": []
         },
         "tests": [
-          "[Query] function test getSaved should send a single type as QueryType",
-          "[Query] inputs are not modified and ids are numbers getSaved should leave the queryTypes array intact"
+          "[Query] function test getSaved should send a single type as QueryType and an explicit mobile filter"
         ]
       },
       {
@@ -5619,8 +5776,8 @@
           "CreatedOnly": false,
           "IncludeQuery": true,
           "QueryTypes": [
-            "WorkOrder",
-            "ServiceRequest"
+            "Work Order",
+            "Service Request"
           ]
         },
         "expected": {
@@ -5639,14 +5796,15 @@
           "CaObjectId": 77950
         },
         "expected": {
-          "type": "object",
+          "type": "array",
           "keys": [
             "Ok"
           ]
         },
         "tests": [
           "[CaseData] simple wrapper methods should call getGroupsByCaseId (#0) with the expected path and payload and resolve the Value",
-          "[CaseData] simple wrapper methods should resolve getGroupsByCaseId as a collection"
+          "[CaseData] simple wrapper methods should resolve getGroupsByCaseId as a collection",
+          "[CaseData] simple wrapper methods should preserve a null response when the case has no data groups"
         ]
       }
     ],
@@ -5877,7 +6035,7 @@
           "CaObjectId": 106149
         },
         "expected": {
-          "type": "object",
+          "type": "array",
           "keys": [
             "Ok"
           ]
@@ -5932,9 +6090,7 @@
         },
         "expected": {
           "type": "array",
-          "keys": [
-            "Id"
-          ]
+          "keys": []
         },
         "tests": [
           "[CaseData] search methods should call searchForGroups with filters and resolve the Value"
@@ -6522,7 +6678,7 @@
         "expected": {
           "type": "array",
           "keys": [
-            "CaTaskResultId"
+            "CaTaskResultsId"
           ]
         },
         "tests": [
@@ -6535,7 +6691,7 @@
       {
         "signature": "TaskComplete",
         "payload": {
-          "TaskComplete": "N"
+          "TaskComplete": false
         },
         "expected": {
           "type": "array",
@@ -6568,9 +6724,7 @@
         },
         "expected": {
           "type": "array",
-          "keys": [
-            "CaTaskResultId"
-          ]
+          "keys": []
         },
         "tests": [
           "[CaseWorkflow] mocked function tests [CaseWorkflow] request pass-through tests getResultsByTaskId and the search methods send the expected payloads",
@@ -7658,7 +7812,9 @@
           "keys": []
         },
         "tests": [
-          "[Equipment::cost] mocked request tests costs by parent workOrderCostsByWorkOrder should omit undefined ID lists"
+          "[Equipment::cost] mocked request tests costs by parent workOrderCostsByWorkOrder should omit undefined ID lists",
+          "[WorkOrderCosts] mocked request tests getEquipment([1,true]) should call Ams/EquipmentCost/WorkOrderCostsByWorkOrder and resolve the response value",
+          "[WorkOrderCosts] mocked request tests getEquipment([1]) should call Ams/EquipmentCost/WorkOrderCostsByWorkOrder and resolve the response value"
         ]
       },
       {
@@ -8601,11 +8757,14 @@
           "CaPeopleId": 1
         },
         "expected": {
-          "type": "boolean",
-          "keys": []
+          "type": "object",
+          "keys": [
+            "CaObjectId",
+            "CaPeopleId"
+          ]
         },
         "tests": [
-          "[CasePeople] mocked function tests delete should delete by CaPeopleId and resolve true"
+          "[CasePeople] mocked function tests delete should delete by CaPeopleId and return the deleted person"
         ]
       }
     ],
@@ -8960,8 +9119,9 @@
         "expected": {
           "type": "array",
           "keys": [
-            "Id",
-            "Name"
+            "BusCaseId",
+            "CaseTypeId",
+            "SubTypeId"
           ]
         },
         "tests": [
@@ -10484,7 +10644,7 @@
           ]
         },
         "expected": {
-          "type": "boolean",
+          "type": "array",
           "keys": []
         },
         "tests": [
@@ -10501,7 +10661,7 @@
           ]
         },
         "expected": {
-          "type": "boolean",
+          "type": "array",
           "keys": []
         },
         "tests": [
@@ -10518,7 +10678,7 @@
           ]
         },
         "expected": {
-          "type": "boolean",
+          "type": "object",
           "keys": []
         },
         "tests": [

@@ -253,7 +253,7 @@ export class Request {
    *
    * @category Requests
    * @param {Array<number>} requestIds - The RequestIds whose custom fields should be returned
-   * @return {Object} Returns Promise that represents a collection of custom fields
+   * @return {Object} Returns Promise that represents custom field collections keyed by request ID
    */
   getCustomFields(requestIds: Array<number>) {
     return new Promise((resolve, reject) => {
@@ -533,13 +533,13 @@ export class Request {
    * Get a list of problem codes by keywords
    *
    * @category Request Options
-   * @param {string} keywords - Keywords to search for potential problem codes
+   * @param {string|Array<string>} keywords - Keywords to search for potential problem codes
    * @return {Object} Returns Promise that represents an Array of problem name objects.
    */
-  getProblemsByKeywords(keywords: string) {
+  getProblemsByKeywords(keywords: string | Array<string>) {
     return new Promise((resolve, reject) => {
       var data = {
-        Keywords: keywords
+        Keywords: _.castArray(keywords)
       }
       this.cw.runRequest('Ams/ServiceRequest/ProblemsByKeywords', data).then(r => {
         resolve(r.Value)
@@ -554,12 +554,12 @@ export class Request {
    *
    * @category Request Options
    * @param {number} problemSid - Return priorities for given problemSid
-   * @return {Object} Returns Promise that represents an Array of priorities
+   * @return {Object} Returns Promise that represents priorities keyed by problem SID
    */
   getPriorities(problemSid: number) {
     return new Promise((resolve, reject) => {
       var data = {
-        ProblemSids: problemSid,
+        ProblemSids: [problemSid],
       }
       this.cw.runRequest('Ams/ServiceRequest/Priorities', data).then(r => {
         resolve(r.Value)
@@ -634,7 +634,7 @@ export class Request {
    *
    * @category Request Options
    * @param {Array<number>} domainIds - List of domains to return default statuses for
-   * @return {Object} Returns Promise that represents an Array of statuses.
+   * @return {Object} Returns Promise that represents default statuses keyed by domain ID.
    */
   getStatuses(domainIds: Array<number>) {
     return new Promise((resolve, reject) => {

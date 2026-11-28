@@ -222,7 +222,7 @@ export class CaseFinancial {
       if(typeof(comment)!='undefined') {
         _.set(data, 'CommentText', comment)
       }
-      this.cw.runRequest('CaseDeposit/Add', data).then(r => {
+      this.cw.runRequest('Pll/CaseDeposit/Add', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)

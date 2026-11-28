@@ -22,16 +22,32 @@ const contractsFile = path.join(__dirname, 'contracts.json');
 const contracts = fs.existsSync(contractsFile) ? JSON.parse(fs.readFileSync(contractsFile, 'utf8')) : {endpoints: {}};
 
 const MUTATING = /^(Add|Create|Update|Delete|Remove|Move|Cancel|Uncancel|Close|ReOpen|Reopen|Set|Attach|Detach|Sync|Revoke|Authenticate|Save|Change|Combine|Clone|Copy|Execute|Lock|Unlock|Make|Apply|Assign|Upload|Enable|Disable|Reset|Clear|FindReplace|Print|Download|Check|Release|Refund|Mark|Insert|Submit|Complete|Reassign|Purge|Import|Send|Post|Process|Rollback)|Viewed$/;
-const READ_ONLY = /^(All|Get\w*|By\w*|\w*By[A-Z]\w*|Search\w*|\w*Search|List\w*|\w*List|\w*Types?|\w*Schema|\w*TypeInformation|SavedQueries|Definitions?|DefinitionNames|DisplayFields|\w*Saved|User|UserWatching|Holidays|Keywords|Problems\w*|Priorities|Templates?\w*|QA|CustomFields|AuditLog|Answers|\w*Questions|CallerQuestions\w*|CostCodes|JobCodes|Validate\w*|Query|RunById|Builder|Notifications?|\w*History|\w*Fields|WorkOrderEntity|RecentActivity|Details?)$/;
+const READ_ONLY = /^(All|Get\w*|By\w*|\w*By[A-Z]\w*|Search\w*|\w*Search|List\w*|\w*List|\w*Types?|\w*Schema|\w*TypeInformation|SavedQueries|Definitions?|DefinitionNames|DisplayFields|\w*Saved|User|UserWatching|Holidays|Keywords|Problems\w*|Priorities|Templates?\w*|QA|CustomFields|AuditLog|Answers|\w*Questions|CallerQuestions\w*|CostCodes|JobCodes|Validate\w*|Query|RunById|Builder|Notifications?|\w*History|\w*Fields|WorkOrderEntity|RecentActivity|Details?|Predefined\w*)$/;
+// CW_LIVE_FILTER=<regex> limits the replay to matching service paths, e.g. CW_LIVE_FILTER='^(Pll/|Ams/Comment/)'
+const pathFilter = process.env.CW_LIVE_FILTER ? new RegExp(process.env.CW_LIVE_FILTER) : null;
+// CW_LIVE_PROBE_MUTATING=1 also checks that mutating endpoints exist by sending them an EMPTY payload (never the mocked payload). They should answer with
+// a validation error; one that unexpectedly succeeds is reported. Only use this on a non-production instance.
+const probeMutating = process.env.CW_LIVE_PROBE_MUTATING === '1';
 const extraReadOnly = (process.env.CW_LIVE_READONLY || '').split(',').map(s => s.trim()).filter(Boolean);
 
 function classify(servicePath) {
   if(extraReadOnly.indexOf(servicePath) > -1) return 'read';
+  if(servicePath === 'General/Query/SavedQueries') return 'read';
+  if(servicePath === 'General/Query/SearchToQuery') return 'mutating';
   if(/\/Authentication\//.test(servicePath) || /\/Token\//.test(servicePath)) return 'mutating';
   const segment = servicePath.split('/').pop();
   if(MUTATING.test(segment)) return 'mutating';
   if(READ_ONLY.test(segment)) return 'read';
   return 'unclassified';
+}
+
+// HTTP status of a non-JSON answer (the wrapper adds it to the error's Info): 404 means the endpoint doesn't exist, 500 means it does but failed
+function httpStatus(e) {
+  try {
+    return JSON.parse(e.Info).statusCode;
+  } catch(x) {
+    return undefined;
+  }
 }
 
 function typeOf(v) {
@@ -47,7 +63,7 @@ function keysOf(v) {
 
 describe('[Live contract] mocked expectations vs the live Cityworks API', function() {
   this.timeout(60000);
-  const summary = {checked: 0, ok: 0, reachableOnly: 0, differs: [], failed: [], keyWarnings: [], skippedMutating: [], unclassified: []};
+  const summary = {checked: 0, ok: 0, reachableOnly: 0, differs: [], failed: [], keyWarnings: [], skippedMutating: [], unclassified: [], probed: [], probeOk: 0, probeSucceeded: []};
 
   before(function() {
     if(missingEnv.length > 0) {
@@ -62,12 +78,45 @@ describe('[Live contract] mocked expectations vs the live Cityworks API', functi
     return cw.Cityworks.authenticate(process.env.cwlogin, process.env.cwpassword);
   });
 
-  Object.keys(contracts.endpoints).sort().forEach(servicePath => {
+  Object.keys(contracts.endpoints).sort().filter(p => !pathFilter || pathFilter.test(p)).forEach(servicePath => {
     const kind = classify(servicePath);
     contracts.endpoints[servicePath].forEach(entry => {
       const title = servicePath + '  {' + entry.signature + '}';
 
       it(title, async function() {
+        if(kind === 'mutating' && probeMutating && !/\/(Authentication|Token)\//.test(servicePath)) {
+          // one empty-payload probe per endpoint is enough
+          if(summary.probed.indexOf(servicePath) > -1) this.skip();
+          summary.probed.push(servicePath);
+          try {
+            await cw.Cityworks.runRequest(servicePath, {});
+            summary.probeSucceeded.push(servicePath);
+            console.log('      note: accepted an empty payload (it may have changed data)');
+          } catch(e) {
+            const code = e && e.Code;
+            // a 500 on an empty payload just means the endpoint exists and rejected it; only a 404 (or no HTTP answer at all) is a problem
+            // report/attachment downloads answer an empty payload with a 500, which the wrapper reports as code 13/14
+            if([13, 14].indexOf(code) > -1 && /Download/.test(servicePath)) {
+              summary.probeOk++;
+              return;
+            }
+            if([5, 6, 7].indexOf(code) > -1 && httpStatus(e) !== 404 && typeof httpStatus(e) !== 'undefined') {
+              summary.probeOk++;
+              return;
+            }
+            if([5, 6, 7, 13].indexOf(code) > -1) {
+              const why = httpStatus(e) === 404 ? 'endpoint missing (HTTP 404)' : 'no usable answer: ' + ((e && e.Message) || '');
+              summary.failed.push({path: servicePath, reason: why});
+              assert.fail(servicePath + ' ' + why);
+            }
+            if(code === 2 || code === 3) {
+              summary.failed.push({path: servicePath, reason: code === 2 ? 'unauthorized' : 'invalid credentials'});
+              assert.fail(servicePath + ' unauthorized');
+            }
+          }
+          summary.probeOk++;
+          return;
+        }
         if(kind !== 'read') {
           (kind === 'mutating' ? summary.skippedMutating : summary.unclassified).push(servicePath);
           this.skip();
@@ -85,7 +134,8 @@ describe('[Live contract] mocked expectations vs the live Cityworks API', functi
             console.log('      reachable, API rejected the mocked payload: ' + message);
             return;
           }
-          const reason = code === 2 ? 'unauthorized (check the account\'s permissions)' : code === 3 ? 'invalid credentials' : [5, 6, 7].indexOf(code) > -1 ? 'endpoint missing or did not return JSON' : 'request failed';
+          const status = httpStatus(e);
+          const reason = code === 2 ? 'unauthorized (check the account\'s permissions)' : code === 3 ? 'invalid credentials' : [5, 6, 7].indexOf(code) > -1 ? (status === 404 ? 'endpoint missing (HTTP 404)' : status === 500 ? 'server error (HTTP 500) on the mocked payload - the endpoint exists but did not accept these parameters' : 'did not return JSON (HTTP ' + status + ')') : 'request failed';
           summary.failed.push({path: servicePath, reason: reason + ': ' + message});
           assert.fail(servicePath + ' ' + reason + ': ' + message);
         }
@@ -114,10 +164,13 @@ describe('[Live contract] mocked expectations vs the live Cityworks API', functi
   });
 
   after(function() {
-    if(missingEnv.length > 0 || summary.checked === 0) return;
+    if(missingEnv.length > 0 || (summary.checked === 0 && summary.probed.length === 0)) return;
     const uniq = (list) => Array.from(new Set(list)).sort();
     console.log('\n  ---- Live contract summary ----');
     console.log('  replayed (read-only): ' + summary.checked + ', matched: ' + summary.ok + ', reachable but API rejected dummy payload: ' + summary.reachableOnly);
+    if(probeMutating) {
+      console.log('  probed mutating endpoints with an empty payload: ' + summary.probed.length + ', reachable: ' + summary.probeOk + (summary.probeSucceeded.length ? ', accepted the empty payload: ' + summary.probeSucceeded.join(', ') : ''));
+    }
     if(summary.differs.length) {
       console.log('\n  Differs from the mocked expectation (' + summary.differs.length + '):');
       summary.differs.forEach(d => console.log('    ' + d.path + ': mocked ' + d.mocked + ', live ' + d.live));

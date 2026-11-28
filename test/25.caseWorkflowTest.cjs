@@ -90,9 +90,9 @@ describe('[CaseWorkflow] mocked function tests', () => {
     });
 
     it('should call searchForTaskResults', async () => {
-      mock.on('Pll/CaseTaskResults/Search', () => [{CaTaskId: 1}]);
+      mock.on('Pll/CaseTaskResults/Search', () => [1]);
       const r = await wf().searchForTaskResults({CaTaskId: 1});
-      assert.deepEqual(r, [{CaTaskId: 1}]);
+      assert.deepEqual(r, [1]);
       assert.deepEqual(mock.lastCall('Pll/CaseTaskResults/Search').data, {CaTaskId: 1});
     });
 

@@ -45,18 +45,37 @@ export class Comments {
   }
 
   /**
-   * Add a comment - for adding a comment to an object when the object is already known. Always call comment.add from request, case, workorder, or inspection.
+   * The IsPublic value to send: what was asked for, else for case (PLL) comments private unless the account is a public user. Other activities
+   * are left to Cityworks.
+   */
+  private visibility(isPublic?: boolean): boolean | undefined {
+    if(typeof(isPublic)!='undefined') {
+      return isPublic
+    }
+    if(this.currentActivityType=='CaObject') {
+      return this.cw.isPublicUser()
+    }
+    return undefined
+  }
+
+  /**
+   * Add a comment - for adding a comment to an object when the object is already known. Always call comment.add from request, workorder or briefcase (case); inspections do not support comments yet.
    * 
    * @param {number} sid - The SID of the activity to which the comment should be attached
    * @param {string} comment - The text for the comment
+   * @param {boolean} [isPublic] - Whether the comment is visible to the public. Case (PLL) comments are always sent with this value and default to private; they default to public only when the connected account is a public (non-employee) user (`publicUser` setting). Make it a deliberate choice.
    * @return {Object} Returns a Promise which represents a CommentRecord object
    */
-  add(sid: number, comment: string) {
+  add(sid: number, comment: string, isPublic?: boolean) {
     return new Promise((resolve, reject) => {
       var data = {
         ActivityType: this.activityTypes.get(this.currentActivityType),
         ActivitySid: sid,
         Comments: comment
+      }
+      const visibility = this.visibility(isPublic)
+      if(typeof(visibility)!='undefined') {
+        _.set(data, 'IsPublic', visibility)
       }
       this.cw.runRequest('Ams/Comment/Add', data).then((response: any) => {
         resolve(response.Value)
@@ -69,22 +88,54 @@ export class Comments {
   /**
    * Update a comment
    *
+   * Case (PLL) comments must be updated with their visibility (Cityworks fails the update otherwise), and updating must never change it by accident.
+   * So for a case comment either say what it should be (`isPublic`), or give the case it belongs to (`activitySid`) and the comment's current
+   * visibility is looked up and kept. With neither the update is rejected (code 3), unless the connected account is a public user (`publicUser` setting), whose comments are public.
+   *
    * @param {number} id - The ID of the comment which should be updated
    * @param {string} comment - The new text for the updated comment
+   * @param {boolean|Object} [visibility] - `true`/`false` to make the comment public/private, or `{isPublic?: boolean, activitySid?: number}`. Leave it out to keep the comment as it is: other activities leave it to Cityworks, case comments need `activitySid`.
    * @return {Object} Returns a Promise which represents a CommentRecord object
    */
-  update(id: number, comment: string) {
+  update(id: number, comment: string, visibility?: boolean | {isPublic?: boolean, activitySid?: number}) {
     return new Promise((resolve, reject) => {
+      const options: {isPublic?: boolean, activitySid?: number} = typeof(visibility)=='boolean' ? {isPublic: visibility} : (visibility || {})
       var data = {
         ActivityType: this.activityTypes.get(this.currentActivityType),
         CommentId: id,
         Comments: comment
       }
-      this.cw.runRequest('Ams/Comment/Update', data).then((response: any) => {
-        resolve(response.Value)
-      }).catch(e => {
-        reject(e)
-      })
+      const send = () => {
+        this.cw.runRequest('Ams/Comment/Update', data).then((response: any) => {
+          resolve(response.Value)
+        }).catch(e => {
+          reject(e)
+        })
+      }
+      if(typeof(options.isPublic)!='undefined') {
+        _.set(data, 'IsPublic', options.isPublic)
+        send()
+      } else if(this.currentActivityType!='CaObject') {
+        send()
+      } else if(typeof(options.activitySid)!='undefined') {
+        // keep whatever visibility the comment has now
+        this.get([options.activitySid]).then((existing: any) => {
+          const current = _.find(existing, (c: any) => c.CommentId == id)
+          if(typeof(current)=='undefined') {
+            reject(new CWError(4, 'Comment ' + id + ' was not found on ' + this.currentActivityType + ' ' + options.activitySid + '.', {'CommentId': id, 'ActivitySid': options.activitySid}))
+            return
+          }
+          _.set(data, 'IsPublic', current.IsPublic === true)
+          send()
+        }).catch(e => {
+          reject(e)
+        })
+      } else if(this.cw.isPublicUser()) {
+        _.set(data, 'IsPublic', true)
+        send()
+      } else {
+        reject(new CWError(3, 'Case comments must be updated with isPublic or the case they belong to (activitySid), so their visibility is never changed by accident.', {'CommentId': id}))
+      }
     })
   }
 
@@ -97,13 +148,15 @@ export class Comments {
   get(sids: Array<number>) {
     return new Promise((resolve, reject) => {
       if(typeof(sids)!='undefined' && sids !=null) {
+        // Cityworks answers with a dictionary keyed by id and fails when an id is repeated
+        const uniqueSids = _.uniq(sids)
         var data = {
-          ActivitySids: sids,
+          ActivitySids: uniqueSids,
           ActivityType: this.activityTypes.get(this.currentActivityType),
         }
         this.cw.runRequest('Ams/Comment/ByActivitySids', data).then((response: any) => {
-          if(sids.length==1) {
-            resolve(response.Value[sids[0]])
+          if(uniqueSids.length==1) {
+            resolve(response.Value[uniqueSids[0]])
           } else {
             resolve(response.Value)
           }

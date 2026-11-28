@@ -18,4 +18,8 @@ export interface CityworksClient {
    * The currently-set token, or false if none
    */
   getToken(): string | false | undefined
+  /**
+   * Whether the account is a non-employee (public access) user
+   */
+  isPublicUser(): boolean
 }

@@ -41,10 +41,10 @@ export class Query {
    * Build a query using query language syntax or by specifying a saved query ID
    *
    * @category Query
-   * @param {number} query - Query to run (specify syntax or queryID)
+   * @param {number|string} query - Query syntax or saved query ID.
    * @param {Object} options - Other options. See: /{subdirectory}/apidocs/#/service-info/General/Query
    * @param {number} [domainId] - The domain ID of the domain to search, defaut is authenticated user's current domain
-   * @return {Object} Returns Promise object that represents a list of Objects
+   * @return {Object} Returns a Promise for the built query.
    */
   build(query: number|string, options: {Page?: number, PageSize?: number, SortDescending?: boolean, SortField?: string, Variables?: DynamicVariableMap} = {}, domainId?: number) {
     return new Promise((resolve, reject) => {
@@ -88,15 +88,15 @@ export class Query {
    * Get info about query types
    *
    * @category Query
-   * @param {boolean} includeDefaultSchemasInclude - Include schemas (Work Order, Service Request, etc), default is true.
-   * @param {boolean} includeGisSchemas - Include gis schemas, ddefault is true.
-   * @param {number} [domainId] - The domain ID of the domain to search, defaut is authenticated user's current domain
+   * @param {boolean} includeDefaultSchemas - Include default schemas (Work Order, Service Request, etc), default is true.
+   * @param {boolean} includeGisSchemas - Include GIS schemas, default is true.
+   * @param {number} [domainId] - The domain ID of the domain to search; defaults to the authenticated user's current domain.
    * @return {Object} Returns Promise object that represents a list of Objects
    */
-    getTypesInfo(includeDefaultSchemasInclude: boolean = true, includeGisSchemas: boolean = true, domainId?: number) {
+    getTypesInfo(includeDefaultSchemas: boolean = true, includeGisSchemas: boolean = true, domainId?: number) {
       return new Promise((resolve, reject) => {
         var data = {
-          "IncludeDefaultSchemasInclude": includeDefaultSchemasInclude,
+          "IncludeDefaultSchemas": includeDefaultSchemas,
           "IncludeGisSchemas": includeGisSchemas
         }
         if(typeof(domainId)!=='undefined') {
@@ -115,11 +115,11 @@ export class Query {
    *
    * @category Query
    * @param {string} query - The query to validate
-   * @param {DynamicVariableMap} variables - Required if the query includes variables
+   * @param {DynamicVariableMap} [variables] - Values for $name variables in the query.
    * @param {number} [domainId] - The domain ID of the domain to search, defaut is authenticated user's current domain
    * @return {Object} Returns Promise object that represents a list of Objects
    */
-    validateQuery(query: string, variables: DynamicVariableMap, domainId?: number) {
+    validateQuery(query: string, variables?: DynamicVariableMap, domainId?: number) {
       return new Promise((resolve, reject) => {
         var data = {
           "Query": query,
@@ -140,10 +140,10 @@ export class Query {
    * Validate a query response definition
    *
    * @category Query
-   * @param {string} queryType - The query to validate
-   * @param {DynamicResponseDefinition} responseDefinition - Required if the query includes variables
+   * @param {string} queryType - The query type to validate against.
+   * @param {DynamicResponseDefinition} responseDefinition - Map response field names to selection values, for example {RequestId: true}.
    * @param {number} [domainId] - The domain ID of the domain to search, defaut is authenticated user's current domain
-   * @return {Object} Returns Promise object that represents a list of Objects
+   * @return {Object} Returns a Promise for the validation results.
    */
   validateResponseDefinition(queryType: string, responseDefinition: DynamicResponseDefinition, domainId?: number) {
     // TODO: Confirm that the queryType is present in the getTypes() request
@@ -191,11 +191,11 @@ export class Query {
    * Run a query using query language syntax
    *
    * @category Query
-   * @param {number} query - Query syntax string or saved query ID to run. If you want to append addt'l query items to a saved query, add QueryValue in the options
-   * @param {Object} options - Other options. See: /{subdirectory}/apidocs/#/service-info/General/Query
-   * @return {Object} Returns Promise object that represents a list of Objects
+   * @param {number|string} query - Query syntax or saved query ID. For a saved query, options.QueryValue can contain a complete query expression to append.
+   * @param {Object} options - Options including Variables for $name placeholders and ResponseFields as a field-name map. See /{subdirectory}/apidocs/#/service-info/General/Query.
+   * @return {Object} Returns a Promise for a paged result with Results, Page, HasMore and TotalRecordCount.
    */
-  run(query: string|number, options: {QueryValue?: string, Page?: number, PageSize?: number, ResponseFields?: any, SortDescending?: boolean, SortField?: string, Variables?: DynamicVariableMap} = {}) {
+  run(query: string|number, options: {QueryValue?: string, Page?: number, PageSize?: number, ResponseFields?: DynamicResponseDefinition, SortDescending?: boolean, SortField?: string, Variables?: DynamicVariableMap} = {}) {
     return new Promise((resolve, reject) => {
       var data = {}
       var api_path: string = 'General/Query/Query';
@@ -223,7 +223,7 @@ export class Query {
    * @category Query
    * @param {Array<string>} queryTypes - Get the saved queries for a particular type, default is all types
    * @param {boolean} createdOnly - Get only queries created by the current user, default is get all queries current user can access
-   * @param {boolean} includeQuery - Restrict GIS searches to specified entity types
+   * @param {boolean} includeQuery - Include saved query text, default is true.
    * @param {boolean} [visibleToMobile] - Filter visibility to mobile. Default ignore visibility to mobile.
    * @param {number} [domainId] - The domain ID of the domain to search, defaut is authenticated user's current domain
    * @return {Object} Returns Promise object that represents a collection of SavedQueries
@@ -239,6 +239,9 @@ export class Query {
         _.set(data, "QueryType", queryTypes[0])
       } else if(queryTypes.length>1) {
         _.set(data, "QueryTypes", queryTypes)
+      }
+      if(typeof(visibleToMobile)!=='undefined') {
+        _.set(data, "VisibleToMobile", visibleToMobile)
       }
       if(typeof(domainId)!=='undefined') {
         _.set(data, "DomainId", domainId)

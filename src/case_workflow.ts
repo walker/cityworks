@@ -375,11 +375,11 @@ export class CaseWorkflow {
   }
 
   /**
-   * Search for CaseTaskResults Objects. Include one or more of the search fields. A logical 'and' operation is applied to muliple search fields
+   * Search for CaseTaskResults IDs. Include one or more of the search fields. A logical 'and' operation is applied to multiple search fields
    *
    * @category Task Results
    * @param {Object} filters - The parameters to search by. See: /{subdirectory}/apidocs/#/service-info/Pll/CaseTaskResults
-   * @return {Object} Returns Promise that represents a collection of resulting CaTaskResultsItem
+   * @return {Object} Returns a Promise for matching CaTaskResultsIds.
    */
    searchForTaskResults(filters?: Object) {
     return new Promise((resolve, reject) => {

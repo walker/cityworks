@@ -48,8 +48,10 @@ describe('[CaseData] simple wrapper methods', () => {
 
   cases.forEach(([method, path, args, payload], i) => {
     it('should call ' + method + ' (#' + i + ') with the expected path and payload and resolve the Value', async () => {
-      mock.on(path, {Ok: i});
-      assert.deepEqual(await data()[method](...args), {Ok: i});
+      // these return collections on the live API
+      const value = ['getGroupsByCaseId', 'getAllDataDetails'].indexOf(method) > -1 ? [{Ok: i}] : {Ok: i};
+      mock.on(path, value);
+      assert.deepEqual(await data()[method](...args), value);
       assert.deepEqual(mock.paths(), [path]);
       assert.deepEqual(mock.lastCall(path).data, payload);
     });
@@ -63,6 +65,11 @@ describe('[CaseData] simple wrapper methods', () => {
   it('should resolve getGroupsByCaseId as a collection', async () => {
     mock.on('Pll/CaseDataGroup/ByCaObjectId', [{CaDataGroupId: 1}, {CaDataGroupId: 2}]);
     assert.isArray(await data().getGroupsByCaseId(77950));
+  });
+
+  it('should preserve a null response when the case has no data groups', async () => {
+    mock.on('Pll/CaseDataGroup/ByCaObjectId', null);
+    assert.isNull(await data().getGroupsByCaseId(77950));
   });
 });
 
@@ -87,8 +94,9 @@ describe('[CaseData] search methods', () => {
     });
 
     it('should call ' + method + ' with filters and resolve the Value', async () => {
-      mock.on(path, [{Id: 1}]);
-      assert.deepEqual(await data()[method](good), [{Id: 1}]);
+      const value = method === 'searchForGroups' ? [1] : [{Id: 1}];
+      mock.on(path, value);
+      assert.deepEqual(await data()[method](good), value);
       assert.deepEqual(mock.lastCall(path).data, good);
     });
 

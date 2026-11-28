@@ -295,8 +295,8 @@ describe('[Request] mocked service request tests', () => {
 
   describe('[Request::getCustomFields] function test', () => {
     it('should send the request IDs and return the custom fields', async () => {
-      mock.on(BASE + 'CustomFields', [{RequestId: 5, Fields: []}]);
-      assert.deepEqual(await cw4.request.getCustomFields([5]), [{RequestId: 5, Fields: []}]);
+      mock.on(BASE + 'CustomFields', {'5': []});
+      assert.deepEqual(await cw4.request.getCustomFields([5]), {'5': []});
       assert.deepEqual(mock.lastCall(BASE + 'CustomFields').data, {RequestIds: [5]});
     });
   });
@@ -336,25 +336,27 @@ describe('[Request] mocked service request tests', () => {
     it('should get problems by keywords', async () => {
       mock.on(BASE + 'ProblemsByKeywords', [{ProblemSid: 1}]);
       assert.deepEqual(await cw4.request.getProblemsByKeywords('pothole'), [{ProblemSid: 1}]);
-      assert.deepEqual(mock.lastCall(BASE + 'ProblemsByKeywords').data, {Keywords: 'pothole'});
+      assert.deepEqual(mock.lastCall(BASE + 'ProblemsByKeywords').data, {Keywords: ['pothole']});
+      await cw4.request.getProblemsByKeywords(['water', 'road']);
+      assert.deepEqual(mock.lastCall(BASE + 'ProblemsByKeywords').data, {Keywords: ['water', 'road']});
     });
     it('should get priorities, custom field templates, Q&A and the problem leaf by ProblemSid', async () => {
-      mock.on(BASE + 'Priorities', ['High']);
+      mock.on(BASE + 'Priorities', {'309': ['High']});
       mock.on(BASE + 'TemplateCustomFields', ['cf']);
       mock.on(BASE + 'QA', ['qa']);
       mock.on(BASE + 'ProblemLeafBySid', {ProblemSid: 309});
-      assert.deepEqual(await cw4.request.getPriorities(309), ['High']);
+      assert.deepEqual(await cw4.request.getPriorities(309), {'309': ['High']});
       assert.deepEqual(await cw4.request.getCustomFieldTemplate(309), ['cf']);
       assert.deepEqual(await cw4.request.getQASettings(309), ['qa']);
       assert.deepEqual(await cw4.request.getProblemLeaf(309), {ProblemSid: 309});
-      assert.deepEqual(mock.lastCall(BASE + 'Priorities').data, {ProblemSids: 309});
+      assert.deepEqual(mock.lastCall(BASE + 'Priorities').data, {ProblemSids: [309]});
       assert.deepEqual(mock.lastCall(BASE + 'TemplateCustomFields').data, {ProblemSids: 309});
       assert.deepEqual(mock.lastCall(BASE + 'QA').data, {ProblemSids: 309});
       assert.deepEqual(mock.lastCall(BASE + 'ProblemLeafBySid').data, {ProblemSid: 309});
     });
     it('should get default statuses for domains', async () => {
-      mock.on(BASE + 'DefaultStatus', ['OPEN']);
-      assert.deepEqual(await cw4.request.getStatuses([1, 2]), ['OPEN']);
+      mock.on(BASE + 'DefaultStatus', {'1': {}, '2': {}});
+      assert.deepEqual(await cw4.request.getStatuses([1, 2]), {'1': {}, '2': {}});
       assert.deepEqual(mock.lastCall(BASE + 'DefaultStatus').data, {DomainIds: [1, 2]});
     });
     it('should get street codes with an empty payload', async () => {

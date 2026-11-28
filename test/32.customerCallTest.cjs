@@ -126,6 +126,9 @@ describe('[CustomerCall] mocked request pass-through test', () => {
 
   it('should call the remaining endpoints with the documented parameters', async () => {
     _.forEach(['ByIncidentNum', 'ByRequestIds', 'CallerQuestions', 'CallerQuestionsByRequestIds', 'Delete', 'Move', 'MoveToRequest'], p => mock.on('Ams/CustomerCall/' + p, true));
+    mock.on('Ams/CustomerCall/ByRequestIds', []);
+    mock.on('Ams/CustomerCall/CallerQuestions', []);
+    mock.on('Ams/CustomerCall/CallerQuestionsByRequestIds', {});
     const cc = cw4.request.customerCall;
     await cc.getByIncidentNum(5);
     await cc.getByRequestIds([1, 2]);

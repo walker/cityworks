@@ -335,7 +335,8 @@ export class Briefcase {
       var data = filters
       this.cw.runRequest('Pll/CaseObject/Search', data).then(r => {
         if(r.Value && r.Value.length == 1) {
-          this.current_case = r.Value[0].CaObjectId
+          const result = r.Value[0]
+          this.current_case = typeof result === 'number' ? result : result.CaObjectId
         }
         resolve(r.Value)
       }).catch(e => {
@@ -494,7 +495,7 @@ export class Briefcase {
       var data = {
         CaObjectId: caObjectId
       }
-      var path = 'Ams/TemplateMapLayer/DeleteCaseInstanceMapLayersByCaObjectId';
+      var path = 'Ams/TemplateMapLayer/DeleteCaseInstancesByCaObjectId';
       this.cw.runRequest(path, data).then(r => {
         resolve(r.Value)
       }).catch(e => {

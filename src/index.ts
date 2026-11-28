@@ -87,7 +87,8 @@ class Cityworks implements Citywork {
     secure: boolean,
     expires: any,
     default_domain?: any,
-    version: number
+    version: number,
+    publicUser: boolean
   }
   error?: any
 
@@ -99,7 +100,7 @@ class Cityworks implements Citywork {
   /**
      * Contructor for a new cityworks instance's object, allows one to optionally configure the domain and other settings right from the get-go
      * @param {string} [base_url] - The base url of your Cityworks instance
-     * @param {object} [settings] - The settings for your Cityworks site. Full list: {path: (defaults to "cityworks"), secure: defaults to true, expires: defaults to NULL, does not expire, default_domain: defaults to NULL, uses default user domain, version: defaults to 23, for 15.x set to 15}
+     * @param {object} [settings] - The settings for your Cityworks site. Full list: {path: (defaults to "cityworks"), publicUser: true if the account is a non-employee public access user (case comments then default to public), defaults to false, secure: defaults to true, expires: defaults to NULL, does not expire, default_domain: defaults to NULL, uses default user domain, version: defaults to 23, for 15.x set to 15}
      * @param {array} [load] - allows user to choose which modules to load and make available. Omit to load everything. See `configure` for the full list of module names.
      */
   constructor(base_url?: string, settings?: Object, load?: Array<string>) {
@@ -111,7 +112,8 @@ class Cityworks implements Citywork {
       secure: true,
       expires: null,
       default_domain: null,
-      version: 23
+      version: 23,
+      publicUser: false
     }
     this.potential_loads = ['general', 'activity_link', 'message_queue', 'gis', 'search', 'query', 'request', 'inspection', 'workorder', 'case', 'report', 'employee', 'equipment', 'contractor', 'recent_activity', 'general_admin']
     if(typeof(base_url)!='undefined') {
@@ -135,7 +137,8 @@ class Cityworks implements Citywork {
       secure: true,
       expires: null,
       default_domain: null,
-      version: 23
+      version: 23,
+      publicUser: false
     }
 
     if(typeof(settings)!='undefined') {
@@ -312,15 +315,14 @@ class Cityworks implements Citywork {
                     reject(new CWError(4, "Unknown error.", {options: options, postedData: pd, api_returned_string: obj}))
                   }
                 } else {
-                  reject(new CWError(5, "Error parsing JSON. Cityworks returned HTML.", {response: str}))
+                  reject(new CWError(5, "Error parsing JSON. Cityworks returned HTML.", {response: str, statusCode: response.statusCode}))
                 }
               } catch (e) {
                 if (e instanceof SyntaxError) {
                   // console.log('try/catch error on JSON', e)
-                  reject(new CWError(6, "Error parsing JSON.", e))
+                  reject(new CWError(6, "Error parsing JSON.", {error: String(e), response: str, statusCode: response.statusCode}))
                 } else {
-                  console.log('try/catch error on JSON - but not an instance of SyntaxError')
-                  reject(new CWError(7, "Error parsing JSON.", e))
+                  reject(new CWError(7, "Error parsing JSON.", {error: String(e), response: str, statusCode: response.statusCode}))
                 }
               }
             }
@@ -376,6 +378,16 @@ class Cityworks implements Citywork {
      */
   v() {
     return this.settings.version
+  }
+
+  /**
+   * Whether the account being used is a non-employee (public access) user. Set with the `publicUser` setting in configure; defaults to false.
+   * Comments on cases are private by default, and public by default only when this is true.
+   *
+   * @return {boolean}
+   */
+  isPublicUser(): boolean {
+    return this.settings.publicUser === true
   }
 
   /**

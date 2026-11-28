@@ -35,15 +35,15 @@ describe('[Inspection::create] function test', () => {
     createFromEntities: ['Ams/Inspection/CreateFromEntities', []],
     createFromParent: ['Ams/Inspection/CreateFromParent', ['InspectionId']],
     createFromServiceRequest: ['Ams/Inspection/CreateFromServiceRequest', ['RequestId']],
-    createFromWorkOrder: ['Ams/Inspection/CreateFromWorkOrder', ['WorkOrderSid']]
+    createFromWorkOrder: ['Ams/Inspection/CreateFromWorkOrder', ['WorkOrderId']]
   };
 
-  it('should resolve collection of Inspections and send the payload untouched', async () => {
-    mock.on('Ams/Inspection/Create', () => [{InspectionId: 11}, {InspectionId: 12}]);
+  it('should resolve the Inspection and send the payload untouched', async () => {
+    mock.on('Ams/Inspection/Create', () => ({InspectionId: 11}));
     const payload = {InspTemplateId: 209, EntityType: 'MAINTENANCE_CATEGORIZATION'};
     const r = await cw10.inspection.create(payload);
-    assert.deepEqual(r, [{InspectionId: 11}, {InspectionId: 12}]);
-    assert.property(r[0], 'InspectionId');
+    assert.deepEqual(r, {InspectionId: 11});
+    assert.property(r, 'InspectionId');
     assert.deepEqual(mock.lastCall('Ams/Inspection/Create').data, payload);
     assert.lengthOf(mock.calls, 1);
   });
@@ -74,14 +74,88 @@ describe('[Inspection::create] function test', () => {
     assert.deepEqual(mock.calls, []);
   });
 
+  const relationshipCases = [
+    {title: 'should have an attached work order when specified', method: 'createFromWorkOrder', parentKey: 'WorkOrderSid', parentType: 4, parentId: 31, linkType: 2},
+    {title: 'should have an attached parent inspection when specified', method: 'createFromParent', parentKey: 'InspectionId', parentType: 2, parentId: 32, linkType: 1},
+    {title: 'should have an attached service request when specified', method: 'createFromServiceRequest', parentKey: 'RequestId', parentType: 3, parentId: 33, linkType: 2}
+  ];
+
+  relationshipCases.forEach(({title, method, parentKey, parentType, parentId, linkType}) => {
+    it(title, async () => {
+      const endpoint = createFns[method][0];
+      const links = [];
+      const inspectionId = 77;
+      const payload = {EntityType: 'X', InspTemplateId: 5, [parentKey]: parentId};
+      const expectedPayload = method === 'createFromWorkOrder' ? {...payload, WorkOrderId: 'WO-31'} : payload;
+      if(method === 'createFromWorkOrder') mock.on('Ams/WorkOrder/BySid', {WorkOrderSid: parentId, WorkOrderId: 'WO-31'});
+      const result = method === 'createFromParent' ? {InspectionId: inspectionId, ParentInspId: parentId} : {InspectionId: inspectionId};
+      mock.on(endpoint, data => {
+        links.push({ActivityLinkId: 1, SourceType: parentType, SourceSid: data[parentKey], DestType: 2, DestSid: inspectionId, LinkType: linkType});
+        return result;
+      });
+      mock.on('General/ActivityLink/ByActivitySids', data =>
+        links.filter(link => data.ActivityType === 2 && data.ActivitySids.includes(link.DestSid))
+      );
+
+      const created = await cw10.inspection[method](payload);
+      assert.deepEqual(created, result);
+      assert.deepEqual(mock.lastCall(endpoint).data, expectedPayload);
+      assert.deepEqual(payload, {EntityType: 'X', InspTemplateId: 5, [parentKey]: parentId});
+      const attached = await cw10.activity_link.get('inspection', [created.InspectionId]);
+      assert.deepEqual(attached, [{ActivityLinkId: 1, SourceType: parentType, SourceSid: parentId, DestType: 2, DestSid: inspectionId, LinkType: linkType}]);
+      assert.deepEqual(mock.lastCall('General/ActivityLink/ByActivitySids').data, {ActivityType: 2, ActivitySids: [inspectionId]});
+      assert.deepEqual(mock.paths(), [...(method === 'createFromWorkOrder' ? ['Ams/WorkOrder/BySid'] : []), endpoint, 'General/ActivityLink/ByActivitySids']);
+    });
+  });
+
+  it('should create from a work order ID without a SID lookup', async () => {
+    const payload = {EntityType: 'X', InspTemplateId: 5, WorkOrderId: 'WO-31'};
+    mock.on('Ams/Inspection/CreateFromWorkOrder', {InspectionId: 77});
+    assert.deepEqual(await cw10.inspection.createFromWorkOrder(payload), {InspectionId: 77});
+    assert.deepEqual(mock.paths(), ['Ams/Inspection/CreateFromWorkOrder']);
+    assert.deepEqual(mock.lastCall('Ams/Inspection/CreateFromWorkOrder').data, payload);
+  });
+
+  it('should pass through both work order identifiers without a lookup', async () => {
+    const payload = {EntityType: 'X', InspTemplateId: 5, WorkOrderId: 'WO-31', WorkOrderSid: 31};
+    mock.on('Ams/Inspection/CreateFromWorkOrder', {InspectionId: 77});
+    assert.deepEqual(await cw10.inspection.createFromWorkOrder(payload), {InspectionId: 77});
+    assert.deepEqual(mock.paths(), ['Ams/Inspection/CreateFromWorkOrder']);
+    assert.deepEqual(mock.lastCall('Ams/Inspection/CreateFromWorkOrder').data, payload);
+  });
+
+  it('should reject a missing or unresolvable work order before creating an inspection', async () => {
+    assert.equal((await rejection(cw10.inspection.createFromWorkOrder({EntityType: 'X', InspTemplateId: 5}))).Message, 'WorkOrderId or WorkOrderSid must be provided.');
+    mock.on('Ams/WorkOrder/BySid', null);
+    const e = await rejection(cw10.inspection.createFromWorkOrder({EntityType: 'X', InspTemplateId: 5, WorkOrderSid: 31}));
+    assert.equal(e.Message, 'Could not resolve WorkOrderId for the provided WorkOrderSid.');
+    assert.deepEqual(mock.paths(), ['Ams/WorkOrder/BySid']);
+  });
+
+  it('should propagate a work order lookup error without creating an inspection', async () => {
+    mock.onError('Ams/WorkOrder/BySid', {Code: 4, Message: 'lookup failed'});
+    const e = await rejection(cw10.inspection.createFromWorkOrder({EntityType: 'X', InspTemplateId: 5, WorkOrderSid: 31}));
+    assert.equal(e.Message, 'lookup failed');
+    assert.deepEqual(mock.paths(), ['Ams/WorkOrder/BySid']);
+  });
+
+  it('should propagate creation errors after resolving a work order SID', async () => {
+    mock.on('Ams/WorkOrder/BySid', {WorkOrderId: 'WO-31'});
+    mock.onError('Ams/Inspection/CreateFromWorkOrder', {Code: 4, Message: 'create failed'});
+    const e = await rejection(cw10.inspection.createFromWorkOrder({EntityType: 'X', InspTemplateId: 5, WorkOrderSid: 31}));
+    assert.equal(e.Message, 'create failed');
+    assert.deepEqual(mock.paths(), ['Ams/WorkOrder/BySid', 'Ams/Inspection/CreateFromWorkOrder']);
+  });
+
   it('should post each create variant to its own endpoint and resolve the Value', async () => {
     for (const fn of Object.keys(createFns)) {
       const p = createFns[fn][0];
-      mock.on(p, () => [{InspectionId: 77, From: p}]);
+      const result = fn === 'createFromEntities' ? [{InspectionId: 77, From: p}] : {InspectionId: 77, From: p};
+      mock.on(p, () => result);
       const payload = {EntityType: 'X', InspTemplateId: 5};
-      createFns[fn][1].forEach(k => { payload[k] = 3; });
+      createFns[fn][1].forEach(k => { payload[k] = k === 'WorkOrderId' ? 'WO-3' : 3; });
       const r = await cw10.inspection[fn](payload);
-      assert.deepEqual(r, [{InspectionId: 77, From: p}]);
+      assert.deepEqual(r, result);
       assert.deepEqual(mock.lastCall(p).data, payload);
     }
     assert.lengthOf(mock.calls, 5);
@@ -93,10 +167,6 @@ describe('[Inspection::create] function test', () => {
     assert.equal(e.Code, 4);
     assert.equal(e.Message, 'Not authorized');
   });
-
-  it('should have attached workorders when specified');
-  it('should have attached inspections when specified');
-  it('should have attached service requests when specified');
 });
 
 describe('[Inspection::update] function test', () => {

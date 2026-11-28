@@ -119,11 +119,11 @@ export class CasePeople {
    * Search for people records
    *
    * @category Case People
-   * @param {number} searchOptions - Where you specify search options that assume a logical 'and' operation
+   * @param {Object} searchOptions - Search options combined with a logical 'and' operation
    * @param {boolean} idsOnly - If you only wants the IDs of the people records that match the search criteria, set this to true. Otherwise, set it to false.
-   * @return {Object} Returns Promise that represents an array of people record IDs that match the search criteria.
+   * @return {Object} Returns a Promise for matching people records, or their IDs when idsOnly is true.
    */
-  search(searchOptions: {
+  search(searchOptions: Partial<{
     AddressLine1: string
     AddressLine2: string
     CaObjectId: number
@@ -142,7 +142,7 @@ export class CasePeople {
     StateCode: string
     StateName: string
     ZipCode: string
-  }, idsOnly: boolean = false) {
+  }>, idsOnly: boolean = false) {
     return new Promise((resolve, reject) => {
       var data = searchOptions
       var runUrl: string = 'Pll/CasePeople/SearchObject'

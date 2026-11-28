@@ -41,7 +41,7 @@ export class WorkOrderAdmin {
   getEntityTypes(entityGroups:Array<string>) {
     return new Promise((resolve, reject) => {
       var data = {EntityGroups: entityGroups}
-      this.cw.runRequest('Ams/Designer/WOTemplates', data).then(r => {
+      this.cw.runRequest('Ams/Entity/Types', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -128,12 +128,12 @@ export class WorkOrderAdmin {
    *
    * @category WorkOrders Admin
    * @param {Array<number>} wOTemplateIds - Array one or more WorkOrder Template IDs
-   * @return {Object} Returns Promise that represents a collection of all
+   * @return {Object} Returns a Promise for group rights keyed by WorkOrder template ID
    */
   getTemplateGroupRights(wOTemplateIds:Array<number>) {
     return new Promise((resolve, reject) => {
       var data = {WOTemplateIds: wOTemplateIds}
-      this.cw.runRequest('Ams/Designer/WOTemplates', data).then(r => { // TODO: Update this URL
+      this.cw.runRequest('Ams/Designer/WOTemplateGroupRights', data).then(r => {
         resolve(r.Value)
       }).catch(e => {
         reject(e)
@@ -146,17 +146,12 @@ export class WorkOrderAdmin {
    *
    * @category WorkOrders Admin
    * @param {Array<number>} wOTemplateIds - Array one or more WorkOrder Template IDs
-   * @return {Object} Returns Promise that represents a collection of all
+   * @return {Object} Returns a Promise for activity services in the same order as the template IDs
    */
   getTemplateActivity(wOTemplateIds:Array<number>) {
-    return new Promise((resolve, reject) => {
-      var data = {WOTemplateIds: wOTemplateIds}
-      this.cw.runRequest('Ams/Designer/WOTemplateActivityService', data).then(r => {
-        resolve(r.Value)
-      }).catch(e => {
-        reject(e)
-      })
-    })
+    return Promise.all(wOTemplateIds.map(wOTemplateId =>
+      this.cw.runRequest('Ams/Designer/WOTemplateActivityService', {WOTemplateId: wOTemplateId}).then(r => r.Value)
+    ))
   }
 
   /**

@@ -90,14 +90,14 @@ describe('[CaseWorkflow] mocked function tests', () => {
     });
 
     it('getResultsByTaskId and the search methods send the expected payloads', async () => {
-      mock.on('Pll/CaseTaskResults/ByCaTaskIds', () => [{CaTaskResultId: 1}]);
+      mock.on('Pll/CaseTaskResults/ByCaTaskIds', () => [{CaTaskResultsId: 1}]);
       mock.on('Pll/CaseTask/Search', () => [5, 6]);
-      mock.on('Pll/CaseTaskResults/Search', () => [{CaTaskResultId: 2}]);
-      assert.deepEqual(await wf().getResultsByTaskId([5]), [{CaTaskResultId: 1}]);
+      mock.on('Pll/CaseTaskResults/Search', () => [2]);
+      assert.deepEqual(await wf().getResultsByTaskId([5]), [{CaTaskResultsId: 1}]);
       assert.deepEqual(mock.lastCall('Pll/CaseTaskResults/ByCaTaskIds').data, {CaTaskIds: [5]});
-      assert.deepEqual(await wf().searchForTasks({TaskComplete: 'N'}), [5, 6]);
-      assert.deepEqual(mock.lastCall('Pll/CaseTask/Search').data, {TaskComplete: 'N'});
-      assert.deepEqual(await wf().searchForTaskResults({CaTaskId: 5}), [{CaTaskResultId: 2}]);
+      assert.deepEqual(await wf().searchForTasks({TaskComplete: false}), [5, 6]);
+      assert.deepEqual(mock.lastCall('Pll/CaseTask/Search').data, {TaskComplete: false});
+      assert.deepEqual(await wf().searchForTaskResults({CaTaskId: 5}), [2]);
     });
 
     it('searchForTasks rejects with CWError 1 when no recognised filter is provided', async () => {

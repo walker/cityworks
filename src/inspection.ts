@@ -92,15 +92,14 @@ export class Inspection {
   }
 
   /**
-   * Create an inspection from a parent inspection (TODO: what parent!?)
+   * Create an inspection from a parent inspection
    *
    * @category Inspections
-   * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-infodataType=InspectionBase on your Cityworks instance
+   * @param {object} insp_data - Includes the parent InspectionId, EntityType and InspTemplateId. See InspectionBase in the instance API docs.
    * @return {Object} Returns object that represents an object describing the newly-created inspection
    */
    createFromParent(insp_data: Object) {
     return new Promise((resolve, reject) => {
-      // see if it's just InspectionId
      if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId') || !_.has(insp_data, 'InspectionId')) {
        reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
      } else {
@@ -117,7 +116,7 @@ export class Inspection {
    * Create an inspection from a service request
    *
    * @category Inspections
-   * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-infodataType=InspectionBase on your Cityworks instance
+   * @param {object} insp_data - Includes the parent RequestId, EntityType and InspTemplateId. See InspectionBase in the instance API docs.
    * @return {Object} Returns object that represents an object describing the newly-created inspection
    */
    createFromServiceRequest(insp_data: Object) {
@@ -135,21 +134,29 @@ export class Inspection {
   }
 
   /**
-   * Create an inspection from a WorkOrder
+   * Create an inspection from a WorkOrder. Supply WorkOrderId or WorkOrderSid; a SID is resolved to the WorkOrderId first.
    *
    * @category Inspections
-   * @param {object} insp_data - See /{subdirectory}/apidocs/#/data-type-infodataType=InspectionBase on your Cityworks instance
+   * @param {object} insp_data - Includes WorkOrderId or WorkOrderSid, EntityType and InspTemplateId. See InspectionBase in the instance API docs.
    * @return {Object} Returns object that represents an object describing the newly-created inspection
    */
    createFromWorkOrder(insp_data: Object) {
     return new Promise((resolve, reject) => {
-      // Are they  both actually required?!?!
-      // WorkOrderId
-      // WorkOrderSid ...do with only SID first then check
-     if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId') || !_.has(insp_data, 'WorkOrderSid')) {
+     if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId')) {
        reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
+     } else if(!_.has(insp_data, 'WorkOrderId') && !_.has(insp_data, 'WorkOrderSid')) {
+       reject(new CWError(1, 'WorkOrderId or WorkOrderSid must be provided.', {'provided': insp_data}))
      } else {
-       this.cw.runRequest('Ams/Inspection/CreateFromWorkOrder', insp_data).then(r => {
+       const data = _.has(insp_data, 'WorkOrderId')
+         ? Promise.resolve(insp_data)
+         : this.cw.runRequest('Ams/WorkOrder/BySid', {WorkOrderSid: _.get(insp_data, 'WorkOrderSid')}).then(r => {
+           const workOrderId = _.get(r, 'Value.WorkOrderId')
+           if(!_.isString(workOrderId) || workOrderId.length === 0) {
+             throw new CWError(1, 'Could not resolve WorkOrderId for the provided WorkOrderSid.', {'WorkOrderSid': _.get(insp_data, 'WorkOrderSid')})
+           }
+           return _.assign({}, insp_data, {WorkOrderId: workOrderId})
+         })
+       data.then(payload => this.cw.runRequest('Ams/Inspection/CreateFromWorkOrder', payload)).then(r => {
          resolve(r.Value)
        }).catch(e => {
          reject(e)

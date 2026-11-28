@@ -264,7 +264,7 @@ export class WorkOrder {
    *
    * @category WorkOrders
    * @param {Array<string|number>} workOrderSIds - The workorder S/IDs to retrieve. If providing WorkOrderID, should be all strings, else provide all numbers for WorkOrderSID
-   * @return {Object} Returns Promise that represents an array of String, String describing the workorder instructions
+   * @return {Object} Returns Promise that represents instructions keyed by work order ID or SID
    */
   getInstructions(workOrderSIds: Array<string|number>) {
     return new Promise((resolve, reject) => {
@@ -298,10 +298,10 @@ export class WorkOrder {
    * Get the audit log for a specific workorder
    *
    * @category WorkOrders
-   * @param {number} workOrderSId - A WorkOrder S/ID to get the audit log for. SID is default.
+   * @param {string|number} workOrderSId - A WorkOrder ID or SID to get the audit log for.
    * @return {Object} Returns Promise that represents a collection of Cityworks Metadata Objects
    */
-  getAuditLog(workOrderSId: number) {
+  getAuditLog(workOrderSId: string|number) {
     return new Promise((resolve, reject) => {
       var data = {}
       if(_.isString(workOrderSId)) {
@@ -357,7 +357,7 @@ export class WorkOrder {
    * @category WorkOrders
    * @param {Array<string|number>} workOrderSIds - The workorder S/IDs which the entities should be added to. # for SID, string for ID.
    * @param {boolean} getGisData - Query gis to populate Entity.Attributes with current gis data. Defaults to true.
-   * @return {Object} Returns object that represents a list of entities removed.
+   * @return {Object} Returns a Promise for the matching entities.
    */
   getEntities(workOrderSIds: Array<string|number>, getGisData: boolean = true) {
     return new Promise((resolve, reject) => {
@@ -367,6 +367,7 @@ export class WorkOrder {
       if(workOrderSIds.length==0) {
         // throw error
         reject(new CWError(11, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+        return
       } else {
         if(_.isString(workOrderSIds[0])) {
           _.set(data, 'WorkOrderIds', workOrderSIds)
@@ -374,6 +375,7 @@ export class WorkOrder {
           _.set(data, 'WorkOrderSids', workOrderSIds)
         } else {
           reject(new CWError(12, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+          return
         }
       }
       this.cw.runRequest('Ams/WorkOrder/Entities', data).then(r => {
@@ -519,15 +521,15 @@ export class WorkOrder {
    * Cancel workorders
    *
    * @category WorkOrders
-   * @param {Array<number>} workOrderIds - An array of the IDs to cancel the matched workorders
+   * @param {Array<string|number>} workOrderIds - An array of the IDs to cancel the matched workorders
    * @param {string} [cancelReason] - A reason for cancelling the workorder(s)
    * @param {datetime} [dateCancelled] - The date/time that it should be indicated the workorder was cancelled
    * @return {Object} Returns object that represents a collection of workorders
    */
-  cancel(workOrderIds: Array<number>, cancelReason?: string, dateCancelled?: Date) {
+  cancel(workOrderIds: Array<string|number>, cancelReason?: string, dateCancelled?: Date) {
     return new Promise((resolve, reject) => {
       var m = new Date()
-      var data: {WorkOrderIds: Array<number>, CancelReason?: string, DateCancelled?: Date} = { WorkOrderIds: workOrderIds }
+      var data: {WorkOrderIds: Array<string|number>, CancelReason?: string, DateCancelled?: Date} = { WorkOrderIds: workOrderIds }
       if(typeof(cancelReason)!=='undefined')
         _.set(data, 'CancelReason', cancelReason);
       if(typeof(dateCancelled)!=='undefined')
@@ -544,10 +546,10 @@ export class WorkOrder {
    * Uncancel workorders
    *
    * @category WorkOrders
-   * @param {Array<number>} workOrderIds - An array of the IDs to uncancel the matched workorders
+   * @param {Array<string|number>} workOrderIds - An array of the IDs to uncancel the matched workorders
    * @return {Object} Returns object that represents a collection of workorders
    */
-   uncancel(workOrderIds: Array<number>) {
+   uncancel(workOrderIds: Array<string|number>) {
      return new Promise((resolve, reject) => {
        var data = {
          WorkOrderIds: workOrderIds
@@ -564,10 +566,10 @@ export class WorkOrder {
     * Close WorkOrders
     *
     * @category WorkOrders
-    * @param {Array<number>} workOrderIds - An array of the IDs to close the matched WorkOrders
+    * @param {Array<string|number>} workOrderIds - An array of the IDs to close the matched WorkOrders
     * @return {Object} Returns object that represents a collection of WorkOrders
     */
-    close(workOrderIds: Array<number>) {
+    close(workOrderIds: Array<string|number>) {
       return new Promise((resolve, reject) => {
         var data = {
           WorkOrderIds: workOrderIds
@@ -588,10 +590,10 @@ export class WorkOrder {
      * Reopen closed WorkOrders
      *
      * @category WorkOrders
-     * @param {Array<number>} workOrderIds - An array of the IDs to reopen the matched WorkOrders
+     * @param {Array<string|number>} workOrderIds - An array of the IDs to reopen the matched WorkOrders
      * @return {Object} Returns object that represents a collection of WorkOrders
      */
-     reopen(workOrderIds: Array<number>) {
+     reopen(workOrderIds: Array<string|number>) {
        return new Promise((resolve, reject) => {
          var data = {
            WorkOrderIds: workOrderIds
@@ -608,10 +610,10 @@ export class WorkOrder {
    * Delete WorkOrders
    *
    * @category WorkOrders
-   * @param {Array<number>} workOrderIds - An array of the IDs to delete the matched WorkOrders
+   * @param {Array<string|number>} workOrderIds - An array of the IDs to delete the matched WorkOrders
    * @return {Object} Returns object that represents a collection of WorkOrder Ids which have been deleted
    */
-   delete(workOrderIds: Array<number>) {
+   delete(workOrderIds: Array<string|number>) {
      return new Promise((resolve, reject) => {
        var data = {
          WorkOrderIds: workOrderIds
@@ -910,7 +912,7 @@ export class WorkOrder {
           var path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayersByTemplate'
           _.set(data, 'WoTemplateId', woTemplateId)
         } else
-          var path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayersByWorkOrderId'
+          var path = 'Ams/TemplateMapLayer/UpdateWorkOrderInstanceMapLayers'
 
         if(_.isString(workOrderSId)) {
           _.set(data, 'WorkOrderId', workOrderSId)

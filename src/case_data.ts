@@ -102,7 +102,7 @@ export class CaseData {
    *
    * @category Data Groups
    * @param {number} caseId - The Case Object to get the attached data groups.
-   * @return {Object} Returns Promise that represents a collection of the CaDataGroupItemBases.
+   * @return {Object} Returns a Promise for the CaDataGroupItemBases, or null when none are present.
    */
    getGroupsByCaseId(caseId: number) {
     return new Promise((resolve, reject) => {
@@ -142,7 +142,7 @@ export class CaseData {
    *
    * @category Data Groups
    * @param {Object} filters - The parameters to search by. (CaDataGroupId, CaseDataGroupId, GroupCode, GroupDesc, GroupSum, SumFlag)
-   * @return {Object} Returns Promise that represents a number that is the CaObjectId (?)
+   * @return {Object} Returns a Promise for matching CaDataGroupIds.
    */
    searchForGroups(filters?: Object): Promise<Array<any>> {
     return new Promise((resolve, reject) => {

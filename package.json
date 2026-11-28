@@ -19,6 +19,10 @@
     "fulltest": "mocha -R spec --recursive ./test/",
     "contracts": "CW_RECORD_CONTRACTS=1 mocha -R dot --recursive ./test/",
     "test:live": "mocha -R spec ./live/liveContract.cjs",
+    "test:live:comments": "mocha -R spec ./live/liveComments.cjs",
+    "test:live:case": "mocha -R spec ./live/liveCase.cjs",
+    "test:live:query": "mocha -R spec ./live/liveQuery.cjs",
+    "test:live:inspection-links": "mocha -R spec ./live/liveInspectionRelationships.cjs",
     "docs": "typedoc --tsconfig ./tsconfig.json"
   },
   "repository": {

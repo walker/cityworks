@@ -160,7 +160,7 @@ export class WorkOrderCosts {
    * Get Equipment Costs for WorkOrder(s)
    *
    * @category WorkOrder Costs
-   * @param {number} workOrderSid - the work order to add the equipment costs to
+   * @param {number} workOrderSid - The work order SID to get equipment costs for
    * @param {boolean} estimated - true to get estimated costs. defaults to false
    * @return {Object} Returns Promise that represents an object describing
    */
@@ -168,7 +168,7 @@ export class WorkOrderCosts {
   getEquipment(workOrderSid: number, estimated: boolean = false) {
     return new Promise((resolve, reject) => {
       var data = {
-        WorkOrderSid: workOrderSid,
+        WorkOrderSids: [workOrderSid],
         Estimated: estimated
       }
       // TODO: ensure each object has Hours & InspectionId

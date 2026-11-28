@@ -91,7 +91,7 @@ export class CaseAssets {
    *
    * @category Case Assets
    * @param {number} caObjectId - The Case Object from which to get attached assets
-   * @return {Object} Returns Promise that represents a collection of the default CaAddresses.
+   * @return {Object} Returns a Promise for the attached CaAddresses, or null when none are present.
    */
   getForCase(caObjectId: number) {
     return new Promise((resolve, reject) => {
