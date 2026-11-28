@@ -117,7 +117,7 @@ export class CaseAssets {
    search(filters?: Object) {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['AssetType', 'CaAddressId', 'CaObjectId', 'CityName', 'ExpiredFlag', 'StateCode', 'StateName', 'StreetName', 'StreetNumber', 'Suite', 'ZipCode']).length==0) {
-        reject(new CWError(3, 'At least one of the attributes (AssetType, CaAddressId, CaObjectId, CityName, ExpiredFlag, StateCode, StateName, StreetName, StreetNumber, Suite, ZipCode) must be defined.'))
+        reject(CWError.validation(3, 'At least one of the attributes (AssetType, CaAddressId, CaObjectId, CityName, ExpiredFlag, StateCode, StateName, StreetName, StreetNumber, Suite, ZipCode) must be defined.'))
         return
       }
       var data = filters

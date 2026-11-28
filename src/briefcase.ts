@@ -1,7 +1,6 @@
 import { CWError } from './error'
 import type { CityworksClient } from './client'
 import _ from 'lodash'
-const querystring = require('querystring')
 
 import { CaseData } from './case_data'
 import { CaseFinancial } from './case_financial'
@@ -384,7 +383,7 @@ export class Briefcase {
     return new Promise((resolve, reject) => {
       if(!_.has(projection, 'WKID') && !_.has(projection, 'WKT')) {
         // Throw error
-        reject(new CWError(1, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
+        reject(CWError.validation(1, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
         return
       }
       var data_init = {

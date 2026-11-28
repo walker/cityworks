@@ -46,7 +46,7 @@ export class General {
       let aType = {'null': 0, 'case': 1, 'task': 2}
       if(typeof(aType[activityType])=='undefined') {
         // reject with error
-        reject(new CWError(1, "Activity type provided does not exist.", {provided: activityType, potential_activities: aType}))
+        reject(CWError.validation(1, "Activity type provided does not exist.", {provided: activityType, potential_activities: aType}))
       } else {
         let data = {"ActivityType": aType[activityType], "ActivityId": activityId}
         this.cw.runRequest('General/ActivityNotification/UserWatching', data).then(r => {
@@ -70,7 +70,7 @@ export class General {
     return new Promise((resolve, reject) => {
       let tables = ["INSPECTION", "REQUEST", "WORKORDER"]
       if(_.indexOf(tables, table)==-1) {
-        reject(new CWError(2, 'TableName provided does not exist or is mispelled.', {'provided': table, 'available':tables}))
+        reject(CWError.validation(2, 'TableName provided does not exist or is mispelled.', {'provided': table, 'available':tables}))
         return
       }
       let data = {

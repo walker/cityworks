@@ -31,7 +31,7 @@ export class AuditLogs {
         this.cw = cw
         this.currentTableName = tableName.toUpperCase()
         if (['INSPECTION', 'REQUEST', 'WORKORDER'].indexOf(this.currentTableName) === -1) {
-            throw new CWError(1, 'Audit log table name not found.', {
+            throw CWError.validation(1, 'Audit log table name not found.', {
                 provided: tableName,
                 options: ['INSPECTION', 'REQUEST', 'WORKORDER']
             })

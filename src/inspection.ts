@@ -59,7 +59,7 @@ export class Inspection {
   create(insp_data: Object) {
     return new Promise((resolve, reject) => {
       if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId')) {
-        reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
+        reject(CWError.validation(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
       } else {
         this.cw.runRequest('Ams/Inspection/Create', insp_data).then(r => {
           resolve(r.Value)
@@ -80,7 +80,7 @@ export class Inspection {
    createFromEntities(insp_data: Object) {
     return new Promise((resolve, reject) => {
      if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId')) {
-       reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
+       reject(CWError.validation(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
      } else {
        this.cw.runRequest('Ams/Inspection/CreateFromEntities', insp_data).then(r => {
          resolve(r.Value)
@@ -101,7 +101,7 @@ export class Inspection {
    createFromParent(insp_data: Object) {
     return new Promise((resolve, reject) => {
      if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId') || !_.has(insp_data, 'InspectionId')) {
-       reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
+       reject(CWError.validation(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
      } else {
        this.cw.runRequest('Ams/Inspection/CreateFromParent', insp_data).then(r => {
          resolve(r.Value)
@@ -122,7 +122,7 @@ export class Inspection {
    createFromServiceRequest(insp_data: Object) {
     return new Promise((resolve, reject) => {
      if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId') || !_.has(insp_data, 'RequestId')) {
-       reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
+       reject(CWError.validation(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
      } else {
        this.cw.runRequest('Ams/Inspection/CreateFromServiceRequest', insp_data).then(r => {
          resolve(r.Value)
@@ -143,9 +143,9 @@ export class Inspection {
    createFromWorkOrder(insp_data: Object) {
     return new Promise((resolve, reject) => {
      if(!_.has(insp_data, 'EntityType') || !_.has(insp_data, 'InspTemplateId')) {
-       reject(new CWError(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
+       reject(CWError.validation(1, 'EntityType and InspTemplateId properties must be provided.', {'provided': insp_data}))
      } else if(!_.has(insp_data, 'WorkOrderId') && !_.has(insp_data, 'WorkOrderSid')) {
-       reject(new CWError(1, 'WorkOrderId or WorkOrderSid must be provided.', {'provided': insp_data}))
+       reject(CWError.validation(1, 'WorkOrderId or WorkOrderSid must be provided.', {'provided': insp_data}))
      } else {
        const data = _.has(insp_data, 'WorkOrderId')
          ? Promise.resolve(insp_data)
@@ -175,7 +175,7 @@ export class Inspection {
   update(insp_data: Object) {
     return new Promise((resolve, reject) => {
       if(!_.has(insp_data, 'InspectionId')) {
-        reject(new CWError(1, 'InspectionId must be provided.', {'provided': insp_data}))
+        reject(CWError.validation(1, 'InspectionId must be provided.', {'provided': insp_data}))
       } else {
         this.cw.runRequest('Ams/Inspection/Update', insp_data).then(r => {
           resolve(r.Value)
@@ -609,7 +609,7 @@ export class Inspection {
         _.set(data, 'DomainIds', domainIds)
       }
       if(listType!='SubmitTos') {
-        reject(new CWError(2, 'listType must be "SubmitTos".', {'provided': listType}))
+        reject(CWError.validation(2, 'listType must be "SubmitTos".', {'provided': listType}))
       } else {
         this.cw.runRequest(`Ams/Inspection/${listType}`, data).then(r => {
           resolve(r.Value)
@@ -647,7 +647,7 @@ export class Inspection {
     return new Promise((resolve, reject) => {
       if(!_.has(projection, 'WKID') && !_.has(projection, 'WKT')) {
         // Throw error
-        reject(new CWError(3, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
+        reject(CWError.validation(3, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
         return
       }
       var data_init = {

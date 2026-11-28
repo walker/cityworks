@@ -94,7 +94,7 @@ export class CustomerCall extends Request {
   addToRequest(requestId: number, callData: CustomerCallData = {}) {
     return new Promise((resolve, reject) => {
       if(!_.isNumber(requestId)) {
-        reject(new CWError(601, 'RequestId must be provided.', {'provided': requestId}))
+        reject(CWError.validation(601, 'RequestId must be provided.', {'provided': requestId}))
         return
       }
       const data = _.assign(_.omit(callData, ['IncidentNum', 'Employee']), {RequestId: requestId})
@@ -117,7 +117,7 @@ export class CustomerCall extends Request {
   updateCall(incidentNum: number, callData: CustomerCallData = {}) {
     return new Promise((resolve, reject) => {
       if(!_.isNumber(incidentNum)) {
-        reject(new CWError(602, 'IncidentNum must be provided.', {'provided': incidentNum}))
+        reject(CWError.validation(602, 'IncidentNum must be provided.', {'provided': incidentNum}))
         return
       }
       const data = _.assign(_.omit(callData, ['Employee']), {IncidentNum: incidentNum})
@@ -164,7 +164,7 @@ export class CustomerCall extends Request {
     return new Promise<Array<any>>((resolve, reject) => {
       const list = _.castArray(calls)
       if(!_.every(list, _.isPlainObject)) {
-        reject(new CWError(603, 'Customer call data must be an object or an array of objects.', {'provided': calls}))
+        reject(CWError.validation(603, 'Customer call data must be an object or an array of objects.', {'provided': calls}))
         return
       }
       const results: Array<any> = []
@@ -210,7 +210,7 @@ export class CustomerCall extends Request {
       }, Promise.resolve()).then(() => {
         resolve(results)
       }).catch(e => {
-        reject(new CWError(604, 'Customer call ' + (results.length + 1) + ' of ' + list.length + ' failed: ' + _.get(e, 'Message', String(e)), {'RequestId': requestId, 'Completed': results, 'Cause': e}))
+        reject(new CWError(604, 'Customer call ' + (results.length + 1) + ' of ' + list.length + ' failed: ' + _.get(e, 'Message', String(e)), {'RequestId': requestId, 'Completed': results, 'Cause': e}, {category: 'operation', cause: e}))
       })
     })
   }
@@ -331,7 +331,7 @@ export class CustomerCall extends Request {
   moveCall(incidentNum: number, x: number, y: number, projection: {WKID?: number|string, WKT?: string, VcsWKID?: number|string}, z?: number) {
     return new Promise((resolve, reject) => {
       if(!_.has(projection, 'WKID') && !_.has(projection, 'WKT')) {
-        reject(new CWError(605, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
+        reject(CWError.validation(605, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
         return
       }
       const data = _.merge({IncidentNum: incidentNum, X: x, Y: y}, projection)

@@ -144,7 +144,7 @@ export class CaseAdmin {
   searchCaseTypeIDs(filters: Object) {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaseType', 'CaseTypeDesc', 'CaseTypeId']).length==0) {
-        reject(new CWError(2, 'At least one of the attributes (CaseType, CaseTypeDesc, CaseTypeId) must be defined.'))
+        reject(CWError.validation(2, 'At least one of the attributes (CaseType, CaseTypeDesc, CaseTypeId) must be defined.'))
         return
       }
       var data = filters
@@ -166,7 +166,7 @@ export class CaseAdmin {
   searchCaseTypeObjects(filters: Object) {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaseType', 'CaseTypeDesc', 'CaseTypeId']).length==0) {
-        reject(new CWError(3, 'At least one of the attributes (CaseType, CaseTypeDesc, CaseTypeId) must be defined.'))
+        reject(CWError.validation(3, 'At least one of the attributes (CaseType, CaseTypeDesc, CaseTypeId) must be defined.'))
         return
       }
       var data = filters
@@ -267,7 +267,7 @@ export class CaseAdmin {
   searchFees(filters: {AccountCode?: string, FeeCode?: string, FeeDesc?: string, FeeSetupId?: number, FeeTypeId?: number}) {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['AccountCode', 'FeeCode', 'FeeDesc', 'FeeSetupId', 'FeeTypeId']).length==0) {
-        reject(new CWError(4, 'At least one of the attributes (AccountCode, FeeCode, FeeDesc, FeeSetupId, FeeTypeId) must be defined.'))
+        reject(CWError.validation(4, 'At least one of the attributes (AccountCode, FeeCode, FeeDesc, FeeSetupId, FeeTypeId) must be defined.'))
         return
       }
       var data = filters
@@ -306,7 +306,7 @@ export class CaseAdmin {
   addExpiration(options?: Object) {
     return new Promise((resolve, reject) => {
       if(!_.has(options, 'OrgId') || !_.has(options, 'ExpirationTypeDesc')) {
-        reject(new CWError(5, 'OrgId and ExpirationTypeDesc must both be defined.'))
+        reject(CWError.validation(5, 'OrgId and ExpirationTypeDesc must both be defined.'))
         return
       }
       var data = options
@@ -344,7 +344,7 @@ export class CaseAdmin {
   searchDeposits(filters: {AccountCode?: string, DepositCode?: string, DepositDesc?: string, DepositId?: number, DepositTypeId?: number}) {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['AccountCode', 'DepositCode', 'DepositDesc', 'DepositId', 'DepositTypeId']).length==0) {
-        reject(new CWError(4, 'At least one of the attributes (AccountCode, DepositCode, DepositDesc, DepositId, DepositTypeId) must be defined.'))
+        reject(CWError.validation(4, 'At least one of the attributes (AccountCode, DepositCode, DepositDesc, DepositId, DepositTypeId) must be defined.'))
         return
       }
       var data = filters

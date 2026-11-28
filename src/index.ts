@@ -171,7 +171,7 @@ class Cityworks implements Citywork {
     const names = _.uniq(_.map(load, n => Cityworks.loadAliases[n] || n))
     const unknown = _.difference(names, this.potential_loads)
     if(unknown.length > 0) {
-      throw new CWError(15, 'Unknown module(s) in load: ' + unknown.join(', '), {'provided': load, 'available': this.potential_loads})
+      throw CWError.validation(15, 'Unknown module(s) in load: ' + unknown.join(', '), {'provided': load, 'available': this.potential_loads})
     }
     return names
   }
@@ -244,7 +244,11 @@ class Cityworks implements Citywork {
         }).then((r) => {
           resolve(r.data)
         }).catch((e) => {
-          reject(new CWError(17, 'Error sending the file to the Cityworks API.', e))
+          reject(new CWError(17, 'Error sending the file to the Cityworks API.', e, {
+            category: axios.isAxiosError(e) ? (e.response ? 'http' : e.request ? 'network' : 'unknown') : 'unknown',
+            cause: e, servicePath: service_path,
+            statusCode: axios.isAxiosError(e) && e.response ? e.response.status : undefined
+          }))
         })
       } else {
         // if(service_path=='Pll/CaseFlags/DeleteByCaObjectId') {
@@ -266,7 +270,7 @@ class Cityworks implements Citywork {
           let str=''
           response.on('error',function(e){
               console.log(e, 'Caught on error')
-              reject(new CWError(13, "Unknown error.", e))
+              reject(new CWError(13, "Unknown error.", e, {category: 'network', cause: e, servicePath: service_path}))
           })
 
           response.on('data',function(chunk){
@@ -277,59 +281,61 @@ class Cityworks implements Citywork {
             if(!_.isUndefined(_.findKey(Attachments.downloadUrls(), function(o) { return o === service_path })) || !_.isUndefined(_.findKey(Report.downloadUrls(), function(o) { return o === service_path })) || !_.isUndefined(_.findKey(CaseFinancial.downloadUrls(), function(o) { return o === service_path }))) {
               // This is an attachment or report download call
               if(_.findKey(Report.downloadUrls(), function(o) { return o === service_path })==='case' && response.statusCode==500) {
-                reject(new CWError(13, 'Could not find report template for specified case or other server error occurred.'))
+                reject(new CWError(13, 'Could not find report template for specified case or other server error occurred.', undefined, {category: 'http', servicePath: service_path, statusCode: response.statusCode}))
               } else if(_.findKey(Report.downloadUrls(), function(o) { return o === service_path })==='receipt' && response.statusCode==500) {
-                reject(new CWError(14, 'Could not find receipt file or another server error occurred.'))
+                reject(new CWError(14, 'Could not find receipt file or another server error occurred.', undefined, {category: 'http', servicePath: service_path, statusCode: response.statusCode}))
               } else {
                 resolve(str);
               }
             } else {
+              const responseErrorOptions = {
+                category: response.statusCode && response.statusCode >= 400 ? 'http' as const : 'response' as const,
+                servicePath: service_path,
+                statusCode: response.statusCode
+              }
+              var test_str = JSON.stringify(str) + "[test string]"
+              if(test_str.match(/\<h2\>Object\ moved\ to/)!=null) {
+                reject(new CWError(5, "Error parsing JSON. Cityworks returned HTML.", {response: str, statusCode: response.statusCode}, responseErrorOptions))
+                return
+              }
+              let obj
               try {
-                var test_str = JSON.stringify(str) + "[test string]"
-                if(test_str.match(/\<h2\>Object\ moved\ to/)==null) {
-                  var obj=JSON.parse(str)
-                  if(typeof(obj)=='undefined') {
-                    // failed
-                    reject(new CWError(10, 'No response received from Cityworks API.'))
-                  } else if(typeof(obj)!='undefined') { //  && typeof(obj.Value)!='undefined'
-                    switch(obj.Status) {
-                      case 1:
-                        reject(new CWError(1, 'Error', obj))
-                        break;
-                      case 2:
-                        reject(new CWError(2, 'Unauthorized', obj))
-                        break;
-                      case 3:
-                        reject(new CWError(3, 'InvalidCredentials', obj))
-                        break;
-                      case 0:
-                      default:
-                        if(typeof(obj)!='undefined' && typeof(obj.Value)=='undefined' && obj.Status==0) {
-                          resolve(true);
-                        } else {
-                          resolve(obj);
-                        }
-                        break;
-                    }
-                  } else {
-                    reject(new CWError(4, "Unknown error.", {options: options, postedData: pd, api_returned_string: obj}))
-                  }
-                } else {
-                  reject(new CWError(5, "Error parsing JSON. Cityworks returned HTML.", {response: str, statusCode: response.statusCode}))
-                }
+                obj = JSON.parse(str)
               } catch (e) {
-                if (e instanceof SyntaxError) {
-                  // console.log('try/catch error on JSON', e)
-                  reject(new CWError(6, "Error parsing JSON.", {error: String(e), response: str, statusCode: response.statusCode}))
-                } else {
-                  reject(new CWError(7, "Error parsing JSON.", {error: String(e), response: str, statusCode: response.statusCode}))
+                reject(new CWError(e instanceof SyntaxError ? 6 : 7, "Error parsing JSON.", {error: String(e), response: str, statusCode: response.statusCode}, {...responseErrorOptions, cause: e}))
+                return
+              }
+              if(typeof(obj)=='undefined') {
+                reject(new CWError(10, 'No response received from Cityworks API.', undefined, responseErrorOptions))
+              } else if(obj === null) {
+                reject(new CWError(7, "Error parsing JSON.", {error: 'Cityworks returned null', response: str, statusCode: response.statusCode}, responseErrorOptions))
+              } else {
+                const apiErrorOptions = {category: 'api' as const, servicePath: service_path, statusCode: response.statusCode}
+                switch(obj.Status) {
+                  case 1:
+                    reject(new CWError(1, 'Error', obj, apiErrorOptions))
+                    break;
+                  case 2:
+                    reject(new CWError(2, 'Unauthorized', obj, apiErrorOptions))
+                    break;
+                  case 3:
+                    reject(new CWError(3, 'InvalidCredentials', obj, apiErrorOptions))
+                    break;
+                  case 0:
+                  default:
+                    if(typeof(obj.Value)=='undefined' && obj.Status==0) {
+                      resolve(true);
+                    } else {
+                      resolve(obj);
+                    }
+                    break;
                 }
               }
             }
           })
         })
         request.on('error', (e) => {
-          reject(new CWError(13, 'Unknown error.', e))
+          reject(new CWError(13, 'Unknown error.', e, {category: 'network', cause: e, servicePath: service_path}))
         })
         request.on('timeout', () => {
           request.destroy(new Error('Request to the Cityworks API timed out.'))
@@ -356,7 +362,7 @@ class Cityworks implements Citywork {
       this.runRequest(path, data).then((response: any) => {
         if(response.Status>0) {
           // failed
-          reject(new CWError(100, response.Message))
+          reject(new CWError(100, response.Message, undefined, {category: 'api', servicePath: path}))
         } else if(typeof(response.Value)!='undefined' && typeof(response.Value.Token)!='undefined') {
           this.login = login
           this.password = password
@@ -421,7 +427,7 @@ class Cityworks implements Citywork {
       this.runRequest(path, data).then((response: any) => {
         if((typeof(response.Status)!='undefined' && response.Status>0)) {
           // failed
-          reject(new CWError(100, response.Message))
+          reject(new CWError(100, response.Message, undefined, {category: 'api', servicePath: path}))
         } else if(typeof(response.Value)!='undefined' && typeof(response.Value.Token)!='undefined') {
           this.Token = response.Value.Token
           resolve(true)
@@ -871,4 +877,5 @@ const general_admin = lazy('general_admin', modules.general_admin)
 
 Object.defineProperty(cw, 'contractor', {get: () => contractor, configurable: true, enumerable: true})
 
-export { cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report, employee, equipment, contractor, recent_activity, general_admin }
+export { CWError, cw as Cityworks, general, activity_link, message_queue, search, query, gis, request, inspection, workorder, briefcase, report, employee, equipment, contractor, recent_activity, general_admin }
+export type { CWErrorCategory, CWErrorOptions, CWErrorMsgs, CWErrorInt } from './error'

@@ -3,18 +3,23 @@
   "version": "2.2.22",
   "description": "A Cityworks API wrapper",
   "main": "dist/index.js",
-  "umd:main": "dist/index.umd.js",
   "module": "dist/index.m.js",
   "source": "src/index.ts",
   "files": [
-    "dist/*"
+    "dist/*.d.ts",
+    "dist/index.js",
+    "dist/index.js.map",
+    "dist/index.m.js",
+    "dist/index.m.js.map",
+    "dist/index.modern.mjs",
+    "dist/index.modern.mjs.map"
   ],
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "dev": "microbundle watch",
-    "build": "microbundle",
+    "dev": "microbundle watch --target node --format cjs,esm,modern --compress",
+    "build": "microbundle --target node --format cjs,esm,modern --compress",
     "test": "mocha -R spec --recursive ./test/ -g ",
     "fulltest": "mocha -R spec --recursive ./test/",
     "contracts": "CW_RECORD_CONTRACTS=1 mocha -R dot --recursive ./test/",

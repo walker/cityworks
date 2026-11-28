@@ -118,7 +118,7 @@ export class CaseFlags {
    search(filters?: Object) {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['CaFlagId', 'Flag', 'FlagDesc']).length==0) {
-        reject(new CWError(3, 'At least one of the attributes (CaFlagId, Flag, FlagDesc) must be defined.'))
+        reject(CWError.validation(3, 'At least one of the attributes (CaFlagId, Flag, FlagDesc) must be defined.'))
         return
       }
       var data = filters

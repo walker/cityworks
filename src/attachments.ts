@@ -84,7 +84,7 @@ export class Attachments {
           endpoint = 'Ams/Attachments/AddWorkOrderAttachment'
           break;
         default:
-          reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+          reject(CWError.validation(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
           return
       }
       this.cw.runRequest(endpoint, data, the_file).then(r => {
@@ -138,7 +138,7 @@ export class Attachments {
           _.set(data, 'AttachmentId', attachment_id)
           break;
         default:
-          reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+          reject(CWError.validation(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
           return
       }
       this.cw.runRequest(endpoint, data).then(r => {
@@ -182,7 +182,7 @@ export class Attachments {
           endpoint = 'Ams/Attachments/DeleteWorkOrderAttachments'
           break;
         default:
-          reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+          reject(CWError.validation(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
           return
       }
       this.cw.runRequest(endpoint, data).then(r => {
@@ -230,7 +230,7 @@ export class Attachments {
           endpoint = Attachments.downloadUrls()['workorder']
           break;
         default:
-          reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+          reject(CWError.validation(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
           return
       }
       this.cw.runRequest(endpoint, data).then(r => {
@@ -272,7 +272,7 @@ export class Attachments {
           endpoint = 'Ams/Attachments/WorkOrderAttachmentById'
           break;
         default:
-          reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+          reject(CWError.validation(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
           return
       }
       this.cw.runRequest(endpoint, data).then(r => {
@@ -342,7 +342,7 @@ export class Attachments {
           endpoint = 'Ams/Attachments/WorkOrderAttachments'
           break;
         default:
-          reject(new CWError(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
+          reject(CWError.validation(132, 'Unknown current activity type or activity type not set.', {'provided': this.currentActivityType}))
           return
       }
       this.cw.runRequest(endpoint, data).then(r => {
@@ -385,7 +385,7 @@ export class Attachments {
           })
           break;
         default:
-          reject(new CWError(132, 'Tags can only be set on Case attachments.', {'provided': this.currentActivityType}))
+          reject(CWError.validation(132, 'Tags can only be set on Case attachments.', {'provided': this.currentActivityType}))
       }
     })
   }

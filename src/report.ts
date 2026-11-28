@@ -63,11 +63,11 @@ export class Report {
   print(type: string, node_id: number, filename?: string) {
     return new Promise((resolve, reject) => {
       if(type!=='case' && type!=='workorder' && type!=='inspection' && type!=='request') {
-        reject(new CWError(405, 'Invalid type provided. Must be case, workorder, inspection, or request.'))
+        reject(CWError.validation(405, 'Invalid type provided. Must be case, workorder, inspection, or request.'))
         return
       }
       if(typeof(node_id)==='undefined' || node_id===null || isNaN(node_id) || node_id<=0) {
-        reject(new CWError(406, 'Invalid node_id provided. Must be a number greater than 0.'))
+        reject(CWError.validation(406, 'Invalid node_id provided. Must be a number greater than 0.'))
         return
       }
       var dl_url: string = ''

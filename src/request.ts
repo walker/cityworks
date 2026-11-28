@@ -79,7 +79,7 @@ export class Request {
     return customerCall.applyToRequest(requestId, calls as CustomerCallData | Array<CustomerCallData>, options).then(created => {
       return _.assign({}, sr, {CustomerCalls: created})
     }).catch(e => {
-      throw new CWError(607, 'The request was saved, but its customer call(s) were not: ' + _.get(e, 'Message', String(e)), {'RequestId': requestId, 'Request': sr, 'Cause': e})
+      throw new CWError(607, 'The request was saved, but its customer call(s) were not: ' + _.get(e, 'Message', String(e)), {'RequestId': requestId, 'Request': sr, 'Cause': e}, {category: 'operation', cause: e})
     })
   }
 
@@ -94,7 +94,7 @@ export class Request {
   create(sr_data: Object, customerCall?: CustomerCallData | Array<CustomerCallData>) {
     return new Promise((resolve, reject) => {
       if(!_.has(sr_data, 'ProblemSid')) {
-        reject(new CWError(2, 'ProblemSid must be provided.', {'provided': sr_data}))
+        reject(new CWError(2, 'ProblemSid must be provided.', {'provided': sr_data}, {category: 'validation'}))
       } else {
         this.cw.runRequest('Ams/ServiceRequest/Create', sr_data).then(r => {
           return this.withCustomerCalls(r.Value, r.Value.RequestId, customerCall, {newCall: true})
@@ -122,7 +122,7 @@ export class Request {
   update(sr_data: Object, customerCall?: CustomerCallData | Array<CustomerCallData>, options?: CustomerCallOptions) {
     return new Promise((resolve, reject) => {
       if(!_.has(sr_data, 'RequestId')) {
-        reject(new CWError(3, 'RequestId must be provided.', {'provided': sr_data}))
+        reject(new CWError(3, 'RequestId must be provided.', {'provided': sr_data}, {category: 'validation'}))
       } else {
         this.cw.runRequest('Ams/ServiceRequest/Update', sr_data).then(r => {
           return this.withCustomerCalls(r.Value, _.get(sr_data, 'RequestId') as unknown as number, customerCall, options)
@@ -148,7 +148,7 @@ export class Request {
     return new Promise((resolve, reject) => {
       if(!_.has(projection, 'WKID') && !_.has(projection, 'WKT')) {
         // Throw error
-        reject(new CWError(6, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
+        reject(CWError.validation(6, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
         return
       }
       var base_data = {
@@ -349,7 +349,7 @@ export class Request {
         }
         this.cw.runRequest('Ams/ServiceRequest/Close', data).then(r => {
           if(r.Status>0) {
-            reject(new CWError(5, r.Message, {'response': r}))
+            reject(new CWError(5, r.Message, {'response': r}, {category: 'api'}))
           } else {
             resolve(r.Value)
           }
@@ -393,7 +393,7 @@ export class Request {
        }
        this.cw.runRequest('Ams/ServiceRequest/Delete', data).then(r => {
          if(r.Status>0) {
-           reject(new CWError(4, r.Message, {'response': r}))
+           reject(new CWError(4, r.Message, {'response': r}, {category: 'api'}))
          } else {
            resolve(r.Value)
          }
@@ -664,7 +664,7 @@ export class Request {
         DomainId: domainId
       }
       if(!_.includes(['DispatchTo', 'SubmitTo'], listType)) {
-        reject(new CWError(2, 'listType must be either SubmitTo or DispatchTo.', {'provided': listType}))
+        reject(CWError.validation(2, 'listType must be either SubmitTo or DispatchTo.', {'provided': listType}))
       } else {
         this.cw.runRequest(`Ams/ServiceRequest/${listType}`, data).then(r => {
           resolve(r.Value)

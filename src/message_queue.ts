@@ -71,7 +71,7 @@ export class MessageQueue {
   get(ids: Array<number>, status: string, maxcount: number = 15) {
     return new Promise((resolve, reject) => {
       if(typeof(this.status[status])=='undefined') {
-        reject(new CWError(1, 'Status provided does not exist or is mispelled.', {'provided': status, 'available':this.status}))
+        reject(CWError.validation(1, 'Status provided does not exist or is mispelled.', {'provided': status, 'available':this.status}))
         return
       }
       let data = {
@@ -99,7 +99,7 @@ export class MessageQueue {
   delete(ids: Array<number>, status: string, hours_to_keep?: number) {
     return new Promise((resolve, reject) => {
       if(typeof(this.status[status])=='undefined') {
-        reject(new CWError(2, 'Status provided does not exist or is mispelled.', {'provided': status, 'available':this.status}))
+        reject(CWError.validation(2, 'Status provided does not exist or is mispelled.', {'provided': status, 'available':this.status}))
         return
       }
       let data = {
@@ -136,7 +136,7 @@ export class MessageQueue {
     let data: any
     return new Promise((resolve, reject) => {
       if(typeof(parameters.status)!=='undefined' && typeof(this.status[parameters.status])=='undefined') {
-        reject(new CWError(3, 'Status provided does not exist or is mispelled.', {'provided': parameters.status, 'available':this.status}))
+        reject(CWError.validation(3, 'Status provided does not exist or is mispelled.', {'provided': parameters.status, 'available':this.status}))
       } else if(typeof(parameters.status)!=='undefined' && typeof(this.status[parameters.status])!=='undefined') {
         data.Status = this.status[parameters.status]
       }
@@ -149,7 +149,7 @@ export class MessageQueue {
         if(_.indexOf(allowed_params,k)!=-1 && _.indexOf(disallowed_params, k)==-1) {
           data[k] = v
         } else if(_.indexOf(disallowed_params, k)==-1) {
-          reject(new CWError(4, 'Provided parameter does not exist or is mispelled.', {'provided': k, 'value': v, 'available':_.concat(allowed_params, disallowed_params)}))
+          reject(CWError.validation(4, 'Provided parameter does not exist or is mispelled.', {'provided': k, 'value': v, 'available':_.concat(allowed_params, disallowed_params)}))
         }
       })
       let path = 'General/MessageQueue/Search'
@@ -185,12 +185,12 @@ export class MessageQueue {
     let data: any
     return new Promise((resolve, reject) => {
       if(typeof(parameters.status)!=='undefined' && typeof(this.status[parameters.status])=='undefined') {
-        reject(new CWError(3, 'Status provided does not exist or is mispelled.', {'provided': parameters.status, 'available':this.status}))
+        reject(CWError.validation(3, 'Status provided does not exist or is mispelled.', {'provided': parameters.status, 'available':this.status}))
       } else if(typeof(parameters.status)!=='undefined' && typeof(this.status[parameters.status])!=='undefined') {
         data.Status = this.status[parameters.status]
       }
       if(typeof(parameters.hook_types)!=='undefined' && typeof(this.hook_types[parameters.hook_types])=='undefined') {
-        reject(new CWError(3, 'Status provided does not exist or is mispelled.', {'provided': parameters.hook_types, 'available':this.hook_types}))
+        reject(CWError.validation(3, 'Status provided does not exist or is mispelled.', {'provided': parameters.hook_types, 'available':this.hook_types}))
       } else if(typeof(parameters.hook_types)!=='undefined' && typeof(this.hook_types[parameters.hook_types])!=='undefined') {
         data.HookType = this.hook_types[parameters.hook_types]
       }
@@ -200,7 +200,7 @@ export class MessageQueue {
         if(_.indexOf(allowed_params,k)!=-1 && _.indexOf(disallowed_params, k)==-1) {
           data[k] = v
         } else if(_.indexOf(disallowed_params, k)==-1) {
-          reject(new CWError(5, 'Provided parameter does not exist or is mispelled.', {'provided': k, 'value': v, 'available':_.concat(allowed_params, disallowed_params)}))
+          reject(CWError.validation(5, 'Provided parameter does not exist or is mispelled.', {'provided': k, 'value': v, 'available':_.concat(allowed_params, disallowed_params)}))
         }
       })
 
@@ -218,7 +218,7 @@ export class MessageQueue {
   updateMessageStatus(ids: number[], status: string, hours_to_keep?: number) {
     return new Promise((resolve, reject) => {
       if(typeof(this.status[status])=='undefined') {
-        reject(new CWError(2, 'Status provided does not exist or is mispelled.', {'provided': status, 'available':this.status}))
+        reject(CWError.validation(2, 'Status provided does not exist or is mispelled.', {'provided': status, 'available':this.status}))
         return
       }
       let data = {

@@ -27,7 +27,6 @@ Authenticate with the Cityworks install:
         console.log(error.message)
       })
 
-
 Get the currently valid token in order to store it in a session or cookie:
 
       cw.Cityworks.getToken()
@@ -35,6 +34,14 @@ Get the currently valid token in order to store it in a session or cookie:
 Provide a saved token instead of the standard u/p auth:
 
       cw.Cityworks.setToken('mytoken')
+
+## Errors
+
+The package exports `CWError`, which extends `Error`. Existing `Name`, `Code`, `Message`, `Error_messages`, and JSON-string `Info` fields remain available. Standard `message` and `stack` are also available, and `Message` stays in sync with `message`.
+
+`error.category` distinguishes `validation`, `api`, `network`, `http`, `response`, and `operation` errors where the origin is known; otherwise it is `unknown`. A wrapped error may include `cause`, `servicePath`, and `statusCode`. Codes are not globally unique, so use the category as well as `Code` when handling errors.
+
+`Info` may contain request or response data; treat it as sensitive. Circular references and big integers are represented as strings so the rest of the information remains readable.
 
 ## Main method calls
 
@@ -151,7 +158,9 @@ For any object in Cityworks which has attachments, (including cases as CaRelDocs
       cw.inspection.attachment.add(InspectionIDGoesHere, path.join('uploads', 'filename.pdf')).then(resp => {})
 
 
-## Tests
+## Build and tests
+
+`npm run build` produces Node.js CommonJS and ES module bundles. The package does not provide a browser UMD bundle.
 
 `npm test` / `npm run fulltest` run the mocked test suite: no Cityworks instance or network is needed.
 

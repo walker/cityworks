@@ -278,7 +278,7 @@ export class CaseWorkflow {
         ResultCode: resultCode
       }
       if(_.intersectionBy(_.keysIn(options), ['TaskCompleteDate', 'TaskCompletedBy']).length==0) {
-        reject(new CWError(2, 'At least one of the attributes (TaskCompletedBy, TaskCompleteDate) must be defined.'))
+        reject(CWError.validation(2, 'At least one of the attributes (TaskCompletedBy, TaskCompleteDate) must be defined.'))
         return
       }
       if(typeof(options)!='undefined') {
@@ -362,7 +362,7 @@ export class CaseWorkflow {
    searchForTasks(filters?: Object) {
     return new Promise((resolve, reject) => {
       if(_.intersectionBy(_.keysIn(filters), ['ResponsibleUserId', 'TaskAvailable', 'TaskComplete', 'TaskType']).length==0) {
-        reject(new CWError(1, 'At least one of the attributes (ResponsibleUserId, TaskAvailable, TaskComplete, TaskType) must be defined.'))
+        reject(CWError.validation(1, 'At least one of the attributes (ResponsibleUserId, TaskAvailable, TaskComplete, TaskType) must be defined.'))
         return
       }
       var data = filters

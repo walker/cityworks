@@ -60,7 +60,7 @@ export class ActivityLinks implements ActivityLink {
 
   private validateType(type: string, validTypes: ReversibleMap<string, number>, errorCode: number): void {
     if (!validTypes.has(type)) {
-      throw new CWError(errorCode, `Activity type "${type}" not found.`, { provided: type, options: validTypes });
+      throw CWError.validation(errorCode, `Activity type "${type}" not found.`, { provided: type, options: validTypes });
     }
   }
 

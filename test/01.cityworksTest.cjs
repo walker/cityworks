@@ -2,7 +2,10 @@
 // Mocked tests: no Cityworks instance is contacted.
 const assert = require('chai').assert;
 const https = require('https');
+const fs = require('fs');
+const axios = require('axios');
 const EventEmitter = require('events');
+const {Readable} = require('stream');
 const cw1 = require('../dist/index.js');
 const { createMock } = require('./mockCityworks');
 
@@ -120,6 +123,8 @@ describe('[Cityworks::setToken/getToken] function test', () => {
 
 describe('[Cityworks::runRequest] function test', () => {
   const realRequest = https.request;
+  const realPost = axios.post;
+  const realCreateReadStream = fs.createReadStream;
   let seen;
 
   // Stubs https.request with a fake that answers with the given status code and body
@@ -140,7 +145,11 @@ describe('[Cityworks::runRequest] function test', () => {
     };
   }
 
-  afterEach(() => { https.request = realRequest; });
+  afterEach(() => {
+    https.request = realRequest;
+    axios.post = realPost;
+    fs.createReadStream = realCreateReadStream;
+  });
 
   it('should resolve the parsed JSON and send the token header on v23', async () => {
     respondWith(JSON.stringify({Status: 0, Value: {A: 1}}));
@@ -176,6 +185,10 @@ describe('[Cityworks::runRequest] function test', () => {
       const e = await rejection(new CW('cw.example.test').runRequest('Ams/Thing/Get', {}));
       assert.equal(e.Code, status);
       assert.equal(e.Message, expected[status]);
+      assert.instanceOf(e, cw1.CWError);
+      assert.equal(e.category, 'api');
+      assert.equal(e.servicePath, 'Ams/Thing/Get');
+      assert.equal(e.statusCode, 200);
     }
   });
 
@@ -193,5 +206,64 @@ describe('[Cityworks::runRequest] function test', () => {
     respondWith('not json');
     e = await rejection(new CW('cw.example.test').runRequest('Ams/Thing/Get', {}));
     assert.equal(e.Code, 6);
+    assert.equal(e.category, 'response');
+    assert.instanceOf(e.cause, SyntaxError);
+  });
+
+  it('should retain HTTP status and legacy Info on an invalid HTTP error response', async () => {
+    respondWith('not json', 500);
+    const e = await rejection(new CW('cw.example.test').runRequest('Ams/Thing/Get', {}));
+    assert.equal(e.Code, 6);
+    assert.equal(e.category, 'http');
+    assert.equal(e.statusCode, 500);
+    assert.equal(JSON.parse(e.Info).statusCode, 500);
+  });
+
+  it('should preserve API errors with malformed error details', async () => {
+    respondWith(JSON.stringify({Status: 1, Message: 'API failed', ErrorMessages: [{Service: null}, null]}));
+    const e = await rejection(new CW('cw.example.test').runRequest('Ams/Thing/Get', {}));
+    assert.equal(e.Code, 1);
+    assert.equal(e.category, 'api');
+    assert.equal(e.Message, 'API failed');
+    assert.deepEqual(e.Error_messages, [{Service: null}]);
+  });
+
+  it('should retain a network failure as the cause', async () => {
+    const cause = new Error('connection failed');
+    https.request = () => {
+      const req = new EventEmitter();
+      req.write = () => {};
+      req.end = () => req.emit('error', cause);
+      return req;
+    };
+    const e = await rejection(new CW('cw.example.test').runRequest('Ams/Thing/Get', {}));
+    assert.equal(e.Code, 13);
+    assert.equal(e.category, 'network');
+    assert.strictEqual(e.cause, cause);
+    assert.equal(e.servicePath, 'Ams/Thing/Get');
+  });
+
+  it('should classify upload failures using available Axios context', async () => {
+    fs.createReadStream = () => Readable.from(['file']);
+    const cases = [
+      {cause: Object.assign(new Error('http'), {isAxiosError: true, response: {status: 503}}), category: 'http', status: 503},
+      {cause: Object.assign(new Error('network'), {isAxiosError: true, request: {}}), category: 'network'},
+      {cause: new Error('other'), category: 'unknown'}
+    ];
+    for(const test of cases) {
+      axios.post = () => Promise.reject(test.cause);
+      const e = await rejection(new CW('cw.example.test').runRequest('Ams/Thing/Upload', {}, 'file.txt'));
+      assert.equal(e.category, test.category);
+      assert.strictEqual(e.cause, test.cause);
+      assert.equal(e.statusCode, test.status);
+      assert.equal(e.servicePath, 'Ams/Thing/Upload');
+    }
+  });
+
+  it('should reject a null JSON response without throwing from the response callback', async () => {
+    respondWith('null');
+    const e = await rejection(new CW('cw.example.test').runRequest('Ams/Thing/Get', {}));
+    assert.equal(e.Code, 7);
+    assert.equal(e.category, 'response');
   });
 });

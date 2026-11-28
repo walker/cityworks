@@ -109,6 +109,8 @@ describe('[CustomerCall] mocked request pass-through test', () => {
       assert.fail('should have rejected');
     } catch (e) {
       assert.equal(e.Code, 607);
+      assert.equal(e.category, 'operation');
+      assert.isDefined(e.cause);
       assert.include(e.Message, 'boom');
       assert.equal(JSON.parse(e.Info).Request.Description, 'saved');
     }

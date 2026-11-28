@@ -243,7 +243,7 @@ export class WorkOrderCosts {
       const sids = _.filter(ids, _.isNumber) as Array<number>
       const workOrderIds = _.filter(ids, _.isString) as Array<string>
       if(sids.length === 0 && workOrderIds.length === 0) {
-        reject(new CWError(9, 'No workorder S/IDs were provided.', {'provided': workOrderSids}))
+        reject(CWError.validation(9, 'No workorder S/IDs were provided.', {'provided': workOrderSids}))
         return
       }
       var data: {WorkOrderSids?: Array<number>, WorkOrderIds?: Array<string>, Estimated: boolean} = {

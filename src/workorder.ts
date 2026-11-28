@@ -68,7 +68,7 @@ export class WorkOrder {
   create(wo_data: Object, inspectionIds?: Array<number>, requestIds?: Array<number>) {
     return new Promise((resolve, reject) => {
       if(!_.has(wo_data, 'WOTemplateId') || !_.has(wo_data, 'EntityType')) {
-        reject(new CWError(2, 'WOTemplateId & EntityType must be provided.', {'provided': wo_data}))
+        reject(CWError.validation(2, 'WOTemplateId & EntityType must be provided.', {'provided': wo_data}))
       } else {
         var data = wo_data;
         if(typeof inspectionIds != 'undefined' && inspectionIds != null && !_.has(data, 'InspectionIds')) {
@@ -97,7 +97,7 @@ export class WorkOrder {
   createFromParent(wo_data: Object, workOrderSId: string|number) {
     return new Promise((resolve, reject) => {
       if(!_.has(wo_data, 'WOTemplateId') || !_.has(wo_data, 'EntityType')) {
-        reject(new CWError(2, 'WOTemplateId & EntityType must be provided.', {'provided': wo_data}))
+        reject(CWError.validation(2, 'WOTemplateId & EntityType must be provided.', {'provided': wo_data}))
       } else {
         var data = wo_data;
         if(_.isString(workOrderSId)) {
@@ -124,7 +124,7 @@ export class WorkOrder {
   update(wo_data: Object) {
     return new Promise((resolve, reject) => {
       if(!_.has(wo_data, 'WorkOrderSid') && !_.has(wo_data, 'WorkOrderId')) {
-        reject(new CWError(3, 'WorkOrderId or WorkOrderSid must be provided.', {'provided': wo_data}))
+        reject(CWError.validation(3, 'WorkOrderId or WorkOrderSid must be provided.', {'provided': wo_data}))
       } else {
         this.cw.runRequest('Ams/WorkOrder/Update', wo_data).then(r => {
           resolve(r.Value)
@@ -153,7 +153,7 @@ export class WorkOrder {
        }
        this.cw.runRequest('Ams/WorkOrder/Combine', data).then(r => {
          if(r.Status>0) {
-           reject(new CWError(4, r.Message, {'response': r}))
+           reject(new CWError(4, r.Message, {'response': r}, {category: 'api'}))
          } else {
            resolve(r.Value)
          }
@@ -179,7 +179,7 @@ export class WorkOrder {
     return new Promise((resolve, reject) => {
       if(!_.has(projection, 'WKID') && !_.has(projection, 'WKT')) {
         // Throw error
-        reject(new CWError(6, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
+        reject(CWError.validation(6, 'You must provide either the WKID or WKT for the x/y coordinates.', {'projection': projection}))
         return
       }
       var base_data = {
@@ -236,7 +236,7 @@ export class WorkOrder {
       var data = {}
       if(workOrderSIds.length==0) {
         // throw error
-        reject(new CWError(101, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+        reject(CWError.validation(101, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
       } else {
         var path = 'Ams/WorkOrder/ByIds';
         if(_.isString(workOrderSIds[0])) {
@@ -247,7 +247,7 @@ export class WorkOrder {
           path = 'Ams/WorkOrder/BySids';
         } else {
           // throw error - was not number or string
-          reject(new CWError(9, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+          reject(CWError.validation(9, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
           return
         }
         this.cw.runRequest(path, data).then(r => {
@@ -271,7 +271,7 @@ export class WorkOrder {
       var data = {}
       if(workOrderSIds.length==0) {
         // throw error
-        reject(new CWError(102, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+        reject(CWError.validation(102, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
       } else {
         var path = 'Ams/WorkOrder/ByIds';
         if(_.isString(workOrderSIds[0])) {
@@ -282,7 +282,7 @@ export class WorkOrder {
           path = 'Ams/WorkOrder/InstructionsByWorkOrderSids';
         } else {
           // throw error - was not number or string
-          reject(new CWError(9, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+          reject(CWError.validation(9, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
           return
         }
         this.cw.runRequest(path, data).then(r => {
@@ -310,7 +310,7 @@ export class WorkOrder {
         _.set(data, 'WorkOrderSid', workOrderSId)
       } else {
         // throw error - was not number or string
-        reject(new CWError(9, 'Workorder S/IDs was not provided.', {'workorderSId': workOrderSId}))
+        reject(CWError.validation(9, 'Workorder S/IDs was not provided.', {'workorderSId': workOrderSId}))
         return
       }
       this.cw.runRequest('Ams/WorkOrder/AuditLog', data).then(r => {
@@ -340,7 +340,7 @@ export class WorkOrder {
         var path = 'Ams/WorkOrder/CustomFieldsByWorkOrderSids';
       } else {
         // throw error - was not number or string
-        reject(new CWError(9, 'No workorder S/IDs were provided.', {'workorderSIds': workOrderSIds}))
+        reject(CWError.validation(9, 'No workorder S/IDs were provided.', {'workorderSIds': workOrderSIds}))
         return
       }
       this.cw.runRequest(path, data).then(r => {
@@ -366,7 +366,7 @@ export class WorkOrder {
       }
       if(workOrderSIds.length==0) {
         // throw error
-        reject(new CWError(11, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+        reject(CWError.validation(11, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
         return
       } else {
         if(_.isString(workOrderSIds[0])) {
@@ -374,13 +374,13 @@ export class WorkOrder {
         } else if(_.isNumber(workOrderSIds[0])) {
           _.set(data, 'WorkOrderSids', workOrderSIds)
         } else {
-          reject(new CWError(12, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
+          reject(CWError.validation(12, 'No workorder S/IDs were provided.', {'workorderSId': workOrderSIds}))
           return
         }
       }
       this.cw.runRequest('Ams/WorkOrder/Entities', data).then(r => {
         if(r.Status>0) {
-          reject(new CWError(4, r.Message, {'response': r}))
+          reject(new CWError(4, r.Message, {'response': r}, {category: 'api'}))
         } else {
           resolve(r.Value)
         }
@@ -417,13 +417,13 @@ export class WorkOrder {
          _.set(data, 'EntityUids', _.get(entityInfo, 'EntityUids'))
          _.set(data, 'EntityType', _.get(entityInfo, 'EntityType'))
        } else {
-         reject(new CWError(7, 'No entity info was provided.', {'workorderSId': workOrderSId,'entityInfo': entityInfo}))
+         reject(CWError.validation(7, 'No entity info was provided.', {'workorderSId': workOrderSId,'entityInfo': entityInfo}))
          return
        }
 
        this.cw.runRequest('Ams/WorkOrder/AddEntities', data).then(r => {
          if(r.Status>0) {
-           reject(new CWError(4, r.Message, {'response': r}))
+           reject(new CWError(4, r.Message, {'response': r}, {category: 'api'}))
          } else {
            resolve(r.Value)
          }
@@ -460,13 +460,13 @@ export class WorkOrder {
           _.set(data, 'EntityUid', _.get(entityInfo, 'EntityUid'))
           _.set(data, 'EntityType', _.get(entityInfo, 'EntityType'))
         } else {
-          reject(new CWError(7, 'No entity info was provided.', {'workorderSId': workOrderSId,'entityInfo': entityInfo}))
+          reject(CWError.validation(7, 'No entity info was provided.', {'workorderSId': workOrderSId,'entityInfo': entityInfo}))
           return
         }
 
         this.cw.runRequest('Ams/WorkOrder/UpdateEntity', data).then(r => {
           if(r.Status>0) {
-            reject(new CWError(4, r.Message, {'response': r}))
+            reject(new CWError(4, r.Message, {'response': r}, {category: 'api'}))
           } else {
             resolve(r.Value)
           }
@@ -501,13 +501,13 @@ export class WorkOrder {
          _.set(data, 'EntityUids', _.get(entityInfo, 'EntityUids'))
          _.set(data, 'EntityType', _.get(entityInfo, 'EntityType'))
        } else {
-         reject(new CWError(8, 'No entity info was provided.', {'workorderSId': workOrderSId,'entityInfo': entityInfo}))
+         reject(CWError.validation(8, 'No entity info was provided.', {'workorderSId': workOrderSId,'entityInfo': entityInfo}))
          return
        }
 
        this.cw.runRequest('Ams/WorkOrder/RemoveEntities', data).then(r => {
          if(r.Status>0) {
-           reject(new CWError(4, r.Message, {'response': r}))
+           reject(new CWError(4, r.Message, {'response': r}, {category: 'api'}))
          } else {
            resolve(r.Value)
          }
@@ -576,7 +576,7 @@ export class WorkOrder {
         }
         this.cw.runRequest('Ams/WorkOrder/Close', data).then(r => {
           if(r.Status>0) {
-            reject(new CWError(5, r.Message, {'response': r}))
+            reject(new CWError(5, r.Message, {'response': r}, {category: 'api'}))
           } else {
             resolve(r.Value)
           }
@@ -620,7 +620,7 @@ export class WorkOrder {
        }
        this.cw.runRequest('Ams/WorkOrder/Delete', data).then(r => {
          if(r.Status>0) {
-           reject(new CWError(4, r.Message, {'response': r}))
+           reject(new CWError(4, r.Message, {'response': r}, {category: 'api'}))
          } else {
            resolve(r.Value)
          }
@@ -658,7 +658,7 @@ export class WorkOrder {
        }
        this.cw.runRequest(path, data).then(r => {
          if(r.Status>0) {
-           reject(new CWError(4, r.Message, {'response': r}))
+           reject(new CWError(4, r.Message, {'response': r}, {category: 'api'}))
          } else {
            resolve(r.Value)
          }
@@ -681,7 +681,7 @@ export class WorkOrder {
        _.set(data, 'WorkOrderId', workOrderId)
        this.cw.runRequest('Ams/WorkOrder/SearchObject', data).then(r => {
          if(r.Status>0) {
-           reject(new CWError(4, r.Message, {'response': r}))
+           reject(new CWError(4, r.Message, {'response': r}, {category: 'api'}))
          } else {
            resolve(r.Value)
          }
@@ -709,7 +709,7 @@ export class WorkOrder {
          _.set(data, 'DomainIds', domainIds)
        }
        if(!_.includes(['Supervisors', 'SubmitTos'], listType)) {
-         reject(new CWError(2, 'listType must be either SubmitTos or Supervisors.', {'provided': listType}))
+         reject(CWError.validation(2, 'listType must be either SubmitTos or Supervisors.', {'provided': listType}))
        } else {
          this.cw.runRequest(`Ams/WorkOrder/${listType}`, data).then(r => {
            resolve(r.Value)
@@ -920,7 +920,7 @@ export class WorkOrder {
           _.set(data, 'WorkOrderSid', workOrderSId)
         } else {
           // throw error - was not number or string
-          reject(new CWError(9, 'No workorder S/ID was provided.', {'workorderSId': workOrderSId}))
+          reject(CWError.validation(9, 'No workorder S/ID was provided.', {'workorderSId': workOrderSId}))
           return
         }
         if(_.isNumber(domainId)) {

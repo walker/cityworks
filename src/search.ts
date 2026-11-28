@@ -108,10 +108,10 @@ export class Search {
   getSaved(searchType: string, applyToEntities?: Array<string>, employeeSid?: number, domainId?: number) {
     return new Promise((resolve, reject) => {
       if(!_.has(this.searchTypes, searchType)) {
-        reject(new CWError(2, 'SearchType provided does not exist or is mispelled.', {'provided': searchType, 'available':this.searchTypes}))
+        reject(CWError.validation(2, 'SearchType provided does not exist or is mispelled.', {'provided': searchType, 'available':this.searchTypes}))
         return
       } else if(typeof(applyToEntities)!='undefined' && applyToEntities!=null && applyToEntities.length>0 && (typeof(employeeSid)!='undefined' || typeof(domainId)!='undefined')) {
-        reject(new CWError(3, 'You cannot specify both applyToEntities AND employeeSid/domainId'))
+        reject(CWError.validation(3, 'You cannot specify both applyToEntities AND employeeSid/domainId'))
         return
       }
       var data = {}
@@ -152,7 +152,7 @@ export class Search {
   displayFields(searchType: string) {
     return new Promise((resolve, reject) => {
       if(!_.has(this.searchTypes, searchType)) {
-        reject(new CWError(1, 'SearchType provided does not exist or is mispelled.', {'provided': searchType, 'available':this.searchTypes}))
+        reject(CWError.validation(1, 'SearchType provided does not exist or is mispelled.', {'provided': searchType, 'available':this.searchTypes}))
         return
       }
       var data = {
@@ -325,7 +325,7 @@ export class Search {
   saveDefinition(searchFor: string, options?: Object, searchId: number = 0) {
     return new Promise((resolve, reject) => {
       if(!_.has(this.searchTypes, searchFor)) {
-        reject(new CWError(1, 'SearchType provided does not exist or is mispelled.', {'provided': searchFor, 'available':this.searchTypes}))
+        reject(CWError.validation(1, 'SearchType provided does not exist or is mispelled.', {'provided': searchFor, 'available':this.searchTypes}))
         return
       }
       var data = {

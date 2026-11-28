@@ -39,7 +39,7 @@ export class Comments {
     this.activityTypes.set("Contract", 7)
 
     if(!this.activityTypes.has(activityType)) {
-      throw new CWError(1, 'Comment activity type not found.', {'provided': activityType, 'options':this.activityTypes})
+      throw CWError.validation(1, 'Comment activity type not found.', {'provided': activityType, 'options':this.activityTypes})
     }
     this.currentActivityType = activityType
   }
@@ -134,7 +134,7 @@ export class Comments {
         _.set(data, 'IsPublic', true)
         send()
       } else {
-        reject(new CWError(3, 'Case comments must be updated with isPublic or the case they belong to (activitySid), so their visibility is never changed by accident.', {'CommentId': id}))
+        reject(CWError.validation(3, 'Case comments must be updated with isPublic or the case they belong to (activitySid), so their visibility is never changed by accident.', {'CommentId': id}))
       }
     })
   }
@@ -164,7 +164,7 @@ export class Comments {
           reject(e)
         })
       } else {
-        reject(new CWError(2, 'At least one activity S/ID must be provided.', {'provided': sids}))
+        reject(CWError.validation(2, 'At least one activity S/ID must be provided.', {'provided': sids}))
       }
     })
   }

@@ -33,7 +33,7 @@ export class ContractorType {
   search(filters: ContractorTypeSearch) {
     return new Promise((resolve, reject) => {
       if(_.intersection(_.keysIn(filters), ['ContractorDesc', 'ContractorType', 'ContractorTypeId']).length === 0) {
-        reject(new CWError(1, 'At least one of the attributes (ContractorDesc, ContractorType, ContractorTypeId) must be defined.'))
+        reject(CWError.validation(1, 'At least one of the attributes (ContractorDesc, ContractorType, ContractorTypeId) must be defined.'))
         return
       }
       this.cw.runRequest('Pll/ContractorType/Search', filters).then(r => {
@@ -47,7 +47,7 @@ export class ContractorType {
   searchObject(filters: ContractorTypeSearch) {
     return new Promise((resolve, reject) => {
       if(_.intersection(_.keysIn(filters), ['ContractorDesc', 'ContractorType', 'ContractorTypeId']).length === 0) {
-        reject(new CWError(2, 'At least one of the attributes (ContractorDesc, ContractorType, ContractorTypeId) must be defined.'))
+        reject(CWError.validation(2, 'At least one of the attributes (ContractorDesc, ContractorType, ContractorTypeId) must be defined.'))
         return
       }
       this.cw.runRequest('Pll/ContractorType/SearchObject', filters).then(r => {
@@ -189,7 +189,7 @@ export class Contractor {
       }
 
       if(_.intersection(_.keysIn(contractorSids), ['BusinessName', 'ContractorId']).length === 0) {
-        reject(new CWError(3, 'At least one of the attributes (BusinessName, ContractorId) must be defined.'))
+        reject(CWError.validation(3, 'At least one of the attributes (BusinessName, ContractorId) must be defined.'))
         return
       }
 
